@@ -68,7 +68,49 @@ theme = "brf"
     parent = "mitt_boende"
 
   [[menu.main]]
-    name = "Kontakt"
-    identifier = "kontakt"
-    url = "/kontakt/"
+    name = "Innergård"
+    identifier = "innergard"
+    url = "/mitt-boende/innergard"
+    weight = 302
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Parkering"
+    identifier = "parkering"
+    url = "/mitt-boende/parkering"
+    weight = 303
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Bredband & telefoni"
+    identifier = "bredband"
+    url = "/mitt-boende/bredband"
+    weight = 303
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Avfallshantering"
+    identifier = "avfallshantering"
+    url = "/mitt-boende/avfallshantering"
+    weight = 304
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Trivselregler"
+    identifier = "trivselregler"
+    url = "/mitt-boende/trivselregler"
+    weight = 305
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Andrahandsuthyrning"
+    identifier = "andrahandsuthyrning"
+    url = "/mitt-boende/andrahandsuthyrning"
+    weight = 306
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Styrelsen"
+    identifier = "styrelsen"
+    url = "/styrelsen/"
     weight = 400
