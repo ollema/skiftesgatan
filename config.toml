@@ -1,5 +1,74 @@
-baseURL = 'https://skiftesgatan.com/'
-languageCode = 'en-us'
-title = 'Skiftesgatan'
-
+baseURL = "https://skiftesgatan.com/"
+DefaultContentLanguage = "sv"
+title = "Skiftesgatan"
 theme = "brf"
+
+[params]
+  AuthorName = "Olle Månsson"
+  GitHubUser = "ollema"
+  GitHubRepo = "https://github.com/ollema/skiftesgatan"
+
+  Description = "Välkommen till BRF Skiftesgatan 4 i Hisingen, Göteborg."
+
+  BrfName = "BRF Skiftesgatan 4"
+  BrfLocation = "Hisingen, Göteborg"
+
+[menu]
+  [[menu.main]]
+    name = "Nyheter"
+    identifier = "nyheter"
+    url = "/nyheter/"
+    weight = 100
+
+  [[menu.main]]
+    name = "Föreningen"
+    identifier = "foreningen"
+    url = "/foreningen/"
+    weight = 200
+
+  [[menu.main]]
+    name = "Om föreningen"
+    identifier = "om_foreningen"
+    url = "/foreningen/om-foreningen"
+    weight = 201
+    parent = "foreningen"
+
+  [[menu.main]]
+    name = "Fastigheter"
+    identifier = "fastigheter"
+    url = "/foreningen/fastigheter"
+    weight = 202
+    parent = "foreningen"
+
+  [[menu.main]]
+    name = "Stadgar"
+    identifier = "stadgar"
+    url = "/foreningen/stadgar"
+    weight = 203
+    parent = "foreningen"
+
+  [[menu.main]]
+    name = "Ekonomi"
+    identifier = "ekonomi"
+    url = "/foreningen/ekonomi"
+    weight = 204
+    parent = "foreningen"
+
+  [[menu.main]]
+    name = "Mitt boende"
+    identifier = "mitt_boende"
+    url = "/mitt-boende/"
+    weight = 300
+
+  [[menu.main]]
+    name = "Tvättstuga"
+    identifier = "tvattstuga"
+    url = "/mitt-boende/tvattstuga"
+    weight = 301
+    parent = "mitt_boende"
+
+  [[menu.main]]
+    name = "Kontakt"
+    identifier = "kontakt"
+    url = "/kontakt/"
+    weight = 400
