@@ -1,0 +1,5 @@
+baseURL = 'https://skiftesgatan.com/'
+languageCode = 'en-us'
+title = 'Skiftesgatan'
+
+theme = "brf"
