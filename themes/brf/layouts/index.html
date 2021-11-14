@@ -2,7 +2,32 @@
 <main>
   <div class="welcome-splash">
     <h1 class="display-5 pt-5 text-center">{{.Site.Params.BrfName}}</h1>
-    <h4 class="display-5 text-center">{{.Site.Params.BrfLocation}}</span>
+    <h4 class="display-6 text-center">{{.Site.Params.BrfLocation}}</span>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      {{ range .Site.Menus.main }}
+      <div class="col-lg-3">
+        <div class="row nav-cards">
+          <div class="col-lg-12 mt-4 mb-0">
+            <div class="nav-card-header h6">{{ .Name }}</div>
+          </div>
+          {{ if .HasChildren }}
+          {{ range .Children }}
+          <a class="col-lg-12" href="{{ .URL }}">
+            <div class="nav-card">{{ .Name }}</div>
+          </a>
+          {{ end }}
+          {{ else }}
+          <a class="col-lg-12" href="{{ .URL }}">
+            <div class="nav-card">{{ .Name }}</div>
+          </a>
+          {{ end }}
+        </div>
+      </div>
+      {{ end }}
+    </div>
   </div>
 </main>
 {{ end }}

@@ -1,6 +1,6 @@
 <header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+    <div class="container">
       <a class="navbar-brand" href="{{ .Site.BaseURL }}">{{ .Site.Params.BrfName }}</a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
@@ -20,7 +20,7 @@
             </ul>
           </li>
           {{ else }}
-          <li class="nav-item"><a class="nav-link" href="{{ .URL }}">{{ .Name }}</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ .URL }}">{{ .Name }}</a></li>
           {{ end }}
           {{ end }}
         </ul>

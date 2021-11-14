@@ -3,6 +3,8 @@ DefaultContentLanguage = "sv"
 title = "Skiftesgatan"
 theme = "brf"
 
+pluralizeListTitles = false
+
 [params]
   AuthorName = "Olle Månsson"
   GitHubUser = "ollema"
@@ -57,7 +59,6 @@ theme = "brf"
   [[menu.main]]
     name = "Mitt boende"
     identifier = "mitt_boende"
-    url = "/mitt-boende/"
     weight = 300
 
   [[menu.main]]
@@ -85,32 +86,32 @@ theme = "brf"
     name = "Bredband & telefoni"
     identifier = "bredband"
     url = "/mitt-boende/bredband"
-    weight = 303
+    weight = 304
     parent = "mitt_boende"
 
   [[menu.main]]
     name = "Avfallshantering"
     identifier = "avfallshantering"
     url = "/mitt-boende/avfallshantering"
-    weight = 304
+    weight = 305
     parent = "mitt_boende"
 
   [[menu.main]]
     name = "Trivselregler"
     identifier = "trivselregler"
     url = "/mitt-boende/trivselregler"
-    weight = 305
+    weight = 306
     parent = "mitt_boende"
 
   [[menu.main]]
     name = "Andrahandsuthyrning"
     identifier = "andrahandsuthyrning"
     url = "/mitt-boende/andrahandsuthyrning"
-    weight = 306
+    weight = 307
     parent = "mitt_boende"
 
   [[menu.main]]
     name = "Styrelsen"
     identifier = "styrelsen"
-    url = "/styrelsen/"
+    url = "/styrelsen"
     weight = 400
