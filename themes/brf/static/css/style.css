@@ -15,10 +15,6 @@ footer {
 }
 
 /* navbar */
-.navbar .nav-item:not(:last-child) {
-  margin-right: 35px;
-}
-
 .dropdown-toggle::after {
    transition: transform 0.15s linear;
 }

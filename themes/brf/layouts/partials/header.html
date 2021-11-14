@@ -1,39 +1,30 @@
 <header>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ .Site.BaseURL }}">{{ .Site.Params.BrfName }}</a>
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ .Site.BaseURL }}">{{ .Site.Params.BrfName }}</a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        {{ range .Site.Menus.main }}
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {{ range .Site.Menus.main }}
           {{ if .HasChildren }}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="dropdown-{{ .Identifier }}" role="button" data-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ .Pre }}
-                <span>{{ .Name }}</span>
-              </a>
-              <div class="dropdown-menu" aria-labelledby="dropdown-{{ .Identifier  }}">
-                {{ range .Children }}
-                  <a class="dropdown-item" href="{{ .URL }}">
-                    {{ .Pre }}
-                    <span>{{ .Name }}</span>
-                  </a>
-                {{ end }}
-              </div>
-            </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown-{{ .Identifier }}" role="button" data-bs-toggle="dropdown">{{ .Name }}</a>
+            <ul class="dropdown-menu">
+              {{ range .Children }}
+              <li><a class="dropdown-item" href="{{ .URL }}">{{ .Name }}</li></a>
+              {{ end }}
+            </ul>
+          </li>
           {{ else }}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ .URL }}">
-                {{ .Pre }}
-                <span>{{ .Name }}</span>
-              </a>
-            </li>
+          <li class="nav-item"><a class="nav-link" href="{{ .URL }}">{{ .Name }}</span></a></li>
           {{ end }}
-        {{ end }}
-      </ul>
+          {{ end }}
+        </ul>
+      </div>
     </div>
   </nav>
 </header>
