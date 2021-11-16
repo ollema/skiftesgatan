@@ -27,7 +27,7 @@ a:hover {
 .welcome-splash {
   height: 33vh;
   min-height: 120px;
-  background-image: url("/images/map.png");
+  background-image: url("/images/map.webp");
   background-size: cover;
   background-position: center bottom;
   text-shadow: 0 0 10px white, 0 0 10px white, 0 0 10px white, 0 0 10px white, 0 0 10px white;
