@@ -59,4 +59,4 @@ jobs:
           server: https://skiftesgatan.com
           app: ${{ matrix.app }}
           token: ${{ secrets[matrix.token_name] }}
-          image: ${{ matrix.image }}:latest
+          image: ${{ steps.meta.outputs.tags }}
