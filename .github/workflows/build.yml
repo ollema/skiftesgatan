@@ -21,11 +21,11 @@ jobs:
           - app: skiftesgatan
             dockerfile: ./Dockerfile
             image: ghcr.io/ollema/skiftesgatan
-            token: ${{ secrets.APP_TOKEN_SKIFTESGATAN }}
+            token_name: APP_TOKEN_SKIFTESGATAN
           - app: pocketbase
             dockerfile: ./Dockerfile.pocketbase
             image: ghcr.io/ollema/skiftesgatan-pocketbase
-            token: ${{ secrets.APP_TOKEN_POCKETBASE }}
+            token_name: APP_TOKEN_POCKETBASE
 
     steps:
       - name: Checkout
@@ -58,5 +58,5 @@ jobs:
         with:
           server: https://skiftesgatan.com
           app: ${{ matrix.image }}
-          token: ${{ matrix.token }}
+          token: ${{ secrets[matrix.token_name] }}
           image: ${{ matrix.image }}:latest
