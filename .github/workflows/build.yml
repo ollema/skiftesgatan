@@ -57,6 +57,6 @@ jobs:
         uses: caprover/deploy-from-github@v1.1.2
         with:
           server: https://skiftesgatan.com
-          app: ${{ matrix.image }}
+          app: ${{ matrix.app }}
           token: ${{ secrets[matrix.token_name] }}
           image: ${{ matrix.image }}:latest
