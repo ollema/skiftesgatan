@@ -38,11 +38,6 @@ FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
-# add tini
-ENV TINI_VERSION v0.19.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-
 # set port
 ENV PORT=3000
 EXPOSE ${PORT}
@@ -51,5 +46,8 @@ EXPOSE ${PORT}
 USER node
 ENV NODE_ENV=production
 
-ENTRYPOINT ["/tini", "--"]
+# add tini
+RUN apk add --no-cache tini
+ENTRYPOINT ["/sbin/tini", "--"]
+
 CMD [ "node", "build" ]
