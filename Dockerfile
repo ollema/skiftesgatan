@@ -38,6 +38,9 @@ FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 
+# add tini
+RUN apk add --no-cache tini
+
 # set port
 ENV PORT=3000
 EXPOSE ${PORT}
@@ -46,8 +49,5 @@ EXPOSE ${PORT}
 USER node
 ENV NODE_ENV=production
 
-# add tini
-RUN apk add --no-cache tini
 ENTRYPOINT ["/sbin/tini", "--"]
-
 CMD [ "node", "build" ]
