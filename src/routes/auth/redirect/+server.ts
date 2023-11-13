@@ -33,12 +33,22 @@ export const GET = async ({ locals, url, cookies }) => {
 		.collection('users')
 		.authWithOAuth2Code(provider.name, code, provider.codeVerifier, env.AUTH_REDIRECT_URL);
 
-	// update the user's record with the data from the auth provider
-	if (meta?.name && record.name == '') {
-		await locals.pb.collection('users').update(record.id, { name: meta.name });
-	}
-	if (meta?.id) {
-		await locals.pb.collection('users').update(record.id, { username: meta.id });
+	// update the user's name and avatar with data from the provider
+	if (meta && meta.name && meta.avatarUrl) {
+		const formData = new FormData();
+
+		// update name
+		formData.append('name', record.name === '' ? meta.name : record.name);
+
+		// update avatar
+		console.log(meta.avatarUrl);
+		const response = await fetch(meta.avatarUrl);
+		if (response.ok) {
+			const file = await response.blob();
+			formData.append('avatar', file);
+		}
+
+		await locals.pb.collection('users').update(record.id, formData);
 	}
 
 	// refresh the auth store
