@@ -27,6 +27,8 @@ export const actions = {
 			maxAge: 60 * 5 // 5 minutes
 		});
 
-		throw redirect(302, provider.authUrl + env.AUTH_REDIRECT_URL);
+		const redirectUrl = provider.authUrl + env.AUTH_REDIRECT_URL;
+
+		throw redirect(302, redirectUrl);
 	}
 };

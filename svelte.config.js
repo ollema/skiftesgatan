@@ -9,9 +9,9 @@ const config = {
 			out: 'build',
 			precompress: true
 		}),
-    csrf: {
-      checkOrigin: process.env.NODE_ENV === 'development' ? false : true
-    }
+		csrf: {
+			checkOrigin: process.env.NODE_ENV === 'development' ? false : true
+		}
 	}
 };
 

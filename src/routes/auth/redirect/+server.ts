@@ -33,20 +33,12 @@ export const GET = async ({ locals, url, cookies }) => {
 		.collection('users')
 		.authWithOAuth2Code(provider.name, code, provider.codeVerifier, env.AUTH_REDIRECT_URL);
 
-	// update the user's name and avatar with data from the provider
-	if (meta && meta.name && meta.avatarUrl) {
+	// update the user's name with data from the provider if needed
+	if (record.name === '' && meta && meta.name) {
 		const formData = new FormData();
 
 		// update name
-		formData.append('name', record.name === '' ? meta.name : record.name);
-
-		// update avatar
-		console.log(meta.avatarUrl);
-		const response = await fetch(meta.avatarUrl);
-		if (response.ok) {
-			const file = await response.blob();
-			formData.append('avatar', file);
-		}
+		formData.append('name', meta.name);
 
 		await locals.pb.collection('users').update(record.id, formData);
 	}

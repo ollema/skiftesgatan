@@ -10,8 +10,7 @@ export async function handle({ event, resolve }) {
 			event.locals.user = {
 				id: record.id,
 				username: record.username,
-				name: record.name,
-				avatar: record.avatar
+				name: record.name
 			};
 		}
 	}
