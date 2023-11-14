@@ -1,4 +1,7 @@
 <script>
+	import '@fontsource-variable/lora';
+	import '@fontsource-variable/nunito-sans';
+
 	import '../app.postcss';
 
 	import { SiteFooter, SiteHeader } from '$lib/components';

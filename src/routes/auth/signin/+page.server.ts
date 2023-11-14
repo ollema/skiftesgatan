@@ -1,12 +1,6 @@
 import { fail, error, redirect } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 
-export const load = async ({ locals }) => {
-	return {
-		providers: (await locals.pb.collection('users').listAuthMethods()).authProviders
-	};
-};
-
 export const actions = {
 	default: async ({ locals, request, cookies }) => {
 		const { authProviders } = await locals.pb.collection('users').listAuthMethods();

@@ -55,7 +55,8 @@ const config = {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
-				sans: [...fontFamily.sans]
+				sans: ['Nunito Sans Variable', ...fontFamily.sans],
+        serif: ['Lora Variable', ...fontFamily.serif]
 			}
 		}
 	}
