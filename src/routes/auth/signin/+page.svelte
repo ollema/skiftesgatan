@@ -10,17 +10,17 @@
 	];
 </script>
 
-<div>
-	<h2>Logga in</h2>
+<div class="flex flex-col items-center justify-center pt-8">
+	<h2 class="mb-2">Logga in</h2>
 
-	<p>Logga in med ett av följande konton:</p>
+	<p class="mb-4">Logga in med ett av följande konton:</p>
 
-	<div class="flex gap-3">
+	<div class="flex flex-col gap-4 sm:flex-row">
 		{#each providers as provider}
 			<form method="post">
 				<input type="hidden" name="authProvider" value={provider.name} />
-				<Button variant="outline" class="flex gap-2" type="submit">
-					<div class="h-4 w-4">
+				<Button variant="outline" class="w-52" type="submit">
+					<div class="mr-2 h-4 w-4">
 						<svelte:component this={provider.icon} />
 					</div>
 					<div class="font-sans font-semibold">
