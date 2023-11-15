@@ -21,7 +21,7 @@
 						{user.name}
 					</a>
 				{:else}
-					<a href="/auth/signin" class="hover:underline"> Sign in </a>
+					<a href="/auth/signin" class="hover:underline">Logga in</a>
 				{/if}
 			</div>
 		</div>
