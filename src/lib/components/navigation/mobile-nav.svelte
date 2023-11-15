@@ -1,13 +1,16 @@
 <script lang="ts">
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Button } from '$lib/components/ui/button';
-	import { siteConfig, navigation } from '$lib/config';
+	import { HamburgerMenu } from 'radix-icons-svelte';
 	import MobileLink from './mobile-link.svelte';
-	import { page } from '$app/stores';
+	import { siteConfig, navigation } from '$lib/config';
+	import { afterNavigate } from '$app/navigation';
 
 	let open = false;
 
-	$: admin = $page.data.session?.role === 'admin';
+	afterNavigate(() => {
+		open = false;
+	});
 </script>
 
 <Sheet.Root bind:open>
@@ -15,35 +18,37 @@
 		<Button
 			builders={[builder]}
 			variant="ghost"
-			class="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+			class="mr-4 px-0 text-white hover:bg-transparent hover:text-white/80 md:hidden"
 		>
-			<!-- <SquareHalf class="h-5 w-5" /> -->
-			<span class="sr-only">Toggle Menu</span>
+			<HamburgerMenu class="h-5 w-5" />
 		</Button>
+
+		<a
+			class="mr-4 hidden text-2xl font-bold text-white hover:underline min-[350px]:block md:hidden"
+			href="/"
+		>
+			{siteConfig.name}
+		</a>
 	</Sheet.Trigger>
-	<Sheet.Content side="left" class="pr-0">
-		<MobileLink href="/" class="flex items-center" bind:open>
-			<span class="font-bold">{siteConfig.name}</span>
-		</MobileLink>
-		<div class="my-4 h-[calc(100vh-8rem)] overflow-auto pb-10 pl-6">
-			<div class="flex flex-col space-y-2">
-				{#each navigation as navItem, index (index)}
-					{#if !navItem.protected || admin}
-						<div class="flex flex-col space-y-3 pt-6">
-							<h4 class="font-medium">{navItem.title}</h4>
-							{#if navItem?.items?.length}
-								{#each navItem.items as item}
-									{#if !item.disabled && item.href}
-										<MobileLink href={item.href} bind:open>
-											{item.title}
-										</MobileLink>
-									{/if}
-								{/each}
-							{/if}
+
+	<Sheet.Content side="left" class="bg-foreground pr-0 text-white">
+		<a class="mr-4 text-2xl font-bold text-white hover:underline" href="/">
+			{siteConfig.name}
+		</a>
+
+		<div class="flex flex-col gap-2 pt-4">
+			{#each navigation as navItem}
+				<div>
+					<MobileLink class="text-lg" href={navItem.href} title={navItem.title} />
+					{#if navItem.items.length > 0}
+						<div class="flex flex-col gap-1 pb-2">
+							{#each navItem.items as subNavItem}
+								<MobileLink class="pl-2" href={subNavItem.href} title={subNavItem.title} />
+							{/each}
 						</div>
 					{/if}
-				{/each}
-			</div>
+				</div>
+			{/each}
 		</div>
 	</Sheet.Content>
 </Sheet.Root>

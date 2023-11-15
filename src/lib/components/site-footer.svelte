@@ -4,7 +4,7 @@
 
 <footer class="flex h-14 items-center border-t-2 bg-foreground">
 	<div class="container flex items-center justify-between gap-4">
-		<div class="text-white">
+		<div class="text-sm text-white md:text-base">
 			Byggd av
 			<a
 				href="https://github.com/ollema"
@@ -14,7 +14,7 @@
 			>
 				Olle
 			</a>
-			för BRF Skiftesgatan 4.
+			<div class="hidden min-[350px]:inline">för BRF Skiftesgatan 4.</div>
 		</div>
 		<LightSwitch />
 	</div>

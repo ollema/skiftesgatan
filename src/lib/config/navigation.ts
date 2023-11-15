@@ -1,53 +1,55 @@
 export type NavItem = {
 	title: string;
-	href?: string;
-	disabled?: boolean;
-	external?: boolean;
-	label?: string;
-	protected?: boolean;
+	href: string;
 	items: NavItem[];
+	protected?: boolean;
 };
 
 export const navigation: NavItem[] = [
 	{
-		title: 'Membership',
+		title: 'Nyheter',
+		href: '/news',
+		items: []
+	},
+	{
+		title: 'Information',
+		href: '/info',
 		items: [
 			{
-				title: 'Profile',
-				href: '/profile',
+				title: 'Om föreningen',
+				href: '/info/about',
 				items: []
 			},
 			{
-				title: 'Agreements',
-				href: '/agreements',
+				title: 'Ekonomi',
+				href: '/info/economy',
 				items: []
 			},
 			{
-				title: 'Artifacts',
-				href: '/artifacts',
+				title: 'Renoveringar',
+				href: '/info/renovations',
 				items: []
 			},
 			{
-				title: 'Commissions',
-				href: '/commissions',
+				title: 'Stadgar',
+				href: '/info/bylaws',
 				items: []
 			},
 			{
-				title: 'Invoices',
-				href: '/invoices',
+				title: 'Styrelsen',
+				href: '/info/board',
 				items: []
 			}
 		]
 	},
 	{
-		title: 'Admin',
-		protected: true,
-		items: [
-			{
-				title: 'Members',
-				href: '/admin/members',
-				items: []
-			}
-		]
+		title: 'Tvättstuga',
+		href: '/laundry',
+		items: []
+	},
+	{
+		title: 'Kontakt',
+		href: '/contact',
+		items: []
 	}
 ];

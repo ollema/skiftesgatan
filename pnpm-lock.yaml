@@ -56,8 +56,8 @@ devDependencies:
     specifier: ^2.35.0
     version: 2.35.0(eslint@8.53.0)(svelte@4.2.3)
   mode-watcher:
-    specifier: ^0.1.0
-    version: 0.1.0(svelte@4.2.3)
+    specifier: ^0.1.1
+    version: 0.1.1(svelte@4.2.3)
   postcss:
     specifier: ^8.4.31
     version: 8.4.31
@@ -1651,8 +1651,8 @@ packages:
       minimist: 1.2.8
     dev: true
 
-  /mode-watcher@0.1.0(svelte@4.2.3):
-    resolution: {integrity: sha512-ba5qr0aZUZ6sthnRASXX1xUkbwDM8KD1psTLTR6Jq0e+1DBEYTWmRhcPP/Z7vaoY+P6+8VDOvsAbI+Rsy8FGvg==}
+  /mode-watcher@0.1.1(svelte@4.2.3):
+    resolution: {integrity: sha512-11B0IDiJE5lbWsCGAIpBSkD5TtzCooBHvIMNWsuTeAlBHL6HWLb55aslCcx939v8qUymjFgDtpQ70CU1JU73lg==}
     peerDependencies:
       svelte: ^4.0.0
     dependencies:

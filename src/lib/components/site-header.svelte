@@ -10,7 +10,7 @@
 		<MainNav />
 		<MobileNav />
 		<div class="flex flex-1 items-center justify-end">
-			<div class="flex items-center gap-3 text-white text-lg font-semibold">
+			<div class="flex items-center gap-3 text-lg font-semibold text-white">
 				{#if user}
 					<a href="/profile" class="hover:underline">
 						{user.name}
