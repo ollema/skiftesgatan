@@ -3,7 +3,7 @@
 	import * as PageHeader from '$lib/components/page-header';
 
 	const title = 'BRF Skiftesgatan 4';
-	const description = 'En bostadsrättsförening i Hisingen, Göteborg';
+	const description = 'En bostadsrättsförening i Hisingen, Göteborg.';
 </script>
 
 <MetaTags {title} {description} />
