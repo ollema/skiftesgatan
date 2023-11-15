@@ -2,8 +2,8 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import * as PageHeader from '$lib/components/page-header';
 
-	const title = 'BRF Skiftesgatan 4';
-	const description = 'En bostadsrättsförening i Hisingen, Göteborg';
+	const title = 'Information';
+	const description = 'Allmän information';
 </script>
 
 <MetaTags {title} {description} />

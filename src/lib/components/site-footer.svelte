@@ -2,10 +2,10 @@
 	import { LightSwitch } from '$lib/components/light-switch';
 </script>
 
-<footer class="flex h-14 items-center border-t">
+<footer class="flex h-14 items-center border-t-2 bg-foreground">
 	<div class="container flex items-center justify-between gap-4">
-		<div class="text-center text-sm leading-loose text-muted-foreground md:text-left">
-			Built by
+		<div class="text-white">
+			Byggd av
 			<a
 				href="https://github.com/ollema"
 				class="font-semibold hover:underline"
@@ -14,15 +14,7 @@
 			>
 				Olle
 			</a>
-			for
-			<a
-				href="https://skiftesgatan.com"
-				class="font-semibold hover:underline"
-				target="_blank"
-				rel="external"
-			>
-				BRF Skiftesgatan 4.
-			</a>
+			för BRF Skiftesgatan 4.
 		</div>
 		<LightSwitch />
 	</div>

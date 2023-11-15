@@ -9,6 +9,17 @@
 	import { ModeWatcher } from 'mode-watcher';
 
 	export let data;
+
+	// TODO: remove when it's not needed
+	import { onMount } from 'svelte';
+	import { mode } from 'mode-watcher';
+
+	onMount(() => {
+		const unsubscriber = mode.subscribe(() => {});
+		return () => {
+			unsubscriber();
+		};
+	});
 </script>
 
 <ModeWatcher />

@@ -3,7 +3,7 @@
 </script>
 
 <nav class="hidden items-center gap-4 md:flex">
-	<a class="text-lg font-bold tracking-tight hover:underline" href="/">
+	<a class="text-white text-2xl font-bold hover:underline" href="/">
 		{siteConfig.name}
 	</a>
 </nav>

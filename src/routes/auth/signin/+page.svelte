@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { MetaTags } from 'svelte-meta-tags';
 	import { Button } from '$lib/components/ui/button';
 
 	import GoogleIcon from './GoogleIcon.svelte';
@@ -8,7 +9,12 @@
 		{ name: 'google', label: 'Logga in med Google', icon: GoogleIcon },
 		{ name: 'facebook', label: 'Logga in med Facebook', icon: FacebookIcon }
 	];
+
+	const title = 'Logga in';
+	const description = 'Logga in som boende i BRF Skiftesgatan 4';
 </script>
+
+<MetaTags {title} {description} />
 
 <div class="flex flex-col items-center justify-center pt-8">
 	<h2 class="mb-2">Logga in</h2>

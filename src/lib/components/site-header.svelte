@@ -5,17 +5,12 @@
 	export let user: User | undefined;
 </script>
 
-<header
-	class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
->
+<header class="sticky top-0 z-40 w-full border-b-2 bg-foreground">
 	<div class="container flex h-14 items-center">
 		<MainNav />
 		<MobileNav />
-		<div class="flex flex-1 items-center justify-between space-x-2 sm:space-x-4 md:justify-end">
-			<div class="w-full flex-1 md:w-auto md:flex-none">
-				<!-- command menu here? -->
-			</div>
-			<div class="flex items-center gap-3">
+		<div class="flex flex-1 items-center justify-end">
+			<div class="flex items-center gap-3 text-white text-lg font-semibold">
 				{#if user}
 					<a href="/profile" class="hover:underline">
 						{user.name}
