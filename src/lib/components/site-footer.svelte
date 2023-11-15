@@ -2,9 +2,9 @@
 	import { LightSwitch } from '$lib/components/light-switch';
 </script>
 
-<footer class="flex h-14 items-center border-t-2 bg-foreground">
+<footer class="flex h-14 items-center border-t-2 bg-banner">
 	<div class="container flex items-center justify-between gap-4">
-		<div class="text-sm text-white md:text-base">
+		<div class="text-sm text-banner-foreground md:text-base">
 			Byggd av
 			<a
 				href="https://github.com/ollema"

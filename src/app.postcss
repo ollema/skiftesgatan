@@ -16,6 +16,9 @@
 		--card: 0 0% 100%;
 		--card-foreground: 240 10% 3.9%;
 
+		--banner: 112 11% 40%;
+		--banner-foreground: 0 0% 98%;
+
 		--border: 110 19% 50%;
 		--input: 110 19% 50%;
 
@@ -73,8 +76,14 @@
 		@apply border-border;
 	}
 
+	/* need to set this for overscroll to look nice */
 	body {
-		@apply bg-foreground text-foreground;
+		@apply bg-banner text-banner-foreground;
+	}
+
+	/* but these are the actual background/foreground colors */
+	body > div > div {
+		@apply bg-background text-foreground;
 	}
 
 	h1 {

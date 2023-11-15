@@ -5,12 +5,12 @@
 	export let user: User | undefined;
 </script>
 
-<header class="sticky top-0 z-40 w-full border-b-2 bg-foreground">
+<header class="sticky top-0 z-40 w-full border-b-2 bg-banner">
 	<div class="container flex h-14 items-center">
 		<MainNav />
 		<MobileNav />
 		<div class="flex flex-1 items-center justify-end">
-			<div class="flex items-center gap-3 text-lg font-semibold text-white">
+			<div class="flex items-center gap-3 text-lg font-semibold text-banner-foreground">
 				{#if user}
 					<a href="/profile" class="hover:underline">
 						{user.name}

@@ -13,7 +13,7 @@
 
 <ModeWatcher />
 
-<div class="relative flex min-h-screen flex-col bg-background">
+<div class="relative flex min-h-screen flex-col">
 	<SiteHeader user={data.user} />
 
 	<div class="container min-h-[calc(100vh-3.5rem)]">

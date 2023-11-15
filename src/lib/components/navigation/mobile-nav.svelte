@@ -18,21 +18,21 @@
 		<Button
 			builders={[builder]}
 			variant="ghost"
-			class="mr-4 px-0 text-white hover:bg-transparent hover:text-white/80 md:hidden"
+			class="mr-4 px-0 text-banner-foreground hover:bg-transparent hover:text-banner-foreground/80 md:hidden"
 		>
 			<HamburgerMenu class="h-5 w-5" />
 		</Button>
 
 		<a
-			class="mr-4 hidden text-2xl font-bold text-white hover:underline min-[350px]:block md:hidden"
+			class="mr-4 hidden text-2xl font-bold text-banner-foreground hover:underline min-[350px]:block md:hidden"
 			href="/"
 		>
 			{siteConfig.name}
 		</a>
 	</Sheet.Trigger>
 
-	<Sheet.Content side="left" class="bg-foreground pr-0 text-white">
-		<a class="mr-4 text-2xl font-bold text-white hover:underline" href="/">
+	<Sheet.Content side="left" class="bg-banner p-3 pl-4 text-banner-foreground">
+		<a class="mr-4 text-xl font-bold text-banner-foreground hover:underline" href="/">
 			{siteConfig.name}
 		</a>
 

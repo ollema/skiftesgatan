@@ -12,8 +12,8 @@
 <a
 	{href}
 	class={cn(
-		'font-semibold transition-colors hover:text-white hover:underline',
-		$page.url.pathname.startsWith(href) ? 'text-white' : 'text-white/60',
+		'font-semibold transition-colors hover:text-banner-foreground hover:underline',
+		$page.url.pathname.startsWith(href) ? 'text-banner-foreground' : 'text-banner-foreground/60',
 		className
 	)}
 >

@@ -11,7 +11,7 @@
 		<Button
 			builders={[builder]}
 			variant="outline"
-			class="text-white hover:bg-[#72896E] hover:text-accent"
+			class="text-banner-foreground hover:bg-[#72896E] hover:text-accent"
 			size="icon"
 		>
 			<Sun class="h-[1.2rem] w-[1.2rem] scale-100 dark:scale-0" />
