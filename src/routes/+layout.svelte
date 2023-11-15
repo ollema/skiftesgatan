@@ -14,7 +14,7 @@
 <ModeWatcher />
 
 <div class="relative flex min-h-screen flex-col">
-	<SiteHeader user={data.user} />
+	<SiteHeader user={data.user} apartment={data.apartment} />
 
 	<div class="container min-h-[calc(100vh-3.5rem)]">
 		<main class="py-6">

@@ -2,8 +2,10 @@
 	import MainLink from './main-link.svelte';
 	import { navigation } from '$lib/config';
 	import type { User } from '$lib/types';
+	import type { ApartmentsResponse } from '$lib/pocketbase-types';
 
 	export let user: User | undefined;
+	export let apartment: ApartmentsResponse | undefined;
 </script>
 
 <div class="hidden w-full items-center justify-between text-banner-foreground md:flex">
@@ -16,7 +18,7 @@
 	<div class="text-lg font-semibold">
 		{#if user}
 			<a href="/profile" class="hover:underline">
-				{user.name}
+				{user.name} ({apartment?.apartment || '?'})
 			</a>
 		{:else}
 			<a href="/auth/signin" class="hover:underline">Logga in</a>

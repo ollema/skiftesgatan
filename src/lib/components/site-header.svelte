@@ -2,8 +2,10 @@
 	import { MainNav, MobileNav } from '$lib/components/navigation';
 	import { siteConfig } from '$lib/config';
 	import type { User } from '$lib/types';
+	import type { ApartmentsResponse } from '$lib/pocketbase-types';
 
 	export let user: User | undefined;
+	export let apartment: ApartmentsResponse | undefined;
 </script>
 
 <header class="sticky top-0 z-40 w-full border-b-2 bg-banner">
@@ -14,7 +16,7 @@
 		>
 			{siteConfig.name}
 		</a>
-		<MainNav {user} />
+		<MainNav {user} {apartment} />
 		<MobileNav {user} />
 	</div>
 </header>
