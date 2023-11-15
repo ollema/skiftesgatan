@@ -1,25 +1,25 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { cn } from '$lib/utils';
-	import { siteConfig } from '$lib/config/site';
+	import MainLink from './main-link.svelte';
 	import { navigation } from '$lib/config';
+	import type { User } from '$lib/types';
+
+	export let user: User | undefined;
 </script>
 
-<nav class="hidden items-center gap-4 md:flex">
-	<a class="mr-4 text-2xl font-bold text-banner-foreground hover:underline" href="/">
-		{siteConfig.name}
-	</a>
-	{#each navigation as navItem}
-		<a
-			class={cn(
-				'text-lg font-semibold transition-colors hover:text-banner-foreground hover:underline',
-				$page.url.pathname.startsWith(navItem.href)
-					? 'text-banner-foreground'
-					: 'text-banner-foreground/60'
-			)}
-			href={navItem.href}
-		>
-			{navItem.title}
-		</a>
-	{/each}
-</nav>
+<div class="hidden w-full items-center justify-between text-banner-foreground md:flex">
+	<nav class="flex items-center gap-4">
+		{#each navigation as navItem}
+			<MainLink {navItem} />
+		{/each}
+	</nav>
+
+	<div class="text-lg font-semibold">
+		{#if user}
+			<a href="/profile" class="hover:underline">
+				{user.name}
+			</a>
+		{:else}
+			<a href="/auth/signin" class="hover:underline">Logga in</a>
+		{/if}
+	</div>
+</div>

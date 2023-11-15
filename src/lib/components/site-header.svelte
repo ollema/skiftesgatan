@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { MainNav, MobileNav } from '$lib/components/navigation';
+	import { siteConfig } from '$lib/config';
 	import type { User } from '$lib/types';
 
 	export let user: User | undefined;
@@ -7,18 +8,13 @@
 
 <header class="sticky top-0 z-40 w-full border-b-2 bg-banner">
 	<div class="container flex h-14 items-center">
-		<MainNav />
-		<MobileNav />
-		<div class="flex flex-1 items-center justify-end">
-			<div class="flex items-center gap-3 text-lg font-semibold text-banner-foreground">
-				{#if user}
-					<a href="/profile" class="hover:underline">
-						{user.name}
-					</a>
-				{:else}
-					<a href="/auth/signin" class="hover:underline">Logga in</a>
-				{/if}
-			</div>
-		</div>
+		<a
+			class="mr-6 flex-shrink-0 text-2xl font-bold text-banner-foreground hover:underline min-[350px]:block"
+			href="/"
+		>
+			{siteConfig.name}
+		</a>
+		<MainNav {user} />
+		<MobileNav {user} />
 	</div>
 </header>
