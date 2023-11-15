@@ -56,7 +56,7 @@ const config = {
 			},
 			fontFamily: {
 				sans: ['Nunito Sans Variable', ...fontFamily.sans],
-        serif: ['Lora Variable', ...fontFamily.serif]
+				serif: ['Lora Variable', ...fontFamily.serif]
 			}
 		}
 	}
