@@ -17,6 +17,6 @@
 			{siteConfig.name}
 		</a>
 		<MainNav {user} {apartment} />
-		<MobileNav {user} />
+		<MobileNav {user} {apartment} />
 	</div>
 </header>

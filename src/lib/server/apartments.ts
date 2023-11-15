@@ -5,7 +5,7 @@ export async function getApartmentForUser(pb: TypedPocketBase, user: User) {
 	try {
 		const apartment = await pb
 			.collection(Collections.Apartments)
-			.getFirstListItem(`owners.id ?= "${user.id}"`);
+			.getFirstListItem(pb.filter('owners.id ?= {:user}', { user: user.id }));
 		return apartment;
 	} catch (e) {
 		return undefined;
