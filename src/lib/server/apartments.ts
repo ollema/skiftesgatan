@@ -2,7 +2,7 @@ import type { TypedPocketBase, ApartmentsResponse, UsersResponse } from '$lib/po
 import { Collections } from '$lib/pocketbase-types';
 import type { User } from '$lib/types';
 
-export async function getApartmentForUser(pb: TypedPocketBase, user: User) {
+export async function maybeGetApartmentForUser(pb: TypedPocketBase, user: User) {
 	try {
 		const apartment = await pb
 			.collection(Collections.Apartments)
