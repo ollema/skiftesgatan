@@ -6,6 +6,8 @@
 
 	export let user: User | undefined;
 	export let apartment: ApartmentsResponse | undefined;
+
+	$: apartmentHref = apartment ? `/apartments/${apartment.apartment}` : '/';
 </script>
 
 <div class="hidden w-full items-center justify-between text-banner-foreground md:flex">
@@ -17,7 +19,7 @@
 
 	<div class="text-lg font-semibold">
 		{#if user}
-			<a href="/profile" class="hover:underline">
+			<a href={apartmentHref} class="hover:underline">
 				{user.name} ({apartment?.apartment || '?'})
 			</a>
 		{:else}

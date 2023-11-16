@@ -1,4 +1,5 @@
-import { type TypedPocketBase, Collections } from '$lib/pocketbase-types';
+import type { TypedPocketBase, ApartmentsResponse, UsersResponse } from '$lib/pocketbase-types';
+import { Collections } from '$lib/pocketbase-types';
 import type { User } from '$lib/types';
 
 export async function getApartmentForUser(pb: TypedPocketBase, user: User) {
@@ -10,4 +11,18 @@ export async function getApartmentForUser(pb: TypedPocketBase, user: User) {
 	} catch (e) {
 		return undefined;
 	}
+}
+
+type Texpand = {
+	owners: UsersResponse[];
+	subtenants: UsersResponse[];
+};
+
+export async function getApartment(pb: TypedPocketBase, apartment: string) {
+	return await pb
+		.collection(Collections.Apartments)
+		.getFirstListItem<ApartmentsResponse<Texpand>>(
+			pb.filter('apartment = {:apartment}', { apartment: apartment }),
+			{ expand: 'owners,subtentants' }
+		);
 }
