@@ -12,7 +12,6 @@
 <PageHeader.Root>
 	<PageHeader.Heading>
 		<PageHeader.Title>{title}</PageHeader.Title>
-		<PageHeader.Description>{description}</PageHeader.Description>
 	</PageHeader.Heading>
 </PageHeader.Root>
 

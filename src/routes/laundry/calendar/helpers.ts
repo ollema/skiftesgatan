@@ -1,11 +1,10 @@
 import {
 	CalendarDate,
-	CalendarDateTime,
 	ZonedDateTime,
-	getLocalTimeZone
+	getLocalTimeZone,
+	DateFormatter,
+	type DateValue
 } from '@internationalized/date';
-
-export type DateValue = CalendarDate | CalendarDateTime | ZonedDateTime;
 
 export function getTodaysDate() {
 	const date = new Date();
@@ -38,4 +37,11 @@ export function getWeekFromDate(date: DateValue) {
 	const week = Math.ceil(((d.getTime() - yearStart.getTime()) / msPerDay + 1) / 7);
 
 	return week;
+}
+
+export function formatDayOfWeek(
+	date: Date,
+	length: Intl.DateTimeFormatOptions['weekday'] = 'short'
+) {
+	return new DateFormatter('sv-SE', { weekday: length }).format(date);
 }
