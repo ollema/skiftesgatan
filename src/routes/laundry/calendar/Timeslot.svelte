@@ -9,7 +9,7 @@
 	const baseClasses = 'h-4 rounded-sm border border-dashed p-0 text-xs hover:border-solid';
 	const selectedClasses =
 		'bg-foreground text-background border-background hover:bg-foreground hover:text-background hover:border-background';
-	const classes = `${baseClasses} ${selected ? selectedClasses : ''}`;
+	$: classes = `${baseClasses} ${selected ? selectedClasses : ''}`;
 </script>
 
 <div class="block min-[500px]:hidden">

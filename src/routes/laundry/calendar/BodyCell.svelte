@@ -33,7 +33,7 @@
 	use:melt={builder}
 	{...attrs}
 	{...$$restProps}
-	class="flex justify-between bg-background p-1 data-[disabled]:cursor-default data-[selected]:bg-foreground data-[disabled]:text-foreground/40 data-[selected]:text-background"
+	class="flex justify-between bg-background p-1 focus:ring focus:ring-foreground data-[disabled]:cursor-default data-[selected]:bg-foreground data-[disabled]:text-foreground/40 data-[selected]:text-background"
 >
 	<div>
 		{date.day}
