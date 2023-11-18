@@ -11,7 +11,7 @@
 {#if asChild}
 	<slot {attrs} />
 {:else}
-	<th {...$$restProps} {...attrs} class="p-0">
+	<th {...$$restProps} {...attrs} class="bg-background p-0 text-foreground">
 		<slot />
 	</th>
 {/if}

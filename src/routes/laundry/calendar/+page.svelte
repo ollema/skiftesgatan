@@ -2,13 +2,12 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import * as PageHeader from '$lib/components/page-header';
 	import * as Calendar from '$lib/components/calendar';
-	import HeadCell from './HeadCell.svelte';
 	import BodyCell from './BodyCell.svelte';
 	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import { getTodaysDate, toDate } from './helpers';
+	import { getTodaysDate } from './helpers';
 
 	const value = getTodaysDate();
 	const minValue = value;
@@ -32,6 +31,7 @@
 <Calendar.Root
 	class="mx-auto w-full max-w-screen-lg font-serif"
 	let:months
+	let:daysOfWeek
 	{value}
 	{minValue}
 	{maxValue}
@@ -52,9 +52,9 @@
 		<Calendar.Grid class="grid w-full grid-cols-7 gap-[1px] bg-foreground">
 			<Calendar.GridHead class="contents">
 				<Calendar.GridRow class="contents">
-					{#each months[0].weeks[0].map((d) => toDate(d)) as dayOfWeek}
-						<Calendar.GridHeadCell>
-							<HeadCell {dayOfWeek} />
+					{#each daysOfWeek as day}
+						<Calendar.GridHeadCell class="bg-background text-foreground">
+							{day}
 						</Calendar.GridHeadCell>
 					{/each}
 				</Calendar.GridRow>
