@@ -33,7 +33,7 @@
 	use:melt={builder}
 	{...attrs}
 	{...$$restProps}
-	class="flex justify-between bg-background p-1 focus:ring focus:ring-foreground data-[disabled]:cursor-default data-[selected]:bg-foreground data-[disabled]:text-foreground/40 data-[selected]:text-background"
+	class="flex justify-between bg-background p-1 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground"
 >
 	<div class="h-[25px] grow-0 sm:h-20">
 		{date.day}
@@ -49,3 +49,17 @@
 		</div>
 	{/if}
 </div>
+
+<style lang="postcss">
+	[data-melt-calendar-cell][data-selected] {
+		@apply bg-foreground text-background;
+	}
+
+	[data-melt-calendar-cell][data-disabled] {
+		@apply pointer-events-none bg-background/95 text-foreground/80;
+	}
+
+	[data-melt-calendar-cell][data-outside-visible-months] {
+		@apply pointer-events-none cursor-default bg-background/80 text-foreground/70;
+	}
+</style>

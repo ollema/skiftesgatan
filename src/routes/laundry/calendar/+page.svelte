@@ -7,7 +7,7 @@
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import { getTodaysDate } from './helpers';
+	import { formatDayOfWeek, getTodaysDate, toDate } from './helpers';
 
 	const value = getTodaysDate();
 	const minValue = value;
@@ -31,7 +31,6 @@
 <Calendar.Root
 	class="mx-auto w-full max-w-screen-lg font-serif"
 	let:months
-	let:daysOfWeek
 	{value}
 	{minValue}
 	{maxValue}
@@ -52,9 +51,9 @@
 		<Calendar.Grid class="grid w-full grid-cols-7 gap-[1px] bg-foreground">
 			<Calendar.GridHead class="contents">
 				<Calendar.GridRow class="contents">
-					{#each daysOfWeek as day}
+					{#each months[0].weeks[0].map((d) => toDate(d)) as dayOfWeek}
 						<Calendar.GridHeadCell>
-							{day}
+							<div class="w-full overflow-hidden">{formatDayOfWeek(dayOfWeek)}</div>
 						</Calendar.GridHeadCell>
 					{/each}
 				</Calendar.GridRow>
