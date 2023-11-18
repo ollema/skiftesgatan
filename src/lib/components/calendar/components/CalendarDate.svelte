@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { melt } from "@melt-ui/svelte";
-	import { getCtx, getAttrs } from "../ctx.js";
-	import type { DateProps } from "../types.js";
+	import { melt } from '@melt-ui/svelte';
+	import { getCtx, getAttrs } from '../ctx.js';
+	import type { DateProps } from '../types.js';
 
 	type $$Props = DateProps;
 
-	export let date: $$Props["date"];
-	export let month: $$Props["month"];
-	export let asChild: $$Props["asChild"] = false;
+	export let date: $$Props['date'];
+	export let month: $$Props['month'];
+	export let asChild: $$Props['asChild'] = false;
 
 	const {
 		elements: { cell },
@@ -15,7 +15,7 @@
 	} = getCtx();
 
 	$: builder = $cell(date, month);
-	const attrs = getAttrs("date");
+	const attrs = getAttrs('date');
 
 	$: slotProps = {
 		builder,

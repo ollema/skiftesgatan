@@ -11,7 +11,7 @@
 {#if asChild}
 	<slot {attrs} />
 {:else}
-	<th {...$$restProps} {...attrs}>
+	<th {...$$restProps} {...attrs} class="p-0">
 		<slot />
 	</th>
 {/if}

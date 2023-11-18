@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { melt } from "@melt-ui/svelte";
-	import { getAttrs, getCtx } from "../ctx.js";
-	import type { NextButtonProps } from "../types.js";
+	import { melt } from '@melt-ui/svelte';
+	import { getAttrs, getCtx } from '../ctx.js';
+	import type { NextButtonProps } from '../types.js';
 
 	type $$Props = NextButtonProps;
 
-	export let asChild: $$Props["asChild"] = false;
+	export let asChild: $$Props['asChild'] = false;
 
 	const {
 		elements: { nextButton }
 	} = getCtx();
 
 	$: builder = $nextButton;
-	const attrs = getAttrs("next-button");
+	const attrs = getAttrs('next-button');
 </script>
 
 {#if asChild}

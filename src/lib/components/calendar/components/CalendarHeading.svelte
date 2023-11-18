@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { melt } from "@melt-ui/svelte";
-	import { getAttrs, getCtx } from "../ctx.js";
-	import type { HeadingProps } from "../types.js";
+	import { melt } from '@melt-ui/svelte';
+	import { getAttrs, getCtx } from '../ctx.js';
+	import type { HeadingProps } from '../types.js';
 
 	type $$Props = HeadingProps;
 
-	export let asChild: $$Props["asChild"] = false;
+	export let asChild: $$Props['asChild'] = false;
 
 	const {
 		elements: { heading },
@@ -13,7 +13,7 @@
 	} = getCtx();
 
 	$: builder = $heading;
-	const attrs = getAttrs("heading");
+	const attrs = getAttrs('heading');
 </script>
 
 {#if asChild}
