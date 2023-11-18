@@ -12,16 +12,10 @@
 	$: classes = `${baseClasses} ${selected ? selectedClasses : ''}`;
 </script>
 
-<div class="block min-[500px]:hidden">
+<div class="flex justify-end sm:hidden">
 	<Square class="h-[5px] w-[5px]" />
 </div>
 
-<Button variant="ghost" class="hidden min-[500px]:block md:hidden {classes}" {disabled}>
-	{timeslot.start.replace(':00', '')}
-</Button>
-
-<Button variant="ghost" class="hidden md:block {classes}" {disabled}>
+<Button variant="ghost" class="hidden sm:block {classes}" {disabled}>
 	{timeslot.start.replace(':00', '')} - {timeslot.end.replace(':00', '')}
 </Button>
-
-<style lang="postcss"></style>
