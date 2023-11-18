@@ -53,7 +53,7 @@
 			<Calendar.GridHead class="contents">
 				<Calendar.GridRow class="contents">
 					{#each daysOfWeek as day}
-						<Calendar.GridHeadCell class="bg-background text-foreground">
+						<Calendar.GridHeadCell>
 							{day}
 						</Calendar.GridHeadCell>
 					{/each}
