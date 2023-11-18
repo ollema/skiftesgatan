@@ -3,6 +3,8 @@
 	import * as PageHeader from '$lib/components/page-header';
 	import Calendar from './Calendar.svelte';
 
+	export let data;
+
 	const title = 'Tvättstuga - bokningar';
 	const description = 'Bokade tider i vår tvättstuga';
 </script>
@@ -15,4 +17,4 @@
 	</PageHeader.Heading>
 </PageHeader.Root>
 
-<Calendar />
+<Calendar timeslots={data.timeslots} />

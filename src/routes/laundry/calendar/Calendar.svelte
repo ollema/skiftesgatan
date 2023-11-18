@@ -1,16 +1,19 @@
 <script lang="ts">
-	import Cell from './Cell.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
+	import Header from './Header.svelte';
+	import CalendarHeaderCell from './CalendarHeaderCell.svelte';
+	import CalendarBodyCell from './CalendarBodyCell.svelte';
+
 	import { createCalendar, melt } from '@melt-ui/svelte';
-	import { formatDayOfWeek, getTodaysDate, getWeekFromDate, toDate } from './helpers';
+	import { getTodaysDate, getWeekFromDate, toDate } from './helpers';
+
+	export let timeslots: { start: string; end: string }[];
 
 	const locale = 'sv-SE';
 	const todaysDate = getTodaysDate();
 
 	const {
 		elements: { calendar, heading, grid, cell, prevButton, nextButton },
-		states: { months, headingValue, daysOfWeek },
+		states: { months, headingValue },
 		helpers: { isDateDisabled, isDateUnavailable }
 	} = createCalendar({
 		defaultValue: todaysDate,
@@ -20,51 +23,21 @@
 		preventDeselect: true,
 		locale: locale
 	});
-
-	const timeslots = [
-		{
-			start: '07:00',
-			end: '11:00'
-		},
-		{
-			start: '11:00',
-			end: '15:00'
-		},
-		{
-			start: '15:00',
-			end: '19:00'
-		},
-		{
-			start: '19:00',
-			end: '22:00'
-		}
-	];
 </script>
 
 <div use:melt={$calendar} class="w-full rounded-lg p-3 font-serif">
-	<header class="flex w-full items-center justify-center pb-2">
-		<Button builders={[$prevButton]} variant="ghost"><ChevronLeft /></Button>
-		<div use:melt={$heading}>
-			{$headingValue}
-		</div>
-		<Button builders={[$nextButton]} variant="ghost"><ChevronRight /></Button>
-	</header>
+	<Header {heading} {headingValue} {prevButton} {nextButton}></Header>
 
 	{#each $months as month}
 		<table use:melt={$grid}>
 			<thead aria-hidden="true" class="contents">
 				<tr class="contents">
-					<th class="hidden bg-background md:block">v</th>
+					<!-- week number header cell-->
+					<th class="hidden bg-background text-center md:block">v</th>
+
+					<!-- actual header cells -->
 					{#each $months[0].weeks[0].map((d) => toDate(d)) as dayOfWeek}
-						<th class="capitalize sm:hidden">
-							{formatDayOfWeek(dayOfWeek, 'narrow')}
-						</th>
-						<th class="hidden capitalize sm:block md:hidden">
-							{formatDayOfWeek(dayOfWeek, 'short')}
-						</th>
-						<th class="hidden capitalize md:block">
-							{formatDayOfWeek(dayOfWeek, 'long')}
-						</th>
+						<CalendarHeaderCell {dayOfWeek} />
 					{/each}
 				</tr>
 			</thead>
@@ -72,22 +45,22 @@
 			<tbody class="contents">
 				{#each month.weeks as weekDates}
 					<tr class="contents">
-						<td class="hidden bg-background md:block">
+						<!-- week number body cell-->
+						<td class="hidden bg-background text-center md:block">
 							{getWeekFromDate(weekDates[3])}
 						</td>
+
+						<!-- actual body cells -->
 						{#each weekDates as date}
-							<td
-								role="gridcell"
-								aria-disabled={$isDateDisabled(date) || $isDateUnavailable(date)}
-								class="bg-background"
-							>
-								<div
-									use:melt={$cell(date, month.value)}
-									class="flex w-full cursor-pointer select-none items-center justify-center border-2 border-transparent hover:bg-accent/20 focus:border-foreground/60 data-[selected]:border-foreground"
-								>
-									<Cell {date} {todaysDate} {timeslots} />
-								</div>
-							</td>
+							<CalendarBodyCell
+								{date}
+								{month}
+								{todaysDate}
+								{timeslots}
+								{isDateDisabled}
+								{isDateUnavailable}
+								{cell}
+							/>
 						{/each}
 					</tr>
 				{/each}
