@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 pb-1" viewBox="0 0 119.06 119.06">
+<svg
+	xmlns="http://www.w3.org/2000/svg"
+	class="h-[1.73rem] w-[1.73rem] pl-[0.1rem]"
+	viewBox="0 0 119.06 119.06"
+>
 	<path
 		fill="currentColor"
 		class="cls-1"
