@@ -1,8 +1,8 @@
 <script lang="ts">
+	import MobileItem from './mobile-item.svelte';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Button } from '$lib/components/ui/button';
 	import { HamburgerMenu } from 'radix-icons-svelte';
-	import MobileLink from './mobile-link.svelte';
 	import { siteConfig, navigation } from '$lib/config';
 	import { afterNavigate } from '$app/navigation';
 	import type { Apartment, User } from '$lib/types';
@@ -38,20 +38,13 @@
 						{siteConfig.name}
 					</a>
 
-					<div class="flex flex-col gap-2 pt-4">
+					<ol class="list-non flex flex-col gap-2 pt-4">
 						{#each navigation as navItem}
 							<div>
-								<MobileLink class="text-lg" href={navItem.href} title={navItem.title} />
-								{#if navItem.items.length > 0}
-									<div class="flex flex-col gap-1 pb-2">
-										{#each navItem.items as subNavItem}
-											<MobileLink class="pl-2" href={subNavItem.href} title={subNavItem.title} />
-										{/each}
-									</div>
-								{/if}
+								<MobileItem {navItem} />
 							</div>
 						{/each}
-					</div>
+					</ol>
 				</div>
 
 				<div class="text-lg font-semibold">
