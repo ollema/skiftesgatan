@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { melt } from '@melt-ui/svelte';
-	import { getAttrs, getCtx } from '../ctx.js';
-	import type { PrevButtonProps } from '../types.js';
+	import { getAttrs, getCtx } from '../ctx';
+	import type { PrevButtonProps } from '../types';
 
 	type $$Props = PrevButtonProps;
 

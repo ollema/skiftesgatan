@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getCtx, getAttrs } from '../ctx.js';
-	import type { GridBodyCellProps } from '../types.js';
+	import { getCtx, getAttrs } from '../ctx';
+	import type { GridBodyCellProps } from '../types';
 
 	type $$Props = GridBodyCellProps;
 

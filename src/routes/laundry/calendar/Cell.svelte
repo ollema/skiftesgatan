@@ -4,14 +4,18 @@
 	import { getCtx, getAttrs } from '$lib/components/calendar/ctx';
 	import type { DateProps } from '$lib/components/calendar/types';
 	import { isToday } from '@internationalized/date';
+	import { timeslots } from './timeslots';
+	import type { SerializableReservationMap } from './types';
 
 	type $$Props = DateProps & {
-		timeslots: { start: string; end: string }[];
+		reservations: SerializableReservationMap | undefined;
+		apartment: string | undefined;
 	};
 
 	export let date: $$Props['date'];
 	export let month: $$Props['month'];
-	export let timeslots: { start: string; end: string }[];
+	export let reservations: SerializableReservationMap | undefined;
+	export let apartment: string | undefined;
 
 	const {
 		elements: { cell },
@@ -48,7 +52,12 @@
 		<div>
 			<div class="flex h-full flex-col justify-center gap-[1px] sm:gap-[4px]">
 				{#each timeslots as timeslot}
-					<Timeslot {timeslot} disabled={slotProps.disabled} />
+					<Timeslot
+						{date}
+						{timeslot}
+						reservation={reservations ? reservations[timeslot.start.toString()] : undefined}
+						{apartment}
+					/>
 				{/each}
 			</div>
 		</div>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { melt } from '@melt-ui/svelte';
-	import { getCtx, getAttrs } from '../ctx.js';
-	import type { DateProps } from '../types.js';
+	import { getCtx, getAttrs } from '../ctx';
+	import type { DateProps } from '../types';
 
 	type $$Props = DateProps;
 

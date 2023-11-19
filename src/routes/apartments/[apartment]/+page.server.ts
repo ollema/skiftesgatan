@@ -1,4 +1,4 @@
-import { getApartment } from '$lib/server/apartments.js';
+import { getApartment } from '$lib/server/apartments';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ locals, params }) => {

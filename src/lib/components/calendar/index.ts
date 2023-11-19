@@ -38,4 +38,4 @@ export {
 	NextButton as CalendarNextButton,
 	PrevButton as CalendarPrevButton
 };
-export * from './types.js';
+export * from './types';

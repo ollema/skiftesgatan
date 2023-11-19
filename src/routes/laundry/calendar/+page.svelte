@@ -8,6 +8,7 @@
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { formatDay, formatDayOfWeek, getTodaysDate, toDate } from './helpers';
+	import { timeslots } from './timeslots';
 	import Timeslot from './Timeslot.svelte';
 
 	const today = getTodaysDate();
@@ -62,7 +63,12 @@
 					<Calendar.GridRow class="contents">
 						{#each weekDates as date}
 							<Calendar.GridBodyCell {date}>
-								<Cell {date} month={month.value} timeslots={data.timeslots} />
+								<Cell
+									{date}
+									month={month.value}
+									reservations={data.reservations[date.toString()]}
+									apartment={data.apartment}
+								/>
 							</Calendar.GridBodyCell>
 						{/each}
 					</Calendar.GridRow>
@@ -76,9 +82,17 @@
 			<h4 class="font-serif">
 				{formatDay(toDate(value))}
 			</h4>
-			<div class="mt-1 flex gap-2">
-				{#each data.timeslots as timeslot}
-					<Timeslot {timeslot} disabled={false} responsive={false} />
+			<div class="mt-2 flex gap-2">
+				{#each timeslots as timeslot}
+					<Timeslot
+						date={value}
+						{timeslot}
+						reservation={data.reservations[value.toString()]
+							? data.reservations[value.toString()][timeslot.start.toString()]
+							: undefined}
+						apartment={data.apartment}
+						responsive={false}
+					/>
 				{/each}
 			</div>
 		</div>

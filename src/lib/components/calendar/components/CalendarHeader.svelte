@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getAttrs } from '../ctx.js';
-	import type { HeaderProps } from '../types.js';
+	import { getAttrs } from '../ctx';
+	import type { HeaderProps } from '../types';
 	type $$Props = HeaderProps;
 	export let asChild: $$Props['asChild'] = false;
 

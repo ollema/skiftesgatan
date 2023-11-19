@@ -7,6 +7,7 @@ import type { RecordService } from 'pocketbase';
 
 export enum Collections {
 	Apartments = 'apartments',
+	Reservations = 'reservations',
 	Users = 'users'
 }
 
@@ -41,6 +42,16 @@ export type ApartmentsRecord = {
 	subtenants?: RecordIdString[];
 };
 
+export enum ReservationsTypeOptions {
+	'laundry' = 'laundry'
+}
+export type ReservationsRecord = {
+	apartment: RecordIdString;
+	end: IsoDateString;
+	start: IsoDateString;
+	type: ReservationsTypeOptions;
+};
+
 export type UsersRecord = {
 	avatar?: string;
 	name?: string;
@@ -49,17 +60,21 @@ export type UsersRecord = {
 // Response types include system fields and match responses from the PocketBase API
 export type ApartmentsResponse<Texpand = unknown> = Required<ApartmentsRecord> &
 	BaseSystemFields<Texpand>;
+export type ReservationsResponse<Texpand = unknown> = Required<ReservationsRecord> &
+	BaseSystemFields<Texpand>;
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>;
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
 	apartments: ApartmentsRecord;
+	reservations: ReservationsRecord;
 	users: UsersRecord;
 };
 
 export type CollectionResponses = {
 	apartments: ApartmentsResponse;
+	reservations: ReservationsResponse;
 	users: UsersResponse;
 };
 
@@ -68,5 +83,6 @@ export type CollectionResponses = {
 
 export type TypedPocketBase = PocketBase & {
 	collection(idOrName: 'apartments'): RecordService<ApartmentsResponse>;
+	collection(idOrName: 'reservations'): RecordService<ReservationsResponse>;
 	collection(idOrName: 'users'): RecordService<UsersResponse>;
 };

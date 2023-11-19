@@ -1,10 +1,15 @@
 import {
+	parseDateTime,
 	CalendarDate,
 	ZonedDateTime,
 	getLocalTimeZone,
 	DateFormatter,
 	type DateValue
 } from '@internationalized/date';
+
+export function parsePocketBaseDateTime(pbdt: string) {
+	return parseDateTime(pbdt.replace(' ', 'T').replace('Z', ''));
+}
 
 export function getTodaysDate() {
 	const date = new Date();

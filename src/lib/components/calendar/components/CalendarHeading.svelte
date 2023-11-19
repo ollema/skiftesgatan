@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { melt } from '@melt-ui/svelte';
-	import { getAttrs, getCtx } from '../ctx.js';
-	import type { HeadingProps } from '../types.js';
+	import { getAttrs, getCtx } from '../ctx';
+	import type { HeadingProps } from '../types';
 
 	type $$Props = HeadingProps;
 

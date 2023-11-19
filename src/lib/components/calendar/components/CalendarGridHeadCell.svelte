@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getAttrs } from '../ctx.js';
-	import type { GridHeadCellProps } from '../types.js';
+	import { getAttrs } from '../ctx';
+	import type { GridHeadCellProps } from '../types';
 
 	type $$Props = GridHeadCellProps;
 	export let asChild: $$Props['asChild'] = false;

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Logo from './logo.svelte';
 	import { MainNav, MobileNav } from '$lib/components/navigation';
-	import { siteConfig } from '$lib/config';
 	import type { User } from '$lib/types';
 	import type { ApartmentsResponse } from '$lib/pocketbase-types';
 

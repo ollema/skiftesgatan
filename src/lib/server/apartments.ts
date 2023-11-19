@@ -4,10 +4,9 @@ import type { User } from '$lib/types';
 
 export async function maybeGetApartmentForUser(pb: TypedPocketBase, user: User) {
 	try {
-		const apartment = await pb
+		return await pb
 			.collection(Collections.Apartments)
 			.getFirstListItem(pb.filter('owners.id ?= {:user}', { user: user.id }));
-		return apartment;
 	} catch (e) {
 		return undefined;
 	}

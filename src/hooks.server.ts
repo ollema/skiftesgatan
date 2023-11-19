@@ -1,5 +1,6 @@
 import PocketBase from 'pocketbase';
 import type { TypedPocketBase } from '$lib/pocketbase-types';
+import { maybeGetApartmentForUser } from '$lib/server/apartments';
 
 export async function handle({ event, resolve }) {
 	event.locals.pb = new PocketBase('https://pocketbase.skiftesgatan.com') as TypedPocketBase;
@@ -13,6 +14,15 @@ export async function handle({ event, resolve }) {
 				username: record.username,
 				name: record.name
 			};
+			if (event.locals.user) {
+				const apartment = await maybeGetApartmentForUser(event.locals.pb, event.locals.user);
+				if (apartment) {
+					event.locals.apartment = {
+						id: apartment.id,
+						apartment: apartment.apartment
+					};
+				}
+			}
 		}
 	}
 
