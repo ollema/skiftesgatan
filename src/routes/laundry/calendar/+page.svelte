@@ -2,7 +2,7 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import * as PageHeader from '$lib/components/page-header';
 	import * as Calendar from '$lib/components/calendar';
-	import BodyCell from './BodyCell.svelte';
+	import Cell from './Cell.svelte';
 	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
 
 	import { cn } from '$lib/utils';
@@ -63,7 +63,7 @@
 					<Calendar.GridRow class="contents">
 						{#each weekDates as date}
 							<Calendar.GridBodyCell {date}>
-								<BodyCell {date} month={month.value} timeslots={data.timeslots} />
+								<Cell {date} month={month.value} timeslots={data.timeslots} />
 							</Calendar.GridBodyCell>
 						{/each}
 					</Calendar.GridRow>
