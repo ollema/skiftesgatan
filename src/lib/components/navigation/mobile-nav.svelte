@@ -5,11 +5,10 @@
 	import MobileLink from './mobile-link.svelte';
 	import { siteConfig, navigation } from '$lib/config';
 	import { afterNavigate } from '$app/navigation';
-	import type { User } from '$lib/types';
-	import type { ApartmentsResponse } from '$lib/pocketbase-types';
+	import type { Apartment, User } from '$lib/types';
 
 	export let user: User | undefined;
-	export let apartment: ApartmentsResponse | undefined;
+	export let apartment: Apartment | undefined;
 
 	let open = false;
 

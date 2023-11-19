@@ -1,11 +1,10 @@
 <script lang="ts">
 	import MainLink from './main-link.svelte';
 	import { navigation } from '$lib/config';
-	import type { User } from '$lib/types';
-	import type { ApartmentsResponse } from '$lib/pocketbase-types';
+	import type { Apartment, User } from '$lib/types';
 
 	export let user: User | undefined;
-	export let apartment: ApartmentsResponse | undefined;
+	export let apartment: Apartment | undefined;
 
 	$: apartmentHref = apartment ? `/apartments/${apartment.apartment}` : '/';
 </script>
