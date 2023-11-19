@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Square } from 'radix-icons-svelte';
 	import { enhance } from '$app/forms';
 	import { toCalendarDateTime, type DateValue } from '@internationalized/date';
 	import type { Timeslot } from './timeslots';
@@ -18,22 +17,22 @@
 		return hour.toString().padStart(2, '0');
 	}
 
-	$: responsiveSquareClass = responsive ? 'sm:hidden' : 'hidden';
-	$: reservedSquareClass = reservation ? 'bg-background' : '';
-
 	$: disabled = reservation !== undefined && reservation.apartment !== apartment;
 </script>
 
-<div class="flex justify-end {responsiveSquareClass} {reservedSquareClass}">
-	<Square class="h-[5px] w-[5px]" />
-</div>
+<div
+	class="hidden h-[4px] w-[4px] items-center justify-end border border-foreground/60"
+	class:responsive-square={responsive}
+	class:reserved-square={reservation}
+	class:disabled-square={disabled}
+></div>
 
 <form method="POST" use:enhance action="?/reserve">
 	<input type="hidden" name="start" value={start.toString() + 'Z'} />
 	<input type="hidden" name="end" value={end.toString() + 'Z'} />
 
 	<button
-		class="flex h-4 w-12 items-center justify-center rounded-sm border border-dashed p-0 text-xs hover:border-solid"
+		class="flex h-4 w-12 items-center justify-center rounded-sm border border-dashed border-foreground/60 p-0 text-xs hover:border-solid"
 		class:responsive-button={responsive}
 		class:reserved-button={reservation}
 		class:disabled-button={disabled}
@@ -49,6 +48,10 @@
 </form>
 
 <style lang="postcss">
+	.responsive-square {
+		@apply flex sm:hidden;
+	}
+
 	.responsive-button {
 		@apply hidden sm:block;
 	}
@@ -57,7 +60,15 @@
 		@apply border-solid bg-foreground text-background opacity-100;
 	}
 
+	.reserved-square {
+		@apply bg-foreground;
+	}
+
 	.disabled-button {
+		@apply opacity-70;
+	}
+
+	.disabled-square {
 		@apply opacity-70;
 	}
 </style>
