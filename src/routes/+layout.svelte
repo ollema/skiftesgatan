@@ -6,12 +6,8 @@
 
 	import { SiteFooter, SiteHeader } from '$lib/components';
 
-	import { ModeWatcher } from 'mode-watcher';
-
 	export let data;
 </script>
-
-<ModeWatcher />
 
 <div class="relative flex min-h-screen flex-col">
 	<SiteHeader user={data.user} apartment={data.apartment} />

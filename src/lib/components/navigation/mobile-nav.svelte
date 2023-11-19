@@ -15,6 +15,8 @@
 	afterNavigate(() => {
 		open = false;
 	});
+
+	$: apartmentHref = apartment ? `/apartments/${apartment.apartment}` : '/';
 </script>
 
 <div class="flex w-full items-center justify-end md:hidden">
@@ -54,8 +56,8 @@
 
 				<div class="text-lg font-semibold">
 					{#if user}
-						<a href="/profile" class="hover:underline">
-							{user.name} ({apartment?.apartment || '?'})
+						<a href={apartmentHref} class="hover:underline">
+							{apartment?.apartment || user.name}
 						</a>
 					{:else}
 						<a href="/auth/signin" class="hover:underline">Logga in</a>

@@ -45,7 +45,18 @@ export const navigation: NavItem[] = [
 	{
 		title: 'Tvättstuga',
 		href: '/laundry',
-		items: []
+		items: [
+			{
+				title: 'Kalender',
+				href: '/laundry/calendar',
+				items: []
+			},
+			{
+				title: 'Om tvättstugan',
+				href: '/laundry/about',
+				items: []
+			}
+		]
 	},
 	{
 		title: 'Kontakt',
