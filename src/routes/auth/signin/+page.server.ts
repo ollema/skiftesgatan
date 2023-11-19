@@ -6,12 +6,16 @@ export const actions = {
 		const { authProviders } = await locals.pb.collection('users').listAuthMethods();
 
 		const data = await request.formData();
+
 		const authProvider = data.get('authProvider');
 		if (!authProvider) {
 			return fail(400, { authProvider, missing: true });
 		}
 
-		const provider = authProviders.find((method) => method.name === authProvider);
+		interface AuthMethod {
+			name: string;
+		}
+		const provider = authProviders.find((method: AuthMethod) => method.name === authProvider);
 		if (!provider) {
 			throw error(500, `unknown auth provider: ${authProvider}`);
 		}
