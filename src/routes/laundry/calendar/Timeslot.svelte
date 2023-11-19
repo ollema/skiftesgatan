@@ -10,8 +10,8 @@
 	export let apartment: string | undefined;
 	export let responsive = true;
 
-	const start = toCalendarDateTime(date, timeslot.start);
-	const end = toCalendarDateTime(date, timeslot.end);
+	$: start = toCalendarDateTime(date, timeslot.start);
+	$: end = toCalendarDateTime(date, timeslot.end);
 
 	function hourToString(hour: number) {
 		return hour.toString().padStart(2, '0');
