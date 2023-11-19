@@ -7,12 +7,10 @@
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import { formatDayOfWeek, getTodaysDate, toDate } from './helpers';
+	import { formatDay, formatDayOfWeek, getTodaysDate, toDate } from './helpers';
+	import Timeslot from './Timeslot.svelte';
 
-	const value = getTodaysDate();
-	const minValue = value;
-	const maxValue = value.add({ months: 1 });
-	const locale = 'sv-SE';
+	const today = getTodaysDate();
 
 	export let data;
 
@@ -30,11 +28,12 @@
 
 <Calendar.Root
 	class="mx-auto w-full max-w-screen-lg font-serif"
+	let:value
 	let:months
-	{value}
-	{minValue}
-	{maxValue}
-	{locale}
+	value={today}
+	minValue={today}
+	maxValue={today.add({ months: 1 })}
+	locale={'sv-SE'}
 	fixedWeeks={true}
 	preventDeselect={true}
 >
@@ -48,7 +47,7 @@
 		</Calendar.NextButton>
 	</Calendar.Header>
 	{#each months as month}
-		<Calendar.Grid class="grid w-full grid-cols-7 gap-[1px] bg-foreground">
+		<Calendar.Grid class="grid w-full grid-cols-7 gap-[1px] bg-foreground p-[1px]">
 			<Calendar.GridHead class="contents">
 				<Calendar.GridRow class="contents">
 					{#each months[0].weeks[0].map((d) => toDate(d)) as dayOfWeek}
@@ -71,4 +70,17 @@
 			</Calendar.GridBody>
 		</Calendar.Grid>
 	{/each}
+
+	{#if value}
+		<div class="mt-4">
+			<h4 class="font-serif">
+				{formatDay(toDate(value))}
+			</h4>
+			<div class="mt-1 flex gap-2">
+				{#each data.timeslots as timeslot}
+					<Timeslot {timeslot} disabled={false} responsive={false} />
+				{/each}
+			</div>
+		</div>
+	{/if}
 </Calendar.Root>

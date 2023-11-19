@@ -3,19 +3,21 @@
 	import { Square } from 'radix-icons-svelte';
 
 	export let timeslot: { start: string; end: string };
-	export let selected: boolean;
 	export let disabled: boolean;
+	export let responsive = true;
 
-	const baseClasses = 'h-4 rounded-sm border border-dashed p-0 text-xs hover:border-solid';
-	const selectedClasses =
-		'bg-foreground text-background border-background hover:bg-foreground hover:text-background hover:border-background';
-	$: classes = `${baseClasses} ${selected ? selectedClasses : ''}`;
+	$: responsiveSquareClass = responsive ? 'sm:hidden' : 'hidden';
+	$: responsiveButtonClasses = responsive ? 'hidden sm:block' : '';
 </script>
 
-<div class="flex justify-end sm:hidden">
+<div class="flex justify-end {responsiveSquareClass}">
 	<Square class="h-[5px] w-[5px]" />
 </div>
 
-<Button variant="ghost" class="hidden sm:block {classes}" {disabled}>
+<Button
+	variant="ghost"
+	class="h-4 w-12 rounded-sm border border-dashed p-0 text-xs hover:border-solid {responsiveButtonClasses}"
+	{disabled}
+>
 	{timeslot.start.replace(':00', '')} - {timeslot.end.replace(':00', '')}
 </Button>

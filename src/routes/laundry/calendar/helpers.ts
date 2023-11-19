@@ -45,3 +45,7 @@ export function formatDayOfWeek(
 ) {
 	return new DateFormatter('sv-SE', { weekday: length }).format(date);
 }
+
+export function formatDay(date: Date) {
+	return new DateFormatter('sv-SE', { month: 'long', day: 'numeric' }).format(date);
+}

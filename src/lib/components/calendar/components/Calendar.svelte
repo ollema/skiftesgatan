@@ -86,6 +86,7 @@
 	$: slotProps = {
 		builder,
 		attrs,
+		value: value,
 		months: $months,
 		daysOfWeek: $daysOfWeek
 	};
