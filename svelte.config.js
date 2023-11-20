@@ -14,6 +14,9 @@ const config = {
 		csrf: {
 			checkOrigin: process.env.NODE_ENV === 'development' ? false : true
 		}
+	},
+	vitePlugin: {
+		inspector: true
 	}
 };
 
