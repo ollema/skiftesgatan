@@ -14,29 +14,34 @@ import { toCalendarDate, toTime } from '@internationalized/date';
 export const load = async ({ locals, depends }) => {
 	depends('laundry:calendar');
 
-	const reservations: NestedReservationMap = (await getReservations(locals.pb)).reduce(
-		(acc, reservation) => {
-			const day = toCalendarDate(parsePocketBaseDateTime(reservation.start)).toString();
-			const startTime = toTime(parsePocketBaseDateTime(reservation.start)).toString();
-			const endTime = toTime(parsePocketBaseDateTime(reservation.end)).toString();
+	const reservations = await getReservations(locals.pb);
+	const nestedReservationsMap: NestedReservationMap = reservations.reduce((acc, reservation) => {
+		const day = toCalendarDate(parsePocketBaseDateTime(reservation.start)).toString();
+		const startTime = toTime(parsePocketBaseDateTime(reservation.start)).toString();
+		const endTime = toTime(parsePocketBaseDateTime(reservation.end)).toString();
 
-			if (!acc[day]) {
-				acc[day] = {};
-			}
+		if (!acc[day]) {
+			acc[day] = {};
+		}
 
-			acc[day][startTime] = {
-				apartment: reservation.expand?.apartment.apartment || '',
-				start: startTime,
-				end: endTime
-			};
+		acc[day][startTime] = {
+			apartment: reservation.expand?.apartment.apartment || '',
+			start: startTime,
+			end: endTime
+		};
 
-			return acc;
-		},
-		{} as NestedReservationMap
+		return acc;
+	}, {} as NestedReservationMap);
+
+	const reservation = reservations.find(
+		(reservation) =>
+			locals.apartment?.apartment &&
+			reservation.expand?.apartment.apartment === locals.apartment?.apartment
 	);
 
 	return {
-		reservations: reservations,
+		reservation: reservation,
+		reservations: nestedReservationsMap,
 		apartment: locals.apartment?.apartment
 	};
 };

@@ -8,7 +8,14 @@
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import { formatDay, formatDayOfWeek, getTodaysDate, toDate } from './helpers';
+	import {
+		formatDay,
+		formatDayOfWeek,
+		formatPocketBaseReservation,
+		getTodaysDate,
+		parsePocketBaseDateTime,
+		toDate
+	} from './helpers';
 	import { timeslots } from './timeslots';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
@@ -110,6 +117,17 @@
 						responsive={false}
 					/>
 				{/each}
+			</div>
+		</div>
+	{/if}
+
+	{#if data.reservation}
+		<div class="mt-4">
+			<h4 class="font-serif">Din bokning</h4>
+			<div class="mt-2">
+				<p>
+					{formatPocketBaseReservation(data.reservation)}
+				</p>
 			</div>
 		</div>
 	{/if}

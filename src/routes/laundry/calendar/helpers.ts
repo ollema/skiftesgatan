@@ -1,14 +1,26 @@
+import type { ReservationsResponse } from '$lib/pocketbase-types';
 import {
 	parseDateTime,
 	CalendarDate,
 	ZonedDateTime,
 	getLocalTimeZone,
 	DateFormatter,
+	toTime,
 	type DateValue
 } from '@internationalized/date';
 
 export function parsePocketBaseDateTime(pbdt: string) {
 	return parseDateTime(pbdt.replace(' ', 'T').replace('Z', ''));
+}
+
+export function formatPocketBaseReservation(reservation: ReservationsResponse) {
+	const start = parsePocketBaseDateTime(reservation.start);
+	const end = parsePocketBaseDateTime(reservation.end);
+	const day = formatDay(start.toDate('Europe/Stockholm'));
+	const startTime = toTime(start).toString().slice(0, 5);
+	const endTime = toTime(end).toString().slice(0, 5);
+
+	return `${day} ${startTime} - ${endTime}`;
 }
 
 export function getTodaysDate() {
@@ -26,22 +38,6 @@ export function toDate(date: DateValue, tz = getLocalTimeZone()) {
 	} else {
 		return date.toDate(tz);
 	}
-}
-
-export function getWeekFromDate(date: DateValue) {
-	const d = toDate(date);
-	const msPerDay = 86400000;
-
-	// set date to nearest Thursday: current date + 4 - current day number
-	d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-
-	// get first day of year
-	const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-
-	// calculate full weeks to nearest Thursday
-	const week = Math.ceil(((d.getTime() - yearStart.getTime()) / msPerDay + 1) / 7);
-
-	return week;
 }
 
 export function formatDayOfWeek(
