@@ -11,7 +11,9 @@ import type { NestedReservationMap } from './types';
 import { parsePocketBaseDateTime } from './helpers';
 import { toCalendarDate, toTime } from '@internationalized/date';
 
-export const load = async ({ locals }) => {
+export const load = async ({ locals, depends }) => {
+	depends('laundry:calendar');
+
 	const reservations: NestedReservationMap = (await getReservations(locals.pb)).reduce(
 		(acc, reservation) => {
 			const day = toCalendarDate(parsePocketBaseDateTime(reservation.start)).toString();

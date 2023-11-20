@@ -4,16 +4,29 @@
 	import * as Calendar from '$lib/components/calendar';
 	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
 	import LaundryDate from './LaundryDate.svelte';
+	import Timeslot from './Timeslot.svelte';
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { formatDay, formatDayOfWeek, getTodaysDate, toDate } from './helpers';
 	import { timeslots } from './timeslots';
-	import Timeslot from './Timeslot.svelte';
+	import { onMount } from 'svelte';
+	import { invalidate } from '$app/navigation';
 
 	const today = getTodaysDate();
 
 	export let data;
+
+	// refresh every 10 seconds while page is open
+	onMount(() => {
+		const refresher = setInterval(() => {
+			invalidate('laundry:calendar');
+		}, 1000 * 10);
+
+		return () => {
+			clearInterval(refresher);
+		};
+	});
 
 	const title = 'Tvättstuga - bokningar';
 	const description = 'Bokade tider i vår tvättstuga';
