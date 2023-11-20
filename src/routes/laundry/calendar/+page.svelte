@@ -2,8 +2,8 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import * as PageHeader from '$lib/components/page-header';
 	import * as Calendar from '$lib/components/calendar';
-	import Cell from './Cell.svelte';
 	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
+	import LaundryDate from './LaundryDate.svelte';
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
@@ -63,12 +63,15 @@
 					<Calendar.GridRow class="contents">
 						{#each weekDates as date}
 							<Calendar.GridBodyCell {date}>
-								<Cell
-									{date}
-									month={month.value}
-									reservations={data.reservations[date.toString()]}
-									apartment={data.apartment}
-								/>
+								<Calendar.Date asChild let:builder let:disabled {date} month={month.value}>
+									<LaundryDate
+										{date}
+										{disabled}
+										reservations={data.reservations[date.toString()]}
+										apartment={data.apartment}
+										builders={[builder]}
+									/>
+								</Calendar.Date>
 							</Calendar.GridBodyCell>
 						{/each}
 					</Calendar.GridRow>

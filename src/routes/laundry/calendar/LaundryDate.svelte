@@ -1,46 +1,23 @@
 <script lang="ts">
 	import Timeslot from './Timeslot.svelte';
-	import { melt } from '@melt-ui/svelte';
-	import { getCtx, getAttrs } from '$lib/components/calendar/ctx';
-	import type { DateProps } from '$lib/components/calendar/types';
-	import { isToday } from '@internationalized/date';
+	import { isToday, type DateValue } from '@internationalized/date';
 	import { timeslots } from './timeslots';
 	import type { SerializableReservationMap } from './types';
+	import { builderActions, getAttrs, type Builder } from 'bits-ui';
 
-	type $$Props = DateProps & {
-		reservations: SerializableReservationMap | undefined;
-		apartment: string | undefined;
-	};
-
-	export let date: $$Props['date'];
-	export let month: $$Props['month'];
+	export let date: DateValue;
+	export let disabled: boolean;
 	export let reservations: SerializableReservationMap | undefined;
 	export let apartment: string | undefined;
-
-	const {
-		elements: { cell },
-		helpers: { isDateDisabled, isDateUnavailable, isDateSelected }
-	} = getCtx();
-
-	$: builder = $cell(date, month);
-	const attrs = getAttrs('date');
-
-	$: slotProps = {
-		builder,
-		attrs,
-		disabled: $isDateDisabled(date),
-		unavailable: $isDateUnavailable(date),
-		selected: $isDateSelected(date)
-	};
+	export let builders: Builder[] = [];
 
 	$: today = isToday(date, 'Europe/Stockholm');
 </script>
 
-<div
-	use:melt={builder}
-	{...attrs}
-	{...$$restProps}
-	class="flex justify-between bg-background p-1 transition duration-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground/60"
+<button
+	use:builderActions={{ builders }}
+	{...getAttrs(builders)}
+	class="flex w-full items-center justify-between bg-background p-1 transition duration-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground/60"
 >
 	<div class="h-[25px] grow-0 text-xs sm:h-20 sm:text-base">
 		<div class:today>
@@ -48,7 +25,7 @@
 		</div>
 	</div>
 
-	{#if !slotProps.disabled}
+	{#if !disabled}
 		<div>
 			<div class="flex h-full flex-col justify-center gap-[1px] sm:gap-[4px]">
 				{#each timeslots as timeslot}
@@ -62,7 +39,7 @@
 			</div>
 		</div>
 	{/if}
-</div>
+</button>
 
 <style lang="postcss">
 	.today {
