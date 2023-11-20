@@ -17,7 +17,9 @@
 		return hour.toString().padStart(2, '0');
 	}
 
-	$: disabled = reservation !== undefined && reservation.apartment !== apartment;
+	$: reservedByApartment = reservation !== undefined && reservation.apartment === apartment;
+	$: disabled = reservation !== undefined && !reservedByApartment;
+	$: action = reservation !== undefined ? 'release' : 'reserve';
 </script>
 
 <div
@@ -27,7 +29,7 @@
 	class:disabled-square={disabled}
 ></div>
 
-<form method="POST" use:enhance action="?/reserve">
+<form method="POST" use:enhance action="?/{action}">
 	<input type="hidden" name="start" value={start.toString() + 'Z'} />
 	<input type="hidden" name="end" value={end.toString() + 'Z'} />
 

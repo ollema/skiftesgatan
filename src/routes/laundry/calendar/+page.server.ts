@@ -76,7 +76,20 @@ export const actions = {
 			}
 		}
 	},
-	release: async () => {
-		// TODO release reservation
+	release: async ({ locals }) => {
+		let reservation: ReservationsResponse | undefined;
+		if (locals.apartment) {
+			reservation = await maybeGetReservationForApartment(locals.pb, locals.apartment.apartment);
+			if (reservation) {
+				try {
+					await deleteReservation(locals.pb, reservation.id);
+				} catch (e) {
+					if (e instanceof ClientResponseError) {
+						console.log('client error:', e.message);
+						return;
+					}
+				}
+			}
+		}
 	}
 };
