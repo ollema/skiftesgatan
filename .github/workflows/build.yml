@@ -56,7 +56,7 @@ jobs:
       - name: Deploy
         uses: caprover/deploy-from-github@v1.1.2
         with:
-          server: https://skiftesgatan.com
+          server: https://server.ollema.xyz
           app: ${{ matrix.app }}
           token: ${{ secrets[matrix.token_name] }}
           image: ${{ steps.meta.outputs.tags }}
