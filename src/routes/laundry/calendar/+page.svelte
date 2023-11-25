@@ -99,35 +99,35 @@
 		</Calendar.Grid>
 	{/each}
 
-	{#if value}
-		<div class="mt-4">
-			<h4 class="font-serif">
-				{formatDay(toDate(value))}
-			</h4>
-			<div class="mt-2 flex gap-2">
-				{#each timeslots as timeslot}
-					<Timeslot
-						date={value}
-						{timeslot}
-						reservation={data.reservations[value.toString()]
-							? data.reservations[value.toString()][timeslot.start.toString()]
-							: undefined}
-						apartment={data.apartment}
-						responsive={false}
-					/>
-				{/each}
+	<div class="flex flex-col gap-2 sm:flex-row sm:justify-between">
+		{#if value}
+			<div class="mt-4">
+				<h4 class="font-serif">
+					{formatDay(toDate(value))}
+				</h4>
+				<div class="mt-2 flex gap-2">
+					{#each timeslots as timeslot}
+						<Timeslot
+							date={value}
+							{timeslot}
+							reservation={data.reservations[value.toString()]
+								? data.reservations[value.toString()][timeslot.start.toString()]
+								: undefined}
+							apartment={data.apartment}
+							responsive={false}
+						/>
+					{/each}
+				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
 
-	{#if data.reservation}
 		<div class="mt-4">
-			<h4 class="font-serif">Din bokning</h4>
+			<h4 class="font-serif sm:text-right">Din bokning</h4>
 			<div class="mt-2">
-				<p>
-					{formatPocketBaseReservation(data.reservation)}
+				<p class="sm:text-right">
+					{(data.reservation && formatPocketBaseReservation(data.reservation)) || '-'}
 				</p>
 			</div>
 		</div>
-	{/if}
+	</div>
 </Calendar.Root>
