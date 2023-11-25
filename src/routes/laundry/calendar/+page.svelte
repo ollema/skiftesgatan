@@ -13,7 +13,6 @@
 		formatDayOfWeek,
 		formatPocketBaseReservation,
 		getTodaysDate,
-		parsePocketBaseDateTime,
 		toDate
 	} from './helpers';
 	import { timeslots } from './timeslots';
