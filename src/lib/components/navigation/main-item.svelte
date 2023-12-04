@@ -17,7 +17,7 @@
 
 <MainLink {navItem} />
 {#if navItem.items.length > 0}
-	<Popover.Root positioning={{ placement: 'bottom' }} bind:open>
+	<Popover.Root bind:open>
 		<Popover.Trigger asChild let:builder>
 			<Button
 				builders={[builder]}
@@ -27,7 +27,7 @@
 				<ChevronDown class="h-4 w-4" />
 			</Button>
 		</Popover.Trigger>
-		<Popover.Content class="w-fit bg-banner text-banner-foreground">
+		<Popover.Content side={'bottom'} class="w-fit bg-banner text-banner-foreground">
 			<ol class="flex list-none flex-col gap-1 bg-banner">
 				{#each navItem.items as subNavItem}
 					<MainLink navItem={subNavItem} class="text-base" />

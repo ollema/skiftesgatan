@@ -1,25 +1,21 @@
 <script lang="ts">
 	import { MetaTags } from 'svelte-meta-tags';
 	import * as PageHeader from '$lib/components/page-header';
-	import * as Calendar from '$lib/components/calendar';
+	import { Calendar } from 'bits-ui';
 	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
 	import LaundryDate from './LaundryDate.svelte';
 	import Timeslot from './Timeslot.svelte';
 
 	import { cn } from '$lib/utils';
 	import { buttonVariants } from '$lib/components/ui/button';
-	import {
-		formatDay,
-		formatDayOfWeek,
-		formatPocketBaseReservation,
-		getTodaysDate,
-		toDate
-	} from './helpers';
+	import { formatDay, formatPocketBaseReservation, getTodaysDate, toDate } from './helpers';
 	import { timeslots } from './timeslots';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 
 	const today = getTodaysDate();
+
+	let value = today;
 
 	export let data;
 
@@ -47,17 +43,18 @@
 </PageHeader.Root>
 
 <Calendar.Root
-	class="mx-auto w-full max-w-screen-lg font-serif"
-	let:value
-	let:months
-	value={today}
 	minValue={today}
 	maxValue={today.add({ months: 1 })}
 	locale={'sv-SE'}
+	weekdayFormat={'short'}
 	fixedWeeks={true}
 	preventDeselect={true}
+	class="mx-auto w-full max-w-screen-lg font-serif"
+	let:weekdays
+	let:months
+	bind:value
 >
-	<Calendar.Header class="no-spacing flex w-full items-center justify-center pb-2">
+	<Calendar.Header class="flex w-full items-center justify-center pb-2">
 		<Calendar.PrevButton class={cn(buttonVariants({ variant: 'ghost' }))}>
 			<ChevronLeft class="h-4 w-4" />
 		</Calendar.PrevButton>
@@ -70,10 +67,10 @@
 		<Calendar.Grid class="grid w-full grid-cols-7 gap-[1px] bg-foreground p-[1px]">
 			<Calendar.GridHead class="contents">
 				<Calendar.GridRow class="contents">
-					{#each months[0].weeks[0].map((d) => toDate(d)) as dayOfWeek}
-						<Calendar.GridHeadCell>
-							<div class="w-full overflow-hidden">{formatDayOfWeek(dayOfWeek)}</div>
-						</Calendar.GridHeadCell>
+					{#each weekdays as day}
+						<Calendar.HeadCell class="!important bg-background p-0 text-foreground">
+							<div class="w-full overflow-hidden">{day}</div>
+						</Calendar.HeadCell>
 					{/each}
 				</Calendar.GridRow>
 			</Calendar.GridHead>
@@ -81,7 +78,7 @@
 				{#each month.weeks as weekDates}
 					<Calendar.GridRow class="contents">
 						{#each weekDates as date}
-							<Calendar.GridBodyCell {date}>
+							<Calendar.Cell {date} class="!important p-0">
 								<Calendar.Date asChild let:builder let:disabled {date} month={month.value}>
 									<LaundryDate
 										{date}
@@ -91,7 +88,7 @@
 										builders={[builder]}
 									/>
 								</Calendar.Date>
-							</Calendar.GridBodyCell>
+							</Calendar.Cell>
 						{/each}
 					</Calendar.GridRow>
 				{/each}

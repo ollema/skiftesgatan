@@ -40,13 +40,6 @@ export function toDate(date: DateValue, tz = getLocalTimeZone()) {
 	}
 }
 
-export function formatDayOfWeek(
-	date: Date,
-	length: Intl.DateTimeFormatOptions['weekday'] = 'short'
-) {
-	return new DateFormatter('sv-SE', { weekday: length }).format(date);
-}
-
 export function formatDay(date: Date) {
 	return new DateFormatter('sv-SE', { month: 'long', day: 'numeric' }).format(date);
 }
