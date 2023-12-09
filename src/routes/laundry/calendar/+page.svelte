@@ -49,6 +49,7 @@
 	weekdayFormat={'short'}
 	fixedWeeks={true}
 	preventDeselect={true}
+	initialFocus={true}
 	class="mx-auto w-full max-w-screen-lg font-serif"
 	let:weekdays
 	let:months
@@ -79,7 +80,7 @@
 					<Calendar.GridRow class="contents">
 						{#each weekDates as date}
 							<Calendar.Cell {date} class="!important p-0">
-								<Calendar.Date asChild let:builder let:disabled {date} month={month.value}>
+								<Calendar.Day asChild let:builder let:disabled {date} month={month.value}>
 									<LaundryDate
 										{date}
 										{disabled}
@@ -87,7 +88,7 @@
 										apartment={data.apartment}
 										builders={[builder]}
 									/>
-								</Calendar.Date>
+								</Calendar.Day>
 							</Calendar.Cell>
 						{/each}
 					</Calendar.GridRow>
