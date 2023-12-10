@@ -14,5 +14,7 @@
 	</PageHeader.Heading>
 </PageHeader.Root>
 
-<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-{@html data.page.content}
+<div class="content">
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html data.page.content}
+</div>

@@ -7,7 +7,6 @@ export async function maybeGetPage(pb: TypedPocketBase, slug: string) {
 			.collection(Collections.Content)
 			.getFirstListItem(pb.filter('slug = {:slug}', { slug: slug }));
 	} catch (e) {
-		console.log(e);
 		return undefined;
 	}
 }

@@ -6,7 +6,9 @@ export async function maybeGetApartmentForUser(pb: TypedPocketBase, user: User) 
 	try {
 		return await pb
 			.collection(Collections.Apartments)
-			.getFirstListItem(pb.filter('owners.id ?= {:user}', { user: user.id }));
+			.getFirstListItem(
+				pb.filter('owners.id ?= {:user} || subtenants.id ?= {:user}', { user: user.id })
+			);
 	} catch (e) {
 		return undefined;
 	}
@@ -22,6 +24,6 @@ export async function getApartment(pb: TypedPocketBase, apartment: string) {
 		.collection(Collections.Apartments)
 		.getFirstListItem<ApartmentsResponse<Texpand>>(
 			pb.filter('apartment = {:apartment}', { apartment: apartment }),
-			{ expand: 'owners,subtentants' }
+			{ expand: 'owners,subtenants' }
 		);
 }

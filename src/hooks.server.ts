@@ -12,7 +12,8 @@ export async function handle({ event, resolve }) {
 			event.locals.user = {
 				id: record.id,
 				username: record.username,
-				name: record.name
+				name: record.name,
+				email: record.email
 			};
 			if (event.locals.user) {
 				const apartment = await maybeGetApartmentForUser(event.locals.pb, event.locals.user);

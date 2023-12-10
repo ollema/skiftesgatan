@@ -19,21 +19,37 @@
 
 <div class="flex flex-col gap-4">
 	<div>
-		<h3>Storlek</h3>
+		<h4>Storlek</h4>
 		<p>{data.apartment.size} kvm</p>
 	</div>
 
 	<div>
-		{#if data.apartment.expand?.owners}
-			<h3>Boende</h3>
+		{#if data.owners.length > 0}
+			<h4>Boende</h4>
 			<div class="flex flex-col gap-2">
-				{#each data.apartment.expand.owners as owner}
-					<div class="grid grid-cols-[3.5rem_1fr]">
-						<p>Namn:</p>
-						<p>{owner.name}</p>
-						<p>Email:</p>
-						<p>{owner.email}</p>
-					</div>
+				{#each data.owners as owner}
+					<p>
+						{owner}
+						{#if data.user && data.user.name === owner}
+							(du)
+						{/if}
+					</p>
+				{/each}
+			</div>
+		{/if}
+	</div>
+
+	<div>
+		{#if data.subtenants.length > 0}
+			<h4>Hyresgäster</h4>
+			<div class="flex flex-col gap-2">
+				{#each data.subtenants as subtenant}
+					<p>
+						{subtenant}
+						{#if data.user && data.user.name === subtenant}
+							(du)
+						{/if}
+					</p>
 				{/each}
 			</div>
 		{/if}
