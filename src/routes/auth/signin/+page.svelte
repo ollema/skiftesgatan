@@ -36,10 +36,4 @@
 			</form>
 		{/each}
 	</div>
-
-	<div class="mt-4">
-		<a href="/privacy" class="font-serif text-sm text-foreground/80 hover:underline">
-			Privacy Policy
-		</a>
-	</div>
 </div>

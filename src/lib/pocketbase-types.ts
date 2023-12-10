@@ -6,6 +6,7 @@ import type PocketBase from 'pocketbase';
 import type { RecordService } from 'pocketbase';
 
 export enum Collections {
+	Agreements = 'agreements',
 	Apartments = 'apartments',
 	Content = 'content',
 	Reservations = 'reservations',
@@ -35,6 +36,17 @@ export type AuthSystemFields<T = never> = {
 } & BaseSystemFields<T>;
 
 // Record types for each collection
+
+export enum AgreementsTypeOptions {
+	'sublease' = 'sublease'
+}
+export type AgreementsRecord = {
+	apartment: RecordIdString;
+	end: IsoDateString;
+	file: string;
+	start: IsoDateString;
+	type: AgreementsTypeOptions;
+};
 
 export type ApartmentsRecord = {
 	apartment: string;
@@ -66,6 +78,8 @@ export type UsersRecord = {
 };
 
 // Response types include system fields and match responses from the PocketBase API
+export type AgreementsResponse<Texpand = unknown> = Required<AgreementsRecord> &
+	BaseSystemFields<Texpand>;
 export type ApartmentsResponse<Texpand = unknown> = Required<ApartmentsRecord> &
 	BaseSystemFields<Texpand>;
 export type ContentResponse<Texpand = unknown> = Required<ContentRecord> &
@@ -77,6 +91,7 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	agreements: AgreementsRecord;
 	apartments: ApartmentsRecord;
 	content: ContentRecord;
 	reservations: ReservationsRecord;
@@ -84,6 +99,7 @@ export type CollectionRecords = {
 };
 
 export type CollectionResponses = {
+	agreements: AgreementsResponse;
 	apartments: ApartmentsResponse;
 	content: ContentResponse;
 	reservations: ReservationsResponse;
@@ -94,6 +110,7 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
+	collection(idOrName: 'agreements'): RecordService<AgreementsResponse>;
 	collection(idOrName: 'apartments'): RecordService<ApartmentsResponse>;
 	collection(idOrName: 'content'): RecordService<ContentResponse>;
 	collection(idOrName: 'reservations'): RecordService<ReservationsResponse>;

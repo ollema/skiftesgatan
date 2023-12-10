@@ -27,6 +27,7 @@
 	class:responsive-square={responsive}
 	class:reserved-square={reservation}
 	class:disabled-square={disabled}
+	class:reserved-by-apartment={reservedByApartment}
 ></div>
 
 <form method="POST" use:enhance action="?/{action}">
@@ -38,6 +39,7 @@
 		class:responsive-button={responsive}
 		class:reserved-button={reservation}
 		class:disabled-button={disabled}
+		class:reserved-by-apartment={reservedByApartment}
 		type="submit"
 		{disabled}
 	>
@@ -64,6 +66,10 @@
 
 	.reserved-square {
 		@apply bg-foreground;
+	}
+
+	.reserved-by-apartment {
+		@apply border-[#d25e2b] bg-[#d25e2b];
 	}
 
 	.disabled-button {

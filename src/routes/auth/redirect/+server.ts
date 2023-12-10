@@ -31,7 +31,9 @@ export const GET = async ({ locals, url, cookies }) => {
 	// authenticate the user with the provider
 	const { record, meta } = await locals.pb
 		.collection('users')
-		.authWithOAuth2Code(provider.name, code, provider.codeVerifier, env.AUTH_REDIRECT_URL);
+		.authWithOAuth2Code(provider.name, code, provider.codeVerifier, env.AUTH_REDIRECT_URL, {
+			role: 'member'
+		});
 
 	// update the user's name with data from the provider if needed
 	if (record.name === '' && meta && meta.name) {
