@@ -72,9 +72,14 @@ export type ReservationsRecord = {
 	type: ReservationsTypeOptions;
 };
 
+export enum UsersRoleOptions {
+	'member' = 'member',
+	'board' = 'board'
+}
 export type UsersRecord = {
 	avatar?: string;
 	name?: string;
+	role: UsersRoleOptions;
 };
 
 // Response types include system fields and match responses from the PocketBase API
