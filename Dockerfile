@@ -34,6 +34,12 @@ RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 COPY . /app
 WORKDIR /app
 
+# load env variables
+ARG PUBLIC_POCKETBASE_URL
+ENV PUBLIC_POCKETBASE_URL=${PUBLIC_POCKETBASE_URL}
+ARG PUBLIC_REDIRECT_URL
+ENV PUBLIC_REDIRECT_URL=${PUBLIC_REDIRECT_URL}
+
 # build sveltekit app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm svelte-kit sync
