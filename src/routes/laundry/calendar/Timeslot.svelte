@@ -35,7 +35,7 @@
 	<input type="hidden" name="end" value={end.toString() + 'Z'} />
 
 	<button
-		class="flex h-4 w-12 items-center justify-center rounded-sm border border-dashed border-foreground/60 p-0 text-xs hover:border-solid"
+		class="flex h-4 w-12 items-center justify-center rounded-sm border border-dashed border-foreground/80 p-0 text-xs hover:border-solid"
 		class:responsive-button={responsive}
 		class:reserved-button={reservation}
 		class:disabled-button={disabled}
@@ -73,10 +73,10 @@
 	}
 
 	.disabled-button {
-		@apply opacity-70;
+		@apply opacity-80;
 	}
 
 	.disabled-square {
-		@apply opacity-70;
+		@apply opacity-80;
 	}
 </style>

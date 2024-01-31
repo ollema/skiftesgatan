@@ -17,7 +17,7 @@
 <button
 	use:builderActions={{ builders }}
 	{...getAttrs(builders)}
-	class="flex w-full items-center justify-between bg-background p-1 transition duration-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground/60"
+	class="flex w-full items-center justify-between bg-background p-1 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground/60"
 >
 	<div class="h-[25px] grow-0 text-xs sm:h-20 sm:text-base">
 		<div class:today>
@@ -51,7 +51,7 @@
 	}
 
 	[data-melt-calendar-cell][data-disabled] {
-		@apply pointer-events-none bg-background/95 text-foreground/80;
+		@apply pointer-events-none text-foreground/70;
 	}
 
 	[data-melt-calendar-cell][data-outside-visible-months] {
