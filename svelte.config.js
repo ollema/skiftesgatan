@@ -8,9 +8,9 @@ const config = {
 	preprocess: sequence([vitePreprocess({}), preprocessMeltUI()]),
 	kit: {
 		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			fallback: '404.html',
+			pages: 'pb_public',
+			assets: 'pb_public',
+			fallback: 'index.html',
 			precompress: true,
 			strict: true
 		}),

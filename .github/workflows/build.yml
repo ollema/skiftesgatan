@@ -14,19 +14,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: skiftesgatan
-            dockerfile: ./Dockerfile
-            image: ghcr.io/ollema/skiftesgatan
-            token_name: APP_TOKEN_SKIFTESGATAN
-          - app: pocketbase
-            dockerfile: ./Dockerfile.pocketbase
-            image: ghcr.io/ollema/skiftesgatan-pocketbase
-            token_name: APP_TOKEN_POCKETBASE
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,13 +29,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ matrix.image }}
+          images: ghcr.io/ollema/skiftesgatan
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -57,6 +43,6 @@ jobs:
         uses: caprover/deploy-from-github@v1.1.2
         with:
           server: https://server.ollema.xyz
-          app: ${{ matrix.app }}
-          token: ${{ secrets[matrix.token_name] }}
+          app: skiftesgatan
+          token: ${{ secrets.APP_TOKEN }}
           image: ${{ steps.meta.outputs.tags }}
