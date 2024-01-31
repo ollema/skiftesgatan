@@ -2,22 +2,10 @@
 	import { MetaTags } from 'svelte-meta-tags';
 	import * as PageHeader from '$lib/components/page-header';
 	import { AgreementsTypeOptions, type AgreementsRecord } from '$lib/pocketbase-types.js';
-	import { onMount } from 'svelte';
-	import { invalidate } from '$app/navigation';
+
+	import { page } from '$app/stores';
 
 	export let data;
-
-	// refresh every 180 seconds while page is open
-	// since file token only lasts for ~5 minutes
-	onMount(() => {
-		const refresher = setInterval(() => {
-			invalidate('apartments:apartment');
-		}, 1000 * 60);
-
-		return () => {
-			clearInterval(refresher);
-		};
-	});
 
 	function formatAgreementType(agreement: AgreementsRecord) {
 		switch (agreement.type) {
@@ -69,7 +57,7 @@
 				{#each data.owners as owner}
 					<p>
 						{owner}
-						{#if data.user && data.user.name === owner}
+						{#if $page.data.user && $page.data.user.name === owner}
 							(du)
 						{/if}
 					</p>
@@ -85,7 +73,7 @@
 				{#each data.subtenants as subtenant}
 					<p>
 						{subtenant}
-						{#if data.user && data.user.name === subtenant}
+						{#if $page.data.user && $page.data.user.name === subtenant}
 							(du)
 						{/if}
 					</p>

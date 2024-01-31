@@ -1,8 +1,8 @@
 export type User = {
 	id: string;
-	username: string;
 	name: string;
 	email: string;
+	role: 'board' | 'member';
 };
 
 export type Apartment = {

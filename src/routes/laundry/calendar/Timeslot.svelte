@@ -1,13 +1,15 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { toCalendarDateTime, type DateValue } from '@internationalized/date';
 	import type { Timeslot } from './timeslots';
 	import type { SerializableReservation } from './types';
+	import type { Apartment } from '$lib/types';
+	import { release, reserve } from '$lib/pocketbase';
+	import { invalidate } from '$app/navigation';
 
 	export let date: DateValue;
 	export let timeslot: Timeslot;
 	export let reservation: SerializableReservation | undefined;
-	export let apartment: string | undefined;
+	export let apartment: Apartment | undefined;
 	export let responsive = true;
 
 	$: start = toCalendarDateTime(date, timeslot.start);
@@ -17,7 +19,18 @@
 		return hour.toString().padStart(2, '0');
 	}
 
-	$: reservedByApartment = reservation !== undefined && reservation.apartment === apartment;
+	async function handleClick(action: string) {
+		if (apartment && action === 'reserve') {
+			await reserve(apartment, start.toString() + 'Z', end.toString() + 'Z');
+		}
+		if (apartment && action === 'release') {
+			await release(apartment);
+		}
+		await invalidate('laundry:calendar');
+	}
+
+	$: reservedByApartment =
+		reservation !== undefined && reservation.apartment === apartment?.apartment;
 	$: disabled = reservation !== undefined && !reservedByApartment;
 	$: action = reservation !== undefined ? 'release' : 'reserve';
 </script>
@@ -30,26 +43,25 @@
 	class:reserved-by-apartment={reservedByApartment}
 ></div>
 
-<form method="POST" use:enhance action="?/{action}">
-	<input type="hidden" name="start" value={start.toString() + 'Z'} />
-	<input type="hidden" name="end" value={end.toString() + 'Z'} />
+<input type="hidden" name="start" value={start.toString() + 'Z'} />
+<input type="hidden" name="end" value={end.toString() + 'Z'} />
 
-	<button
-		class="flex h-4 w-12 items-center justify-center rounded-sm border border-dashed border-foreground/80 p-0 text-xs hover:border-solid"
-		class:responsive-button={responsive}
-		class:reserved-button={reservation}
-		class:disabled-button={disabled}
-		class:reserved-by-apartment={reservedByApartment}
-		type="submit"
-		{disabled}
-	>
-		{#if reservation}
-			{reservation.apartment}
-		{:else}
-			{hourToString(timeslot.start.hour)} - {hourToString(timeslot.end.hour)}
-		{/if}
-	</button>
-</form>
+<button
+	class="flex h-4 w-12 items-center justify-center rounded-sm border border-dashed border-foreground/80 p-0 text-xs hover:border-solid"
+	class:responsive-button={responsive}
+	class:reserved-button={reservation}
+	class:disabled-button={disabled}
+	class:reserved-by-apartment={reservedByApartment}
+	type="submit"
+	{disabled}
+	on:click={() => handleClick(action)}
+>
+	{#if reservation}
+		{reservation.apartment}
+	{:else}
+		{hourToString(timeslot.start.hour)} - {hourToString(timeslot.end.hour)}
+	{/if}
+</button>
 
 <style lang="postcss">
 	.responsive-square {

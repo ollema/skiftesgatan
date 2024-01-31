@@ -1,14 +1,21 @@
-import type { AgreementsResponse, TypedPocketBase } from '$lib/pocketbase-types';
+import type { AgreementsResponse } from '$lib/pocketbase-types';
 import { Collections } from '$lib/pocketbase-types';
+
+import { pb } from './client';
 
 type ExpandedAgreementsResponse = AgreementsResponse<unknown> & { fileUrl: string };
 
-export async function maybeGetAgreementsForApartment(pb: TypedPocketBase, apartment: string) {
+export async function maybeGetAgreementsForApartment(
+	apartment: string,
+	fetchImplementation?: typeof fetch
+) {
+	const selectedFetchImplementation = fetchImplementation ? fetchImplementation : fetch;
 	try {
 		const agreements: ExpandedAgreementsResponse[] = await pb
 			.collection(Collections.Agreements)
 			.getFullList({
-				filter: pb.filter('apartment.apartment = {:apartment}', { apartment: apartment })
+				filter: pb.filter('apartment.apartment = {:apartment}', { apartment: apartment }),
+				fetch: selectedFetchImplementation
 			});
 
 		const token = await pb.files.getToken();

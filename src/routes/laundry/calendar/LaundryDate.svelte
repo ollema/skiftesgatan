@@ -4,11 +4,12 @@
 	import { timeslots } from './timeslots';
 	import type { SerializableReservationMap } from './types';
 	import { builderActions, getAttrs, type Builder } from 'bits-ui';
+	import type { Apartment } from '$lib/types';
 
 	export let date: DateValue;
 	export let disabled: boolean;
 	export let reservations: SerializableReservationMap | undefined;
-	export let apartment: string | undefined;
+	export let apartment: Apartment | undefined;
 	export let builders: Builder[] = [];
 
 	$: today = isToday(date, 'Europe/Stockholm');

@@ -5,12 +5,10 @@
 	import '../app.postcss';
 
 	import { SiteFooter, SiteHeader } from '$lib/components';
-
-	export let data;
 </script>
 
 <div class="relative flex min-h-screen flex-col">
-	<SiteHeader user={data.user} apartment={data.apartment} />
+	<SiteHeader />
 
 	<div class="container min-h-[calc(100vh-3.5rem)]">
 		<main class="py-6">

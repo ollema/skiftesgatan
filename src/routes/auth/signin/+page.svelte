@@ -4,6 +4,7 @@
 
 	import GoogleIcon from './GoogleIcon.svelte';
 	import FacebookIcon from './FacebookIcon.svelte';
+	import { signin } from '$lib/pocketbase';
 
 	const providers = [
 		{ name: 'google', label: 'Logga in med Google', icon: GoogleIcon },
@@ -23,17 +24,14 @@
 
 	<div class="flex flex-col gap-4 sm:flex-row">
 		{#each providers as provider}
-			<form method="post">
-				<input type="hidden" name="authProvider" value={provider.name} />
-				<Button variant="outline" class="w-52" type="submit">
-					<div class="mr-2 h-4 w-4">
-						<svelte:component this={provider.icon} />
-					</div>
-					<div class="font-sans font-semibold">
-						{provider.label}
-					</div>
-				</Button>
-			</form>
+			<Button variant="outline" class="w-52" on:click={async () => signin(provider.name)}>
+				<div class="mr-2 h-4 w-4">
+					<svelte:component this={provider.icon} />
+				</div>
+				<div class="font-sans font-semibold">
+					{provider.label}
+				</div>
+			</Button>
 		{/each}
 	</div>
 </div>
