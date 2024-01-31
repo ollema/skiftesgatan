@@ -22,8 +22,7 @@ type Texpand = {
 export async function getApartment(pb: TypedPocketBase, apartment: string) {
 	return await pb
 		.collection(Collections.Apartments)
-		.getFirstListItem<ApartmentsResponse<Texpand>>(
-			pb.filter('apartment = {:apartment}', { apartment: apartment }),
-			{ expand: 'owners,subtenants' }
-		);
+		.getFirstListItem<
+			ApartmentsResponse<Texpand>
+		>(pb.filter('apartment = {:apartment}', { apartment: apartment }), { expand: 'owners,subtenants' });
 }
