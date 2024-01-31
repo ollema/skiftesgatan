@@ -19,13 +19,23 @@
 
 	export let data;
 
-	// refresh every 10 seconds while page is open
+	let refresh: boolean = false;
+
+	function handleVisibilityChange() {
+		refresh = !document.hidden;
+	}
+
+	// refresh every 10 seconds while page is open and in foreground
 	onMount(() => {
+		document.addEventListener('visibilitychange', handleVisibilityChange);
 		const refresher = setInterval(() => {
-			invalidate('laundry:calendar');
+			if (refresh) {
+				invalidate('laundry:calendar');
+			}
 		}, 1000 * 10);
 
 		return () => {
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
 			clearInterval(refresher);
 		};
 	});
