@@ -1,12 +1,8 @@
 <script lang="ts">
 	import MainItem from './main-item.svelte';
 	import { navigation } from '$lib/config';
-	import type { Apartment, User } from '$lib/types';
 
-	export let user: User | undefined;
-	export let apartment: Apartment | undefined;
-
-	$: apartmentHref = apartment ? `/apartments/${apartment.apartment}` : '/';
+	import { page } from '$app/stores';
 </script>
 
 <div class="hidden w-full items-center justify-between text-banner-foreground md:flex">
@@ -19,10 +15,16 @@
 	</nav>
 
 	<div class="text-lg font-semibold hover:underline">
-		{#if user}
-			<a href={apartmentHref} class="hover:underline">
-				{apartment?.apartment || user.name}
-			</a>
+		{#if $page.data.user}
+			{#if $page.data.apartment}
+				<a href="/apartments/{$page.data.apartment.apartment}" class="hover:underline">
+					{$page.data.apartment.apartment}
+				</a>
+			{:else}
+				<a href="/" class="hover:underline">
+					{$page.data.user}
+				</a>
+			{/if}
 		{:else}
 			<a href="/auth/signin">Logga in</a>
 		{/if}

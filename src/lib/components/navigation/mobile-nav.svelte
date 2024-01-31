@@ -5,18 +5,14 @@
 	import { HamburgerMenu } from 'radix-icons-svelte';
 	import { siteConfig, navigation } from '$lib/config';
 	import { afterNavigate } from '$app/navigation';
-	import type { Apartment, User } from '$lib/types';
 
-	export let user: User | undefined;
-	export let apartment: Apartment | undefined;
+	import { page } from '$app/stores';
 
 	let open = false;
 
 	afterNavigate(() => {
 		open = false;
 	});
-
-	$: apartmentHref = apartment ? `/apartments/${apartment.apartment}` : '/';
 </script>
 
 <div class="flex w-full items-center justify-end md:hidden">
@@ -48,10 +44,16 @@
 				</div>
 
 				<div class="text-lg font-semibold">
-					{#if user}
-						<a href={apartmentHref} class="hover:underline">
-							{apartment?.apartment || user.name}
-						</a>
+					{#if $page.data.user}
+						{#if $page.data.apartment}
+							<a href="/apartments/{$page.data.apartment.apartment}" class="hover:underline">
+								{$page.data.apartment.apartment}
+							</a>
+						{:else}
+							<a href="/" class="hover:underline">
+								{$page.data.user.name}
+							</a>
+						{/if}
 					{:else}
 						<a href="/auth/signin" class="hover:underline">Logga in</a>
 					{/if}

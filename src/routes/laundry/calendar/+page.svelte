@@ -10,35 +10,14 @@
 	import { buttonVariants } from '$lib/components/ui/button';
 	import { formatDay, formatPocketBaseReservation, getTodaysDate, toDate } from './helpers';
 	import { timeslots } from './timeslots';
-	import { onMount } from 'svelte';
-	import { invalidate } from '$app/navigation';
+
+	import { page } from '$app/stores';
 
 	const today = getTodaysDate();
 
 	let value = today;
 
 	export let data;
-
-	let refresh: boolean = false;
-
-	function handleVisibilityChange() {
-		refresh = !document.hidden;
-	}
-
-	// refresh every 10 seconds while page is open and in foreground
-	onMount(() => {
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-		const refresher = setInterval(() => {
-			if (refresh) {
-				invalidate('laundry:calendar');
-			}
-		}, 1000 * 10);
-
-		return () => {
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
-			clearInterval(refresher);
-		};
-	});
 
 	const title = 'Tvättstuga - bokningar';
 	const description = 'Bokade tider i vår tvättstuga';
@@ -95,7 +74,7 @@
 										{date}
 										{disabled}
 										reservations={data.reservations[date.toString()]}
-										apartment={data.apartment}
+										apartment={$page.data.apartment}
 										builders={[builder]}
 									/>
 								</Calendar.Day>
@@ -121,7 +100,7 @@
 							reservation={data.reservations[value.toString()]
 								? data.reservations[value.toString()][timeslot.start.toString()]
 								: undefined}
-							apartment={data.apartment}
+							apartment={$page.data.apartment}
 							responsive={false}
 						/>
 					{/each}

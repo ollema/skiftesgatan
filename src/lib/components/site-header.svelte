@@ -1,10 +1,6 @@
 <script lang="ts">
 	import Logo from './logo.svelte';
 	import { MainNav, MobileNav } from '$lib/components/navigation';
-	import type { Apartment, User } from '$lib/types';
-
-	export let user: User | undefined;
-	export let apartment: Apartment | undefined;
 </script>
 
 <header class="sticky top-0 z-40 w-full border-b-2 bg-banner">
@@ -16,7 +12,7 @@
 			<div>Skiftesgatan</div>
 			<Logo />
 		</a>
-		<MainNav {user} {apartment} />
-		<MobileNav {user} {apartment} />
+		<MainNav />
+		<MobileNav />
 	</div>
 </header>
