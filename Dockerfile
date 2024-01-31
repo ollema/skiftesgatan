@@ -63,8 +63,7 @@ COPY --from=pocketbase-downloader /pb/pocketbase /pb/pocketbase
 COPY --from=sveltekit-build /app/pb_public /pb/pb_public
 
 RUN ls -lha /pb
-RUN ls -lha /pb/public
-RUN ls -lha /pb/pb_data
+RUN ls -lha /pb/pb_public
 
 # expose ports
 EXPOSE 8080
