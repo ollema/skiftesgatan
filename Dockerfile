@@ -54,7 +54,7 @@ RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 COPY --from=pocketbase-downloader /pb/pocketbase /pb/pocketbase
 
 # copy sveltekit build
-COPY --from=build /app/pb_public /pb/pb_public
+COPY --from=sveltekit-build /app/pb_public /pb/pb_public
 
 # expose ports
 EXPOSE 8080
