@@ -7,9 +7,9 @@ export async function maybeGetPage(slug: string, fetchImplementation?: typeof fe
 	try {
 		return await pb
 			.collection(Collections.Content)
-			.getFirstListItem(
-				pb.filter('slug = {:slug}', { slug: slug, fetch: selectedFetchImplementation })
-			);
+			.getFirstListItem(pb.filter('slug = {:slug}', { slug: slug }), {
+				fetch: selectedFetchImplementation
+			});
 	} catch (e) {
 		return undefined;
 	}
