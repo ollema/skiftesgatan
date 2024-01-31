@@ -62,11 +62,8 @@ COPY --from=pocketbase-downloader /pb/pocketbase /pb/pocketbase
 # copy sveltekit build
 COPY --from=sveltekit-build /app/pb_public /pb/pb_public
 
-RUN ls -lha /pb
-RUN ls -lha /pb/pb_public
-
 # expose ports
 EXPOSE 8080
 
 # run pocketbase
-CMD ["/pb/pocketbase", "serve"]
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
