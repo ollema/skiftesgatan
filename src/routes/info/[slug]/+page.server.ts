@@ -5,7 +5,7 @@ export const load = async ({ locals, params }) => {
 	const page = await maybeGetPage(locals.pb, 'info/' + params.slug);
 
 	if (!page) {
-		throw error(404, 'Page not found');
+		error(404, 'Page not found');
 	}
 
 	return {

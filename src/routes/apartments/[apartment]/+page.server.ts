@@ -19,6 +19,6 @@ export const load = async ({ locals, params, depends }) => {
 			agreements
 		};
 	} catch (e) {
-		throw error(404, 'Apartment not found or you may not have access to view it.');
+		error(404, 'Apartment not found or you may not have access to view it.');
 	}
 };

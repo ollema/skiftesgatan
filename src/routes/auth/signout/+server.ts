@@ -4,5 +4,5 @@ export const GET = async ({ locals, cookies }) => {
 	locals.pb.authStore.clear();
 	cookies.delete('pb_auth', { path: '/' });
 
-	throw redirect(302, '/');
+	redirect(302, '/');
 };

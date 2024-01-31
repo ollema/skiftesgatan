@@ -9,23 +9,23 @@ export const GET = async ({ locals, url, cookies }) => {
 	const params = url.searchParams;
 	const state = params.get('state');
 	if (!state) {
-		throw error(404, 'no state query parameter found');
+		error(404, 'no state query parameter found');
 	}
 	const code = params.get('code');
 	if (!code) {
-		throw error(404, 'no code query parameter found');
+		error(404, 'no code query parameter found');
 	}
 
 	// load the previously stored provider's data from cookie
 	const rawProvider = cookies.get('provider');
 	if (!rawProvider) {
-		throw error(404, 'no provider cookie found');
+		error(404, 'no provider cookie found');
 	}
 	const provider = JSON.parse(rawProvider);
 
 	// compare the redirect's state param and the stored provider's one
 	if (state !== provider.state) {
-		throw error(404, "state parameters don't match");
+		error(404, "state parameters don't match");
 	}
 
 	// authenticate the user with the provider
@@ -65,5 +65,5 @@ export const GET = async ({ locals, url, cookies }) => {
 		}
 	);
 
-	throw redirect(302, '/');
+	redirect(302, '/');
 };

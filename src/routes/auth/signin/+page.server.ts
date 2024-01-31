@@ -17,7 +17,7 @@ export const actions = {
 		}
 		const provider = authProviders.find((method: AuthMethod) => method.name === authProvider);
 		if (!provider) {
-			throw error(500, `unknown auth provider: ${authProvider}`);
+			error(500, `unknown auth provider: ${authProvider}`);
 		}
 
 		cookies.set('provider', JSON.stringify(provider), {
@@ -27,6 +27,6 @@ export const actions = {
 
 		const redirectUrl = provider.authUrl + env.AUTH_REDIRECT_URL;
 
-		throw redirect(302, redirectUrl);
+		redirect(302, redirectUrl);
 	}
 };
