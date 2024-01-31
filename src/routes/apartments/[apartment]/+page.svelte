@@ -23,9 +23,10 @@
 		switch (agreement.type) {
 			case AgreementsTypeOptions.sublease:
 				return 'Andrahandsuthyrning';
-			default:
+			default: {
 				const exhaustive: never = agreement.type;
 				return exhaustive;
+			}
 		}
 	}
 
