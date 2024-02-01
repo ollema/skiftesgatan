@@ -27,8 +27,8 @@
 			</Button>
 		</Sheet.Trigger>
 
-		<Sheet.Content side="left" class="bg-banner p-4 text-banner-foreground">
-			<div class="flex h-full flex-col justify-between">
+		<Sheet.Content side="left" class="pt-safe bg-banner px-4 text-banner-foreground">
+			<div class="mt-4 flex h-full flex-col justify-between">
 				<div>
 					<a class="text-xl font-bold text-banner-foreground hover:underline" href="/">
 						{siteConfig.name}
@@ -43,7 +43,7 @@
 					</ol>
 				</div>
 
-				<div class="text-lg font-semibold">
+				<div class="pb-4 text-lg font-semibold">
 					{#if $page.data.user}
 						{#if $page.data.apartment}
 							<a href="/apartments/{$page.data.apartment.apartment}" class="hover:underline">
@@ -62,3 +62,9 @@
 		</Sheet.Content>
 	</Sheet.Root>
 </div>
+
+<style lang="postcss">
+	:global([data-dialog-close]) {
+		padding-top: max(0rem, env(safe-area-inset-top));
+	}
+</style>

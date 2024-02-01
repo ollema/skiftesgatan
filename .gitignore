@@ -2,6 +2,7 @@
 node_modules
 /build
 /pocketbase
+/pocketbase_bin
 /pb_data
 /pb_public
 /.svelte-kit
@@ -11,3 +12,4 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+capacitor.config.json.timestamp-*

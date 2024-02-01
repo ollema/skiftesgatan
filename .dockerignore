@@ -2,8 +2,11 @@
 node_modules
 /build
 /pocketbase
+/pocketbase_bin
 /pb_data
 /pb_public
+/ios
+/android
 /.svelte-kit
 /package
 vite.config.js.timestamp-*
