@@ -5,6 +5,8 @@ node_modules
 /pocketbase_bin
 /pb_data
 /pb_public
+/ios
+/android
 /.svelte-kit
 /package
 .env

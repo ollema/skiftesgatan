@@ -12,7 +12,7 @@ async function syncNetworkConfig() {
 	config.server.cleartext = true;
 	await fs.writeFile('./capacitor.config.json', JSON.stringify(config));
 	await new Promise((resolve, reject) => {
-		const child = exec('npx cap sync');
+		const child = exec('pnpm cap sync');
 		child.addListener('error', reject);
 		child.addListener('exit', resolve);
 	});

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">skiftesgatan</string>
+    <string name="title_activity_main">skiftesgatan</string>
+    <string name="package_name">com.ollema.skiftesgatan</string>
+    <string name="custom_url_scheme">com.ollema.skiftesgatan</string>
+</resources>
