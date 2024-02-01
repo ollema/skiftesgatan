@@ -2,6 +2,7 @@
 node_modules
 /build
 /pocketbase
+/pocketbase_bin
 /pb_data
 /pb_public
 /.svelte-kit
