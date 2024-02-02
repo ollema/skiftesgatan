@@ -1,15 +1,22 @@
 <script lang="ts">
-	import { MetaTags } from 'svelte-meta-tags';
 	import { Button } from '$lib/components/ui/button';
+	import { MetaTags } from 'svelte-meta-tags';
 
+	import { Preferences } from '@capacitor/preferences';
+	import type { AuthProviderInfo } from 'pocketbase';
+
+	import { getRedirectUrl } from '$lib/pocketbase/auth';
+
+	import type { ComponentType } from 'svelte';
 	import GoogleIcon from './GoogleIcon.svelte';
 	import FacebookIcon from './FacebookIcon.svelte';
-	import { signin } from '$lib/pocketbase';
+	const icons: { [key: string]: ComponentType } = { google: GoogleIcon, facebook: FacebookIcon };
 
-	const providers = [
-		{ name: 'google', label: 'Logga in med Google', icon: GoogleIcon },
-		{ name: 'facebook', label: 'Logga in med Facebook', icon: FacebookIcon }
-	];
+	export let data;
+
+	async function handleProviderClick(provider: AuthProviderInfo) {
+		await Preferences.set({ key: 'provider', value: JSON.stringify(provider) });
+	}
 
 	const title = 'Logga in';
 	const description = 'Logga in som boende i BRF Skiftesgatan 4';
@@ -23,13 +30,18 @@
 	<p class="mb-4">Logga in med ett av följande konton:</p>
 
 	<div class="flex flex-col gap-4 sm:flex-row">
-		{#each providers as provider}
-			<Button variant="outline" class="w-52" on:click={async () => signin(provider.name)}>
+		{#each data.providers as provider}
+			<Button
+				variant="outline"
+				class="w-32"
+				href={provider.authUrl + getRedirectUrl()}
+				on:click={async () => handleProviderClick(provider)}
+			>
 				<div class="mr-2 h-4 w-4">
-					<svelte:component this={provider.icon} />
+					<svelte:component this={icons[provider.name]} />
 				</div>
 				<div class="font-sans font-semibold">
-					{provider.label}
+					{provider.name.charAt(0).toUpperCase() + provider.name.slice(1)}
 				</div>
 			</Button>
 		{/each}

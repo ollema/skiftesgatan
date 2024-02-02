@@ -10,7 +10,7 @@ const webRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
 const androidRedirectUrl = 'https://skiftesgatan.com/auth/redirect/android';
 const iosRedirectUrl = 'https://skiftesgatan.com/auth/redirect/ios';
 
-function getRedirectUrl() {
+export function getRedirectUrl() {
 	switch (Capacitor.getPlatform()) {
 		case 'web':
 			// use ngrok redirect url in development
@@ -25,20 +25,6 @@ function getRedirectUrl() {
 		default:
 			throw new Error('unknown platform');
 	}
-}
-
-export async function signin(provider: string) {
-	const { authProviders } = await pb.collection('users').listAuthMethods();
-	const authProvider = authProviders.find((method) => method.name === provider);
-	if (!authProvider) {
-		throw new Error(`unknown auth provider: ${provider}`);
-	}
-
-	// save the provider to localStorage/UserDefaults/SharedPreferences
-	await Preferences.set({ key: 'provider', value: JSON.stringify(authProvider) });
-
-	// open the provider's auth url in the browser
-	window.location.assign(authProvider.authUrl + getRedirectUrl());
 }
 
 export async function redirect(url: URL) {
