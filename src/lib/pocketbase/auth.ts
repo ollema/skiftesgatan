@@ -1,6 +1,32 @@
+import { Capacitor } from '@capacitor/core';
+import { Preferences } from '@capacitor/preferences';
+import { Browser } from '@capacitor/browser';
+
 import { pb } from './client';
 
-import { PUBLIC_REDIRECT_URL } from '$env/static/public';
+import { dev } from '$app/environment';
+import { PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
+
+const webRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
+const androidRedirectUrl = 'https://skiftesgatan.com/auth/redirect/android';
+const iosRedirectUrl = 'https://skiftesgatan.com/auth/redirect/ios';
+
+function getRedirectUrl() {
+	switch (Capacitor.getPlatform()) {
+		case 'web':
+			// use ngrok redirect url in development
+			if (dev) {
+				return PUBLIC_NGROK_REDIRECT_URL;
+			}
+			return webRedirectUrl;
+		case 'android':
+			return androidRedirectUrl;
+		case 'ios':
+			return iosRedirectUrl;
+		default:
+			throw new Error('unknown platform');
+	}
+}
 
 export async function signin(provider: string) {
 	const { authProviders } = await pb.collection('users').listAuthMethods();
@@ -9,10 +35,14 @@ export async function signin(provider: string) {
 		throw new Error(`unknown auth provider: ${provider}`);
 	}
 
-	// save the provider to localStorage
-	localStorage.setItem('provider', JSON.stringify(authProvider));
+	// save the provider to localStorage/UserDefaults/SharedPreferences
+	await Preferences.set({ key: 'provider', value: JSON.stringify(authProvider) });
 
-	window.location.assign(authProvider.authUrl + PUBLIC_REDIRECT_URL);
+	// open the provider's auth url in the browser
+	await Browser.open({
+		url: authProvider.authUrl + getRedirectUrl(),
+		windowName: '_self'
+	});
 }
 
 export async function redirect(url: URL) {
@@ -27,8 +57,8 @@ export async function redirect(url: URL) {
 		throw new Error('no code query parameter found');
 	}
 
-	// load the provider from localStorage
-	const authProvider = JSON.parse(localStorage.getItem('provider') || '{}');
+	// load the provider from localStorage/UserDefaults/SharedPreferences
+	const authProvider = JSON.parse((await Preferences.get({ key: 'provider' })).value || '{}');
 	if (!authProvider) {
 		throw new Error('no provider found');
 	}
@@ -41,7 +71,7 @@ export async function redirect(url: URL) {
 	// authenticate the user with the provider
 	const { record, meta } = await pb
 		.collection('users')
-		.authWithOAuth2Code(authProvider.name, code, authProvider.codeVerifier, PUBLIC_REDIRECT_URL, {
+		.authWithOAuth2Code(authProvider.name, code, authProvider.codeVerifier, getRedirectUrl(), {
 			// TODO: must fix!!!
 			role: 'member'
 		});
@@ -59,8 +89,8 @@ export async function redirect(url: URL) {
 	// refresh the auth store
 	await pb.collection('users').authRefresh();
 
-	// remove the provider from localStorage
-	localStorage.removeItem('provider');
+	// remove the provider from localStorage/UserDefaults/SharedPreferences
+	await Preferences.remove({ key: 'provider' });
 
 	window.location.assign('/');
 }

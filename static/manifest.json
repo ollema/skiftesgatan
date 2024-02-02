@@ -29,5 +29,21 @@
 			"type": "image/png",
 			"purpose": "maskable"
 		}
+	],
+	"screenshots": [
+		{
+			"src": "android_screenshot_tablet.png",
+			"sizes": "2560x1600",
+			"type": "image/png",
+			"form_factor": "wide",
+			"label": "Laundry booking calendar (tablet)"
+		},
+		{
+			"src": "android_screenshot.png",
+			"sizes": "1080x2220",
+			"type": "image/png",
+			"form_factor": "narrow",
+			"label": "Laundry booking calendar"
+		}
 	]
 }
