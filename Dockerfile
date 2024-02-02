@@ -34,6 +34,10 @@ RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 COPY . /app
 WORKDIR /app
 
+# set environment variables
+# (is not used in prod but needs to be set for build to work)
+ENV PUBLIC_NGROK_REDIRECT_URL=""
+
 # build sveltekit app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm svelte-kit sync
