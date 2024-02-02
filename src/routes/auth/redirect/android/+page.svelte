@@ -18,7 +18,7 @@
 	<p>Klicka på knappen nedan för att öppna appen och slutföra inloggningen</p>
 
 	<div class="flex flex-col gap-4 sm:flex-row">
-		<Button variant="outline" href={$page.url.href}>
+		<Button variant="outline" on:click={openApp}>
 			<div class="font-sans font-semibold">Öppna appen</div>
 		</Button>
 	</div>
