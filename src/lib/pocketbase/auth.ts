@@ -1,6 +1,5 @@
 import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
-import { Browser } from '@capacitor/browser';
 
 import { pb } from './client';
 
@@ -39,10 +38,7 @@ export async function signin(provider: string) {
 	await Preferences.set({ key: 'provider', value: JSON.stringify(authProvider) });
 
 	// open the provider's auth url in the browser
-	await Browser.open({
-		url: authProvider.authUrl + getRedirectUrl(),
-		windowName: '_self'
-	});
+	window.location.assign(authProvider.authUrl + getRedirectUrl());
 }
 
 export async function redirect(url: URL) {
