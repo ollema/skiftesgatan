@@ -1,7 +1,15 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	import { Button } from '$lib/components/ui/button';
+	import { Browser } from '@capacitor/browser';
+
+	async function openApp() {
+		const target = $page.url.href;
+		await Browser.close();
+		await goto(target);
+	}
 </script>
 
 <div class="flex flex-col items-center justify-center gap-4 pt-8">
