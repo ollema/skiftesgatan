@@ -1,30 +1,32 @@
-import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 
 import { pb } from './client';
+import type { AuthProviderInfo } from 'pocketbase';
 
 import { dev } from '$app/environment';
 import { PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
-
-const webRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
-const androidRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
-const iosRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
+const redirectUrl = 'https://skiftesgatan.com/auth/redirect';
 
 export function getRedirectUrl() {
-	switch (Capacitor.getPlatform()) {
-		case 'web':
-			// use ngrok redirect url in development
-			if (dev) {
-				return PUBLIC_NGROK_REDIRECT_URL;
-			}
-			return webRedirectUrl;
-		case 'android':
-			return androidRedirectUrl;
-		case 'ios':
-			return iosRedirectUrl;
-		default:
-			throw new Error('unknown platform');
+	if (dev) {
+		return PUBLIC_NGROK_REDIRECT_URL;
 	}
+	return redirectUrl;
+}
+
+const providerKey = 'provider';
+
+export async function getProvider() {
+	const provider = await Preferences.get({ key: providerKey });
+	return provider.value ? (JSON.parse(provider.value) as AuthProviderInfo) : null;
+}
+
+export async function setProvider(provider: AuthProviderInfo) {
+	await Preferences.set({ key: providerKey, value: JSON.stringify(provider) });
+}
+
+export async function removeProvider() {
+	await Preferences.remove({ key: providerKey });
 }
 
 export async function redirect(url: URL) {
@@ -40,7 +42,7 @@ export async function redirect(url: URL) {
 	}
 
 	// load the provider from localStorage/UserDefaults/SharedPreferences
-	const authProvider = JSON.parse((await Preferences.get({ key: 'provider' })).value || '{}');
+	const authProvider = await getProvider();
 	if (!authProvider) {
 		throw new Error('no provider found');
 	}
@@ -72,7 +74,7 @@ export async function redirect(url: URL) {
 	await pb.collection('users').authRefresh();
 
 	// remove the provider from localStorage/UserDefaults/SharedPreferences
-	await Preferences.remove({ key: 'provider' });
+	await removeProvider();
 
 	window.location.assign('/');
 }

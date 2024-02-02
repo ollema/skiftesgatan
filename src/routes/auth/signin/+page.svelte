@@ -2,10 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { MetaTags } from 'svelte-meta-tags';
 
-	import { Preferences } from '@capacitor/preferences';
-	import type { AuthProviderInfo } from 'pocketbase';
-
-	import { getRedirectUrl } from '$lib/pocketbase/auth';
+	import { getRedirectUrl, setProvider } from '$lib/pocketbase/auth';
 
 	import type { ComponentType } from 'svelte';
 	import GoogleIcon from './GoogleIcon.svelte';
@@ -13,10 +10,6 @@
 	const icons: { [key: string]: ComponentType } = { google: GoogleIcon, facebook: FacebookIcon };
 
 	export let data;
-
-	async function handleProviderClick(provider: AuthProviderInfo) {
-		await Preferences.set({ key: 'provider', value: JSON.stringify(provider) });
-	}
 
 	const title = 'Logga in';
 	const description = 'Logga in som boende i BRF Skiftesgatan 4';
@@ -35,7 +28,7 @@
 				variant="outline"
 				class="w-32"
 				href={provider.authUrl + getRedirectUrl()}
-				on:click={async () => handleProviderClick(provider)}
+				on:click={async () => setProvider(provider)}
 			>
 				<div class="mr-2 h-4 w-4">
 					<svelte:component this={icons[provider.name]} />
