@@ -38,9 +38,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            "PUBLIC_POCKETBASE_URL=${{ secrets.PUBLIC_POCKETBASE_URL }}"
-            "PUBLIC_REDIRECT_URL=${{ secrets.PUBLIC_REDIRECT_URL }}"
 
       - name: Deploy
         uses: caprover/deploy-from-github@v1.1.2

@@ -11,7 +11,7 @@ const config = {
 			pages: 'pb_public',
 			assets: 'pb_public',
 			fallback: 'index.html',
-			precompress: true,
+			precompress: false,
 			strict: true
 		}),
 		csrf: {
