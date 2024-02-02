@@ -7,8 +7,8 @@ import { dev } from '$app/environment';
 import { PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
 
 const webRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
-const androidRedirectUrl = 'https://skiftesgatan.com/auth/redirect/android';
-const iosRedirectUrl = 'https://skiftesgatan.com/auth/redirect/ios';
+const androidRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
+const iosRedirectUrl = 'https://skiftesgatan.com/auth/redirect';
 
 export function getRedirectUrl() {
 	switch (Capacitor.getPlatform()) {
