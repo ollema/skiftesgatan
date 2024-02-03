@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { MetaTags } from 'svelte-meta-tags';
 
-	import { getRedirectUrl, setProvider } from '$lib/pocketbase/auth';
+	import { getRedirectUrl, setProvider } from '$lib/pocketbase';
 
 	import type { ComponentType } from 'svelte';
 	import GoogleIcon from './GoogleIcon.svelte';

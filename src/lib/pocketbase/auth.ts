@@ -16,7 +16,7 @@ export function getRedirectUrl() {
 
 const providerKey = 'provider';
 
-export async function getProvider() {
+async function getProvider() {
 	const provider = await Preferences.get({ key: providerKey });
 	return provider.value ? (JSON.parse(provider.value) as AuthProviderInfo) : null;
 }
@@ -25,11 +25,11 @@ export async function setProvider(provider: AuthProviderInfo) {
 	await Preferences.set({ key: providerKey, value: JSON.stringify(provider) });
 }
 
-export async function removeProvider() {
+async function removeProvider() {
 	await Preferences.remove({ key: providerKey });
 }
 
-export async function redirect(url: URL) {
+export async function handleRedirect(url: URL) {
 	// parse the query parameters from the redirected url
 	const params = url.searchParams;
 	const state = params.get('state');

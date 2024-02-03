@@ -1,6 +1,6 @@
 export { pb } from './client';
 
-export { signin, redirect, signout } from './auth';
+export { getRedirectUrl, setProvider, handleRedirect, signout } from './auth';
 
 export { maybeGetAgreementsForApartment } from './agreements';
 

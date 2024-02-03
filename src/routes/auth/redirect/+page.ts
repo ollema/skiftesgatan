@@ -1,5 +1,5 @@
-import { redirect } from '$lib/pocketbase/index.js';
+import { handleRedirect } from '$lib/pocketbase';
 
 export const load = async ({ url }) => {
-	await redirect(url);
+	await handleRedirect(url);
 };
