@@ -3,6 +3,8 @@ import { Preferences } from '@capacitor/preferences';
 import { pb } from './client';
 import type { AuthProviderInfo } from 'pocketbase';
 
+import { goto } from '$app/navigation';
+
 import { dev } from '$app/environment';
 import { PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
 const redirectUrl = 'https://skiftesgatan.com/auth/redirect';
@@ -76,7 +78,7 @@ export async function handleRedirect(url: URL) {
 	// remove the provider from localStorage/UserDefaults/SharedPreferences
 	await removeProvider();
 
-	window.location.assign('/');
+	await goto('/');
 }
 
 export function signout() {
