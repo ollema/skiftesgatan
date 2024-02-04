@@ -11,10 +11,7 @@ App.addListener('appUrlOpen', async (event) => {
 	await goto(url.pathname + url.search + url.hash);
 });
 
-Sentry.init({
-	dsn: PUBLIC_DSN,
-	tracesSampleRate: 1.0
-});
+Sentry.init({ dsn: PUBLIC_DSN });
 
 type MaybePromise<T> = T | Promise<T>;
 
