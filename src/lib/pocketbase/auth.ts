@@ -4,6 +4,7 @@ import { pb } from './client';
 import type { AuthProviderInfo } from 'pocketbase';
 
 import { goto } from '$app/navigation';
+import { error } from '@sveltejs/kit';
 
 import { dev } from '$app/environment';
 import { PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
@@ -36,22 +37,22 @@ export async function handleRedirect(url: URL) {
 	const params = url.searchParams;
 	const state = params.get('state');
 	if (!state) {
-		throw new Error('no state query parameter found');
+		error(400, { message: 'no state query parameter found' });
 	}
 	const code = params.get('code');
 	if (!code) {
-		throw new Error('no code query parameter found');
+		error(400, { message: 'no code query parameter found' });
 	}
 
 	// load the provider from localStorage/UserDefaults/SharedPreferences
 	const authProvider = await getProvider();
 	if (!authProvider) {
-		throw new Error('no provider found');
+		error(403, { message: 'no provider found' });
 	}
 
 	// compare the redirect's state param and the stored provider's one
 	if (state !== authProvider.state) {
-		throw new Error("state parameters don't match");
+		error(403, { message: 'state mismatch' });
 	}
 
 	// authenticate the user with the provider
