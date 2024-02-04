@@ -38,6 +38,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            PUBLIC_DSN=${{ secrets.PUBLIC_DSN }}
 
       - name: Deploy
         uses: caprover/deploy-from-github@v1.1.2

@@ -35,7 +35,8 @@ COPY . /app
 WORKDIR /app
 
 # set environment variables
-# (is not used in prod but needs to be set for build to work)
+ARG PUBLIC_DSN
+ENV PUBLIC_DSN=${PUBLIC_DSN}
 ENV PUBLIC_NGROK_REDIRECT_URL=""
 
 # build sveltekit app
