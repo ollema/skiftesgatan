@@ -3,7 +3,10 @@ import { App } from '@capacitor/app';
 import * as Sentry from '@sentry/sveltekit';
 import type { NavigationEvent } from '@sveltejs/kit';
 
+import { active } from '$lib/active';
+
 import { PUBLIC_DSN } from '$env/static/public';
+import { dev } from '$app/environment';
 
 App.addListener('appUrlOpen', async (event) => {
 	const url = new URL(event.url);
@@ -11,7 +14,14 @@ App.addListener('appUrlOpen', async (event) => {
 	await goto(url.pathname + url.search + url.hash);
 });
 
-Sentry.init({ dsn: PUBLIC_DSN });
+App.addListener('appStateChange', async (state) => {
+	active.set(state.isActive);
+});
+
+Sentry.init({
+	dsn: PUBLIC_DSN,
+	environment: dev ? 'development' : 'production'
+});
 
 type MaybePromise<T> = T | Promise<T>;
 

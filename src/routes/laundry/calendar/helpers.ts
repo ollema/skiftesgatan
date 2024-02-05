@@ -6,6 +6,7 @@ import {
 	getLocalTimeZone,
 	DateFormatter,
 	toTime,
+	now,
 	type DateValue
 } from '@internationalized/date';
 
@@ -30,6 +31,16 @@ export function getTodaysDate() {
 	const day = date.getDate();
 
 	return new CalendarDate(year, month, day);
+}
+
+export function getCurrentTime() {
+	return new DateFormatter('sv-SE', {
+		day: '2-digit',
+		month: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false
+	}).format(now(getLocalTimeZone()).toDate());
 }
 
 export function toDate(date: DateValue, tz = getLocalTimeZone()) {

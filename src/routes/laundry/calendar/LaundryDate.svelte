@@ -18,9 +18,9 @@
 <button
 	use:builderActions={{ builders }}
 	{...getAttrs(builders)}
-	class="flex w-full items-center justify-between bg-background p-1 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground/60"
+	class="flex h-full min-h-[27px] w-full items-center justify-between bg-background p-1 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground/60 sm:min-h-20"
 >
-	<div class="h-[25px] grow-0 text-xs sm:h-20 sm:text-base">
+	<div class="grow-0 text-xs sm:text-base">
 		<div class:today>
 			{date.day}
 		</div>
@@ -28,7 +28,7 @@
 
 	{#if !disabled}
 		<div>
-			<div class="flex h-full flex-col justify-center gap-[1px] sm:gap-[4px]">
+			<div class="flex flex-col justify-center gap-[1px] sm:gap-[3px]">
 				{#each timeslots as timeslot}
 					<Timeslot
 						{date}
