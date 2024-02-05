@@ -1,8 +1,9 @@
 import { maybeGetPage } from '$lib/pocketbase';
 import { error } from '@sveltejs/kit';
-import { navigation } from '$lib/config/navigation';
 
-export const load = async ({ params, fetch }) => {
+export const load = async ({ parent, params, fetch }) => {
+	await parent();
+
 	const page = await maybeGetPage('info/' + params.slug, fetch);
 
 	if (!page) {
@@ -19,18 +20,3 @@ export const load = async ({ params, fetch }) => {
 		meta: meta
 	};
 };
-
-export const entries = () => {
-	const info = navigation.find((item) => item.title === 'Information');
-	if (!info) {
-		return [];
-	}
-
-	return info.items.map((item) => {
-		return {
-			slug: item.href.split('/info/').pop() as string
-		};
-	});
-};
-
-export const prerender = true;

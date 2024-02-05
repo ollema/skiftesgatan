@@ -1,7 +1,9 @@
 import { getApartment, maybeGetAgreementsForApartment } from '$lib/pocketbase';
 import { error } from '@sveltejs/kit';
 
-export const load = async ({ params, fetch }) => {
+export const load = async ({ parent, params, fetch }) => {
+	await parent();
+
 	try {
 		const apartment = await getApartment(params.apartment, fetch);
 		const owners = [...new Set(apartment.expand?.owners?.map((o) => o.name))];

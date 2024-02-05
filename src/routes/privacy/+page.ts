@@ -1,7 +1,9 @@
 import { maybeGetPage } from '$lib/pocketbase';
 import { error } from '@sveltejs/kit';
 
-export const load = async ({ fetch }) => {
+export const load = async ({ parent, fetch }) => {
+	await parent();
+
 	const page = await maybeGetPage('privacy', fetch);
 
 	if (!page) {
@@ -18,5 +20,3 @@ export const load = async ({ fetch }) => {
 		meta
 	};
 };
-
-export const prerender = true;

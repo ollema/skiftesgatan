@@ -1,6 +1,8 @@
 import { pb } from '$lib/pocketbase';
 
-export const load = async () => {
+export const load = async ({ parent }) => {
+	await parent();
+
 	const { authProviders } = await pb.collection('users').listAuthMethods();
 
 	const meta = {

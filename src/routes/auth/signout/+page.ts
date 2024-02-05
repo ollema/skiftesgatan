@@ -1,5 +1,7 @@
 import { signout } from '$lib/pocketbase';
 
-export const load = async () => {
+export const load = async ({ parent }) => {
+	await parent();
+
 	signout();
 };
