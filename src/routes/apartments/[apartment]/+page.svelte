@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { MetaTags } from 'svelte-meta-tags';
-	import * as PageHeader from '$lib/components/page-header';
 	import { AgreementsTypeOptions, type AgreementsRecord } from '$lib/pocketbase-types.js';
 
 	import { page } from '$app/stores';
@@ -30,19 +28,7 @@
 		const end = new Date(agreement.end).toLocaleDateString('sv-SE', options).replaceAll('/', '-');
 		return `${start} - ${end}`;
 	}
-
-	const title = `Lägenhet ${data.apartment.apartment}`;
-	const description = 'Information om din lägenhet.';
 </script>
-
-<MetaTags {title} {description} />
-
-<PageHeader.Root>
-	<PageHeader.Heading>
-		<PageHeader.Title>{title}</PageHeader.Title>
-		<PageHeader.Description>{description}</PageHeader.Description>
-	</PageHeader.Heading>
-</PageHeader.Root>
 
 <div class="flex flex-col gap-4">
 	<div>

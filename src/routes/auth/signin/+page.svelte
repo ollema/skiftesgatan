@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { MetaTags } from 'svelte-meta-tags';
 
 	import { getRedirectUrl, setProvider } from '$lib/pocketbase';
 
@@ -10,12 +9,7 @@
 	const icons: { [key: string]: ComponentType } = { google: GoogleIcon, facebook: FacebookIcon };
 
 	export let data;
-
-	const title = 'Logga in';
-	const description = 'Logga in som boende i BRF Skiftesgatan 4';
 </script>
-
-<MetaTags {title} {description} />
 
 <div class="flex flex-col items-center justify-center pt-8">
 	<h2 class="mb-2">Logga in</h2>

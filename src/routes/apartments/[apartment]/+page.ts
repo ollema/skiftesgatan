@@ -1,6 +1,6 @@
-// import { maybeGetAgreementsForApartment } from '$lib/server/agreements.js';
 import { getApartment, maybeGetAgreementsForApartment } from '$lib/pocketbase';
 import { error } from '@sveltejs/kit';
+import type { MetaTagsProps } from 'svelte-meta-tags';
 
 export const load = async ({ params, fetch }) => {
 	try {
@@ -9,11 +9,17 @@ export const load = async ({ params, fetch }) => {
 		const subtenants = [...new Set(apartment.expand?.subtenants?.map((s) => s.name))];
 		const agreements = await maybeGetAgreementsForApartment(params.apartment, fetch);
 
+		const meta: MetaTagsProps = {
+			title: `Lägenhet ${apartment.apartment}`,
+			description: 'Information om din lägenhet.'
+		};
+
 		return {
-			apartment: apartment,
+			apartment,
 			owners,
 			subtenants,
-			agreements
+			agreements,
+			meta
 		};
 	} catch (e) {
 		error(404, 'Apartment not found or you may not have access to view it.');
