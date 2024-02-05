@@ -1,6 +1,5 @@
 import { maybeGetPage } from '$lib/pocketbase';
 import { error } from '@sveltejs/kit';
-import type { MetaTagsProps } from 'svelte-meta-tags';
 
 export const load = async ({ fetch }) => {
 	const page = await maybeGetPage('privacy/data_deletion', fetch);
@@ -9,7 +8,7 @@ export const load = async ({ fetch }) => {
 		error(404, 'Page not found');
 	}
 
-	const meta: MetaTagsProps = {
+	const meta = {
 		title: page.title,
 		description: page.description
 	};

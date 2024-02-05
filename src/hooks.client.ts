@@ -1,12 +1,27 @@
+import { dev } from '$app/environment';
 import { goto } from '$app/navigation';
+import { active } from '$lib/active';
+
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import * as Sentry from '@sentry/sveltekit';
 import type { NavigationEvent } from '@sveltejs/kit';
 
-import { active } from '$lib/active';
-
 import { PUBLIC_DSN } from '$env/static/public';
-import { dev } from '$app/environment';
+
+function registerServiceWorker() {
+	navigator.serviceWorker.register('/service-worker.js', {
+		type: dev ? 'module' : 'classic'
+	});
+}
+
+if (Capacitor.getPlatform() === 'web' && 'serviceWorker' in navigator) {
+	if (document.readyState === 'complete') {
+		registerServiceWorker();
+	} else {
+		window.addEventListener('load', registerServiceWorker);
+	}
+}
 
 App.addListener('appUrlOpen', async (event) => {
 	const url = new URL(event.url);

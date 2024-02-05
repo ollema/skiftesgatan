@@ -4,20 +4,11 @@
 
 	import '../app.postcss';
 
-	import { MetaTags, type MetaTagsProps } from 'svelte-meta-tags';
-
-	import extend from 'just-extend';
-	import { page } from '$app/stores';
 	import { SiteFooter, SiteHeader } from '$lib/components';
 	import * as PageHeader from '$lib/components/page-header';
 
-	export let data;
-
-	let meta: MetaTagsProps;
-	$: meta = extend(true, {}, data.meta, $page.data.meta);
+	import { page } from '$app/stores';
 </script>
-
-<MetaTags {...meta} />
 
 <div class="relative flex min-h-screen flex-col">
 	<SiteHeader />
@@ -26,9 +17,9 @@
 		<main class="py-6">
 			<PageHeader.Root>
 				<PageHeader.Heading>
-					<PageHeader.Title>{meta.title}</PageHeader.Title>
-					{#if meta.description}
-						<PageHeader.Description>{meta.description}</PageHeader.Description>
+					<PageHeader.Title>{$page.data.meta.title}</PageHeader.Title>
+					{#if $page.data.meta.description}
+						<PageHeader.Description>{$page.data.meta.description}</PageHeader.Description>
 					{/if}
 				</PageHeader.Heading>
 			</PageHeader.Root>

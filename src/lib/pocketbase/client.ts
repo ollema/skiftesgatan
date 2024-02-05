@@ -2,12 +2,13 @@ import PocketBase, { BaseAuthStore, type AuthModel } from 'pocketbase';
 import type { TypedPocketBase } from '$lib/pocketbase-types';
 import { Preferences } from '@capacitor/preferences';
 
+const authKey = 'pb_auth';
+
 class PreferencesAuthStore extends BaseAuthStore {
 	private queue: Array<() => Promise<void>> = [];
 
 	constructor() {
 		super();
-		this._enqueue(() => this._loadInitial());
 	}
 
 	save(token: string, model?: AuthModel): void {
@@ -22,14 +23,10 @@ class PreferencesAuthStore extends BaseAuthStore {
 		this._enqueue(async () => await Preferences.remove({ key: authKey }));
 	}
 
-	private async _loadInitial() {
-		try {
-			const result = await Preferences.get({ key: authKey });
-			const parsed = JSON.parse(result.value || '{}') || {};
-			this.save(parsed.token || '', parsed.model || null);
-		} catch (_) {
-			// do nothing
-		}
+	async loadInitial(): Promise<void> {
+		const result = await Preferences.get({ key: authKey });
+		const parsed = JSON.parse(result.value || '{}') || {};
+		this.save(parsed.token || '', parsed.model || null);
 	}
 
 	private _enqueue(asyncCallback: () => Promise<void>) {
@@ -56,8 +53,6 @@ class PreferencesAuthStore extends BaseAuthStore {
 		});
 	}
 }
-
-const authKey = 'pb_auth';
 
 export const pb = new PocketBase(
 	'https://skiftesgatan.com',

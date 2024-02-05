@@ -3,7 +3,6 @@ import { getReservations } from '$lib/pocketbase';
 import type { NestedReservationMap } from './types';
 import { parsePocketBaseDateTime } from './helpers';
 import { toCalendarDate, toTime } from '@internationalized/date';
-import type { MetaTagsProps } from 'svelte-meta-tags';
 
 export const load = async ({ depends, parent, fetch }) => {
 	depends('laundry:calendar');
@@ -35,7 +34,7 @@ export const load = async ({ depends, parent, fetch }) => {
 			data.apartment?.apartment === reservation.expand?.apartment.apartment
 	);
 
-	const meta: MetaTagsProps = {
+	const meta = {
 		title: 'Tvättstuga',
 		description: 'Bokade tider i vår tvättstuga'
 	};
