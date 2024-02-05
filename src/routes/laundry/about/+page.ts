@@ -19,3 +19,5 @@ export const load = async ({ fetch }) => {
 		meta: meta
 	};
 };
+
+export const prerender = true;
