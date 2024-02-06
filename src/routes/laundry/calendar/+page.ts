@@ -36,7 +36,7 @@ export const load = async ({ depends, parent, fetch }) => {
 
 	const meta = {
 		title: 'Tvättstuga',
-		description: 'Bokade tider i vår tvättstuga'
+		description: 'Boka tider i vår tvättstuga'
 	};
 
 	return {

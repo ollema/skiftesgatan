@@ -31,9 +31,9 @@
 	}
 </script>
 
-<div class="mb-4 mt-[-0.5rem] flex items-center sm:mb-1">
-	<p class="text-sm">Senast uppdaterad: {updated}</p>
-	<Button class="p-3" on:click={invalidateData} variant="ghost">
+<div class="mb-4 mt-[-0.75rem] flex items-center gap-2 sm:mb-1">
+	<p class="text-sm">Senast uppdaterad {updated}</p>
+	<Button class="h-fit p-1" on:click={invalidateData} variant="outline">
 		<Update class="h-[14px] w-[14px]" />
 	</Button>
 </div>
