@@ -1,4 +1,4 @@
-export { pb } from './client';
+export { pb, loadInitial } from './client';
 
 export { getRedirectUrl, setProvider, handleRedirect, signout } from './auth';
 

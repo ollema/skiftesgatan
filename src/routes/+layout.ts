@@ -1,11 +1,11 @@
-import { pb, maybeGetApartmentForUser } from '$lib/pocketbase';
+import { loadInitial, pb, maybeGetApartmentForUser } from '$lib/pocketbase';
 
 export const ssr = false;
 export const prerender = false;
 export const trailingSlash = 'always';
 
 export const load = async ({ fetch }) => {
-	await pb.authStore.loadInitial();
+	await loadInitial();
 
 	if (!pb.authStore.isValid) {
 		pb.authStore.clear();
