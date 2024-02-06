@@ -1,9 +1,26 @@
 import {
 	createAppleSplashScreens,
 	defineConfig,
-	minimal2023Preset
+	type Preset
 } from '@vite-pwa/assets-generator/config';
 import { readFile } from 'node:fs/promises';
+
+export const minimal2023Preset: Preset = {
+	transparent: {
+		sizes: [64, 192, 512],
+		favicons: [[48, 'favicon.ico']]
+	},
+	maskable: {
+		sizes: [512],
+		padding: 0.2,
+		resizeOptions: { background: '#4a5d47', fit: 'contain' }
+	},
+	apple: {
+		sizes: [180],
+		padding: 0.0,
+		resizeOptions: { background: '#4a5d47', fit: 'contain' }
+	}
+};
 
 const basePath = '%sveltekit.assets%/';
 
@@ -16,10 +33,12 @@ export default defineConfig({
 		...minimal2023Preset,
 		appleSplashScreens: createAppleSplashScreens({
 			async darkImageResolver(imageName) {
-				return imageName === 'static/icon.svg' ? await readFile('static/icon-dark.svg') : undefined;
+				return imageName === 'static/icon-dark.svg'
+					? await readFile('static/icon-dark.svg')
+					: undefined;
 			},
-			padding: 0.2,
-			resizeOptions: { background: '#fad899', fit: 'contain' },
+			padding: 0,
+			resizeOptions: { background: '#4a5d47', fit: 'contain' },
 			darkResizeOptions: { background: '#4a5d47', fit: 'contain' },
 			linkMediaOptions: {
 				log: true,
@@ -38,5 +57,5 @@ export default defineConfig({
 			}
 		})
 	},
-	images: ['static/icon.svg']
+	images: ['static/icon-dark.svg']
 });
