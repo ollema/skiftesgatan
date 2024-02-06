@@ -79,7 +79,7 @@ export async function handleRedirect(url: URL) {
 	// remove the provider from localStorage/UserDefaults/SharedPreferences
 	await removeProvider();
 
-	await goto('/');
+	await goto('/', { invalidateAll: true });
 }
 
 export function signout() {
