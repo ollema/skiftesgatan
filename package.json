@@ -5,14 +5,15 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"build:node": "ADAPTER=node vite build",
+		"build:static": "ADAPTER=static vite build",
+		"build:cap": "pnpm build:static && pnpm cap sync",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"typegen": "pocketbase-typegen --env --out src/lib/pocketbase-types.ts && prettier --write src/lib/pocketbase-types.ts",
-		"dev:cap": "node scripts/sync_network_config.js && vite dev --host",
-		"build:cap": "vite build && pnpm cap sync",
 		"generate-pwa-assets": "pwa-assets-generator"
 	},
 	"devDependencies": {
@@ -32,6 +33,7 @@
 		"@melt-ui/pp": "^0.3.0",
 		"@melt-ui/svelte": "^0.74.0",
 		"@sentry/sveltekit": "^7.101.1",
+		"@sveltejs/adapter-node": "^4.0.1",
 		"@sveltejs/adapter-static": "^3.0.1",
 		"@sveltejs/kit": "^2.5.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.2",
