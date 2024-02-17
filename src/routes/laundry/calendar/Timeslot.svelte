@@ -2,18 +2,20 @@
 	import { toCalendarDateTime, type DateValue } from '@internationalized/date';
 	import type { Timeslot } from './timeslots';
 	import type { SerializableReservation } from './types';
-	import type { Apartment } from '$lib/types';
-	import { release, reserve } from '$lib/pocketbase';
+	import { release, reserve, pb } from '$lib/pocketbase';
+	import type { ApartmentsResponse } from '$lib/pocketbase-types';
 	import { invalidate } from '$app/navigation';
 
 	export let date: DateValue;
 	export let timeslot: Timeslot;
 	export let reservation: SerializableReservation | undefined;
-	export let apartment: Apartment | undefined;
+	export let apartment: ApartmentsResponse | undefined;
 	export let responsive = true;
 
-	$: start = toCalendarDateTime(date, timeslot.start);
-	$: end = toCalendarDateTime(date, timeslot.end);
+	import { PUBLIC_ADAPTER } from '$env/static/public';
+
+	let start = toCalendarDateTime(date, timeslot.start);
+	let end = toCalendarDateTime(date, timeslot.end);
 
 	function hourToString(hour: number) {
 		return hour.toString().padStart(2, '0');
@@ -21,11 +23,39 @@
 
 	async function handleClick(action: string) {
 		if (apartment && action === 'reserve') {
-			await reserve(apartment, start.toString() + 'Z', end.toString() + 'Z');
+			const startTime = start.toString() + 'Z';
+			const endTime = end.toString() + 'Z';
+
+			if (PUBLIC_ADAPTER === 'node') {
+				const response = await fetch(`/api/laundry/reservations/${apartment.apartment}/reserve`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ start: startTime, end: endTime })
+				});
+				if (!response.ok) {
+					console.error('failed to reserve laundry time slot:', response);
+					throw new Error('failed to reserve laundry time slot');
+				}
+			} else {
+				await reserve(pb, apartment, startTime, endTime);
+			}
 		}
+
 		if (apartment && action === 'release') {
-			await release(apartment);
+			if (PUBLIC_ADAPTER === 'node') {
+				const response = await fetch(`/api/laundry/reservations/${apartment.apartment}/release`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' }
+				});
+				if (!response.ok) {
+					console.error('failed to release laundry time slot:', response);
+					throw new Error('failed to release laundry time slot');
+				}
+			} else {
+				await release(pb, apartment);
+			}
 		}
+
 		await invalidate('laundry:calendar');
 	}
 

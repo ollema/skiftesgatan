@@ -1,11 +1,10 @@
-import type { AgreementsResponse } from '$lib/pocketbase-types';
+import type { AgreementsResponse, TypedPocketBase } from '$lib/pocketbase-types';
 import { Collections } from '$lib/pocketbase-types';
-
-import { pb } from './client';
 
 type ExpandedAgreementsResponse = AgreementsResponse<unknown> & { fileUrl: string };
 
 export async function maybeGetAgreementsForApartment(
+	pb: TypedPocketBase,
 	apartment: string,
 	fetchImplementation?: typeof fetch
 ) {

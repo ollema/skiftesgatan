@@ -1,14 +1,18 @@
-import type { User, Apartment } from './lib/types';
+import { ApartmentsResponse, TypedPocketBase } from '$lib/pocketbase-types';
+import type { AuthModel } from 'pocketbase';
 
 declare global {
 	declare namespace App {
 		interface PageData {
-			user?: User;
-			apartment?: Apartment;
+			user?: AuthModel;
+			apartment?: ApartmentsResponse;
 			meta: {
 				title: string;
 				description: string;
 			};
+		}
+		interface Locals {
+			pb: TypedPocketBase;
 		}
 	}
 }

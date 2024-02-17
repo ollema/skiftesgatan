@@ -1,27 +1,19 @@
-import { getApartment, maybeGetAgreementsForApartment } from '$lib/pocketbase';
+import { loadData } from './load';
+import { pb } from '$lib/pocketbase';
+
 import { error } from '@sveltejs/kit';
 
-export const load = async ({ parent, params, fetch }) => {
+import { PUBLIC_ADAPTER } from '$env/static/public';
+
+export const load = async ({ parent, data, params, fetch }) => {
 	await parent();
 
 	try {
-		const apartment = await getApartment(params.apartment, fetch);
-		const owners = [...new Set(apartment.expand?.owners?.map((o) => o.name))];
-		const subtenants = [...new Set(apartment.expand?.subtenants?.map((s) => s.name))];
-		const agreements = await maybeGetAgreementsForApartment(params.apartment, fetch);
-
-		const meta = {
-			title: `Lägenhet ${apartment.apartment}`,
-			description: 'Information om din lägenhet.'
-		};
-
-		return {
-			apartment,
-			owners,
-			subtenants,
-			agreements,
-			meta
-		};
+		if (PUBLIC_ADAPTER === 'node') {
+			return { ...data };
+		} else {
+			return loadData(pb, params.apartment, fetch);
+		}
 	} catch (e) {
 		error(404, 'Apartment not found or you may not have access to view it.');
 	}
