@@ -17,6 +17,11 @@ RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 COPY . /app
 WORKDIR /app
 
+# set environment variables
+ARG PUBLIC_DSN
+ENV PUBLIC_DSN=${PUBLIC_DSN}
+ENV PUBLIC_NGROK_REDIRECT_URL=""
+
 ####################################################################################################
 # production dependencies
 ####################################################################################################

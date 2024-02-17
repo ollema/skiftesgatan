@@ -54,7 +54,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "PUBLIC_DSN=${{ secrets.PUBLIC_DSN }}"
-            "PUBLIC_NGROK_REDIRECT_URL=${{ secrets.PUBLIC_NGROK_REDIRECT_URL }}"
 
       - name: Deploy
         uses: caprover/deploy-from-github@v1.1.2
