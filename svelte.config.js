@@ -7,7 +7,7 @@ import { preprocessMeltUI } from '@melt-ui/pp';
 
 const adapter = process.env.PUBLIC_ADAPTER === 'node' ? adapterNode : adapterStatic;
 const adapterConfig =
-	process.env.ADAPTER === 'node'
+	process.env.PUBLIC_ADAPTER === 'node'
 		? {
 				out: 'build-node'
 			}
