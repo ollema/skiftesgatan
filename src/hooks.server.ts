@@ -13,7 +13,7 @@ export const handleError = Sentry.handleErrorWithSentry(sentryServerErrorHandler
 
 // authentification with PocketBase
 export const handleAuth: Handle = async ({ event, resolve }) => {
-	event.locals.pb = new PocketBase('https://skiftesgatan.com') as TypedPocketBase;
+	event.locals.pb = new PocketBase('https://pocketbase.skiftesgatan.com') as TypedPocketBase;
 	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
 
 	try {
