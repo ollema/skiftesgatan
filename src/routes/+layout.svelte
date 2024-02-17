@@ -13,6 +13,11 @@
 <svelte:head>
 	<title>{$page.data.meta.title}</title>
 	<meta name="description" content={$page.data.meta.description} />
+	<link rel="canonical" href={$page.url.toString()} />
+	<meta property="og:title" content={$page.data.meta.title} />
+	<meta property="og:description" content={$page.data.meta.description} />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={$page.url.toString()} />
 </svelte:head>
 
 <div class="relative flex min-h-screen flex-col">
