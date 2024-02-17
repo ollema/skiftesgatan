@@ -22,7 +22,7 @@ jobs:
             dockerfile: ./Dockerfile
             image: ghcr.io/ollema/skiftesgatan
             token_name: APP_TOKEN_SKIFTESGATAN
-          - app: pocketbase
+          - app: skiftesgatan-pocketbase
             dockerfile: ./Dockerfile.pocketbase
             image: ghcr.io/ollema/skiftesgatan-pocketbase
             token_name: APP_TOKEN_POCKETBASE
