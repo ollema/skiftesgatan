@@ -1,8 +1,10 @@
-import { Collections } from '$lib/pocketbase-types';
+import { Collections, type TypedPocketBase } from '$lib/pocketbase-types';
 
-import { pb } from './client';
-
-export async function maybeGetPage(slug: string, fetchImplementation?: typeof fetch) {
+export async function maybeGetPage(
+	pb: TypedPocketBase,
+	slug: string,
+	fetchImplementation?: typeof fetch
+) {
 	const selectedFetchImplementation = fetchImplementation ? fetchImplementation : fetch;
 	try {
 		return await pb

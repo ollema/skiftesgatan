@@ -1,15 +1,15 @@
 import {
 	type ReservationsResponse,
 	type ApartmentsResponse,
-	ReservationsTypeOptions
+	ReservationsTypeOptions,
+	type TypedPocketBase
 } from '$lib/pocketbase-types';
 import { Collections } from '$lib/pocketbase-types';
 import { ClientResponseError } from 'pocketbase';
 
-import { pb } from './client';
 import type { Apartment } from '$lib/types';
 
-export async function getReservations(fetchImplementation?: typeof fetch) {
+export async function getReservations(pb: TypedPocketBase, fetchImplementation?: typeof fetch) {
 	const selectedFetchImplementation = fetchImplementation ? fetchImplementation : fetch;
 
 	return await pb
@@ -20,6 +20,7 @@ export async function getReservations(fetchImplementation?: typeof fetch) {
 }
 
 export async function maybeGetReservationForApartment(
+	pb: TypedPocketBase,
 	apartment: string,
 	fetchImplementation?: typeof fetch
 ) {
@@ -38,6 +39,7 @@ export async function maybeGetReservationForApartment(
 }
 
 export async function createReservation(
+	pb: TypedPocketBase,
 	start: string,
 	end: string,
 	apartmentId: string,
@@ -57,7 +59,11 @@ export async function createReservation(
 	);
 }
 
-export async function deleteReservation(reservationId: string, fetchImplementation?: typeof fetch) {
+export async function deleteReservation(
+	pb: TypedPocketBase,
+	reservationId: string,
+	fetchImplementation?: typeof fetch
+) {
 	const selectedFetchImplementation = fetchImplementation ? fetchImplementation : fetch;
 
 	return await pb
@@ -65,11 +71,16 @@ export async function deleteReservation(reservationId: string, fetchImplementati
 		.delete(reservationId, { fetch: selectedFetchImplementation });
 }
 
-export async function reserve(apartment: Apartment, start: string, end: string) {
-	const reservation = await maybeGetReservationForApartment(apartment.apartment);
+export async function reserve(
+	pb: TypedPocketBase,
+	apartment: Apartment,
+	start: string,
+	end: string
+) {
+	const reservation = await maybeGetReservationForApartment(pb, apartment.apartment);
 	if (reservation) {
 		try {
-			await deleteReservation(reservation.id);
+			await deleteReservation(pb, reservation.id);
 		} catch (e) {
 			if (e instanceof ClientResponseError) {
 				console.log('client error:', e.message);
@@ -79,7 +90,7 @@ export async function reserve(apartment: Apartment, start: string, end: string) 
 	}
 
 	try {
-		await createReservation(start, end, apartment.id);
+		await createReservation(pb, start, end, apartment.id);
 	} catch (e) {
 		if (e instanceof ClientResponseError) {
 			console.log('client error:', e.message);
@@ -89,11 +100,11 @@ export async function reserve(apartment: Apartment, start: string, end: string) 
 	}
 }
 
-export async function release(apartment: Apartment) {
-	const reservation = await maybeGetReservationForApartment(apartment.apartment);
+export async function release(pb: TypedPocketBase, apartment: Apartment) {
+	const reservation = await maybeGetReservationForApartment(pb, apartment.apartment);
 	if (reservation) {
 		try {
-			await deleteReservation(reservation.id);
+			await deleteReservation(pb, reservation.id);
 		} catch (e) {
 			if (e instanceof ClientResponseError) {
 				console.log('client error:', e.message);

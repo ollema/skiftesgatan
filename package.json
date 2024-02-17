@@ -4,6 +4,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
+		"dev:node": "PUBLIC_ADAPTER=node vite dev",
+		"dev:static": "PUBLIC_ADAPTER=static vite dev",
 		"build": "vite build",
 		"build:node": "PUBLIC_ADAPTER=node vite build",
 		"build:static": "PUBLIC_ADAPTER=static vite build",

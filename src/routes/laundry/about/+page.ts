@@ -1,22 +1,14 @@
-import { maybeGetPage } from '$lib/pocketbase';
-import { error } from '@sveltejs/kit';
+import { loadData } from './load';
+import { pb } from '$lib/pocketbase';
 
-export const load = async ({ parent, fetch }) => {
+import { PUBLIC_ADAPTER } from '$env/static/public';
+
+export const load = async ({ parent, data, fetch }) => {
 	await parent();
 
-	const page = await maybeGetPage('laundry/about', fetch);
-
-	if (!page) {
-		error(404, 'Page not found');
+	if (PUBLIC_ADAPTER === 'node') {
+		return { ...data };
+	} else {
+		return loadData(pb, fetch);
 	}
-
-	const meta = {
-		title: page.title,
-		description: page.description
-	};
-
-	return {
-		page: page,
-		meta: meta
-	};
 };

@@ -1,4 +1,4 @@
-import { loadInitial, pb, maybeGetApartmentForUser } from '$lib/pocketbase';
+import { loadInitial, maybeGetApartmentForUser, pb } from '$lib/pocketbase';
 
 import { PUBLIC_ADAPTER } from '$env/static/public';
 
