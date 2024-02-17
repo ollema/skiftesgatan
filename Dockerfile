@@ -1,68 +1,53 @@
 ####################################################################################################
-# pocketbase downloader
+# base image
 ####################################################################################################
-FROM alpine:latest as pocketbase-downloader
-
-# set pocketbase version
-ARG PB_VERSION=0.21.1
-
-# install unzip and ca-certificates
-RUN apk add --no-cache \
-  unzip \
-  ca-certificates
-
-# download pocketbase
-ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
-RUN unzip /tmp/pb.zip -d /pb/
-
-####################################################################################################
-# sveltekit build image
-####################################################################################################
-FROM node:20-alpine AS sveltekit-build
+FROM node:20-alpine AS base
 RUN corepack enable
 
 # set environment variables
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV TZ="Europe/Stockholm"
 
-# set timezone
-RUN apk --no-cache add tzdata
+# set timezone and ca-certificates
+ENV TZ="Europe/Stockholm"
+RUN apk update && apk --no-cache add tzdata ca-certificates
 RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
 # copy app and set working directory
 COPY . /app
 WORKDIR /app
 
-# set environment variables
-ARG PUBLIC_DSN
-ENV PUBLIC_DSN=${PUBLIC_DSN}
-ENV PUBLIC_NGROK_REDIRECT_URL=""
+####################################################################################################
+# production dependencies
+####################################################################################################
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
-# build sveltekit app
+####################################################################################################
+# production build
+####################################################################################################
+FROM base AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm svelte-kit sync
-RUN pnpm build
+RUN PUBLIC_ADAPTER=node pnpm build
 
 ####################################################################################################
 # final image
 ####################################################################################################
-FROM alpine:latest
+FROM base
+COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/build-node /app/build-node
 
-# set working directory
-WORKDIR /pb
+# add tini
+RUN apk update && apk add --no-cache tini
 
-# install ca-certificates
-RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+# set port
+ENV PORT=3000
+EXPOSE ${PORT}
 
-# copy pocketbase
-COPY --from=pocketbase-downloader /pb/pocketbase /pb/pocketbase
+# set user and environment
+USER node
+ENV NODE_ENV=production
 
-# copy sveltekit build
-COPY --from=sveltekit-build /app/pb_public /pb/pb_public
-
-# expose ports
-EXPOSE 8080
-
-# run pocketbase
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD [ "node", "build-node" ]
