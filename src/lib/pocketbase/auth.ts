@@ -1,7 +1,7 @@
 import { Preferences } from '@capacitor/preferences';
 
 import type { TypedPocketBase } from '$lib/pocketbase-types';
-import { getTokenPayload, type AuthProviderInfo } from 'pocketbase';
+import type { AuthProviderInfo } from 'pocketbase';
 
 import { dev } from '$app/environment';
 import { error, redirect, type Cookies } from '@sveltejs/kit';
@@ -48,7 +48,7 @@ async function removeProvider(cookies?: Cookies) {
 	}
 }
 
-export async function handleSignIn(pb: TypedPocketBase, provider: string, cookies?: Cookies) {
+export async function signin(pb: TypedPocketBase, provider: string, cookies?: Cookies) {
 	const { authProviders } = await pb.collection('users').listAuthMethods();
 	const authProvider = authProviders.find((p) => p.name === provider);
 	if (!authProvider) {
@@ -111,24 +111,11 @@ export async function handleRedirect(pb: TypedPocketBase, url: URL, cookies?: Co
 	// - UserDefaults/SharedPreferences (adapter-static)
 	await removeProvider(cookies);
 
-	if (PUBLIC_ADAPTER === 'node' && cookies) {
-		const payload = getTokenPayload(pb.authStore.token);
-		cookies.set(
-			'pb_auth',
-			JSON.stringify({
-				token: pb.authStore.token,
-				model: pb.authStore.model
-			}),
-			{
-				path: '/',
-				expires: new Date(payload.exp * 1000)
-			}
-		);
-	}
-
 	redirect(303, '/');
 }
 
 export function signout(pb: TypedPocketBase) {
 	pb.authStore.clear();
+
+	redirect(303, '/');
 }

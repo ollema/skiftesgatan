@@ -1,7 +1,7 @@
-import { handleSignIn, pb } from '$lib/pocketbase';
+import { signin, pb } from '$lib/pocketbase';
 
 export const load = async ({ parent, params }) => {
 	await parent();
 
-	await handleSignIn(pb, params.provider);
+	await signin(pb, params.provider);
 };
