@@ -2,6 +2,11 @@ import type { TypedPocketBase, ApartmentsResponse, UsersResponse } from '$lib/po
 import { Collections } from '$lib/pocketbase-types';
 import type { AuthModel } from 'pocketbase';
 
+type Texpand = {
+	owners: UsersResponse[];
+	subtenants: UsersResponse[];
+};
+
 export async function maybeGetApartmentForUser(
 	pb: TypedPocketBase,
 	authModel: AuthModel,
@@ -16,19 +21,13 @@ export async function maybeGetApartmentForUser(
 	try {
 		return await pb
 			.collection(Collections.Apartments)
-			.getFirstListItem(
-				pb.filter('owners.id ?= {:user} || subtenants.id ?= {:user}', { user: authModel.id }),
-				{ fetch: selectedFetchImplementation }
-			);
+			.getFirstListItem<
+				ApartmentsResponse<Texpand>
+			>(pb.filter('owners.id ?= {:user} || subtenants.id ?= {:user}', { user: authModel.id }), { expand: 'owners,subtenants', fetch: selectedFetchImplementation });
 	} catch (e) {
 		return undefined;
 	}
 }
-
-type Texpand = {
-	owners: UsersResponse[];
-	subtenants: UsersResponse[];
-};
 
 export async function getApartment(
 	pb: TypedPocketBase,

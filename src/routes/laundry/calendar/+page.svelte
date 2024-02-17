@@ -7,20 +7,15 @@
 
 	import { active } from '$lib/active';
 	import { invalidate } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	$: invalidatePeriodcally($active);
 
 	let updated: string = getCurrentTime();
 	let interval: ReturnType<typeof setInterval>;
 
-	function invalidateData() {
-		invalidate('laundry:calendar').then(() => {
-			updated = getCurrentTime();
-		});
-	}
-
 	function invalidatePeriodcally(active: boolean) {
-		if (active) {
+		if (active && browser) {
 			clearInterval(interval);
 			interval = setInterval(() => {
 				invalidateData();
@@ -28,6 +23,12 @@
 		} else {
 			clearInterval(interval);
 		}
+	}
+
+	function invalidateData() {
+		invalidate('laundry:calendar').then(() => {
+			updated = getCurrentTime();
+		});
 	}
 </script>
 

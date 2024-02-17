@@ -7,8 +7,6 @@ import {
 import { Collections } from '$lib/pocketbase-types';
 import { ClientResponseError } from 'pocketbase';
 
-import type { Apartment } from '$lib/types';
-
 export async function getReservations(pb: TypedPocketBase, fetchImplementation?: typeof fetch) {
 	const selectedFetchImplementation = fetchImplementation ? fetchImplementation : fetch;
 
@@ -73,7 +71,7 @@ export async function deleteReservation(
 
 export async function reserve(
 	pb: TypedPocketBase,
-	apartment: Apartment,
+	apartment: ApartmentsResponse,
 	start: string,
 	end: string
 ) {
@@ -100,7 +98,7 @@ export async function reserve(
 	}
 }
 
-export async function release(pb: TypedPocketBase, apartment: Apartment) {
+export async function release(pb: TypedPocketBase, apartment: ApartmentsResponse) {
 	const reservation = await maybeGetReservationForApartment(pb, apartment.apartment);
 	if (reservation) {
 		try {

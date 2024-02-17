@@ -1,7 +1,5 @@
 import { loadData } from './load';
 
-export const load = async ({ parent, locals, fetch }) => {
-	await parent();
-
+export const load = async ({ locals, fetch }) => {
 	return loadData(locals.pb, fetch);
 };
