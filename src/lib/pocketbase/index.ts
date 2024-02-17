@@ -1,6 +1,6 @@
 export { pb, loadInitial } from './client';
 
-export { getRedirectUrl, setProvider, handleRedirect, signout } from './auth';
+export { handleSignIn, handleRedirect, signout } from './auth';
 
 export { maybeGetAgreementsForApartment } from './agreements';
 

@@ -6,5 +6,3 @@ export const load = () => {
 
 	return { meta };
 };
-
-export const prerender = true;

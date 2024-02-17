@@ -1,16 +1,16 @@
 import { Preferences } from '@capacitor/preferences';
 
-import { pb } from './client';
-import type { AuthProviderInfo } from 'pocketbase';
-
-import { goto } from '$app/navigation';
-import { error } from '@sveltejs/kit';
+import type { TypedPocketBase } from '$lib/pocketbase-types';
+import { getTokenPayload, type AuthProviderInfo } from 'pocketbase';
 
 import { dev } from '$app/environment';
-import { PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
+import { error, redirect, type Cookies } from '@sveltejs/kit';
+
 const redirectUrl = 'https://skiftesgatan.com/auth/redirect';
 
-export function getRedirectUrl() {
+import { PUBLIC_ADAPTER, PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
+
+function getRedirectUrl() {
 	if (dev) {
 		return PUBLIC_NGROK_REDIRECT_URL;
 	}
@@ -19,20 +19,48 @@ export function getRedirectUrl() {
 
 const providerKey = 'provider';
 
-async function getProvider() {
-	const provider = await Preferences.get({ key: providerKey });
-	return provider.value ? (JSON.parse(provider.value) as AuthProviderInfo) : null;
+async function setProvider(provider: AuthProviderInfo, cookies?: Cookies) {
+	if (PUBLIC_ADAPTER === 'node' && cookies) {
+		cookies.set(providerKey, JSON.stringify(provider), {
+			path: '/',
+			maxAge: 60 * 5 // 5 minutes
+		});
+	} else {
+		await Preferences.set({ key: providerKey, value: JSON.stringify(provider) });
+	}
 }
 
-export async function setProvider(provider: AuthProviderInfo) {
-	await Preferences.set({ key: providerKey, value: JSON.stringify(provider) });
+async function getProvider(cookies?: Cookies) {
+	if (PUBLIC_ADAPTER === 'node' && cookies) {
+		const provider = JSON.parse(cookies.get(providerKey) || '{}');
+		return provider as AuthProviderInfo | null;
+	} else {
+		const provider = await Preferences.get({ key: providerKey });
+		return provider.value ? (JSON.parse(provider.value) as AuthProviderInfo) : null;
+	}
 }
 
-async function removeProvider() {
-	await Preferences.remove({ key: providerKey });
+async function removeProvider(cookies?: Cookies) {
+	if (PUBLIC_ADAPTER === 'node' && cookies) {
+		cookies.delete(providerKey, { path: '/' });
+	} else {
+		await Preferences.remove({ key: providerKey });
+	}
 }
 
-export async function handleRedirect(url: URL) {
+export async function handleSignIn(pb: TypedPocketBase, provider: string, cookies?: Cookies) {
+	const { authProviders } = await pb.collection('users').listAuthMethods();
+	const authProvider = authProviders.find((p) => p.name === provider);
+	if (!authProvider) {
+		error(404, { message: 'provider not found' });
+	}
+
+	await setProvider(authProvider, cookies);
+
+	redirect(303, authProvider.authUrl + getRedirectUrl());
+}
+
+export async function handleRedirect(pb: TypedPocketBase, url: URL, cookies?: Cookies) {
 	// parse the query parameters from the redirected url
 	const params = url.searchParams;
 	const state = params.get('state');
@@ -44,8 +72,10 @@ export async function handleRedirect(url: URL) {
 		error(400, { message: 'no code query parameter found' });
 	}
 
-	// load the provider from localStorage/UserDefaults/SharedPreferences
-	const authProvider = await getProvider();
+	// load the provider from:
+	// - cookies (adapter-node)
+	// - UserDefaults/SharedPreferences (adapter-static)
+	const authProvider = await getProvider(cookies);
 	if (!authProvider) {
 		error(403, { message: 'no provider found' });
 	}
@@ -76,12 +106,29 @@ export async function handleRedirect(url: URL) {
 	// refresh the auth store
 	await pb.collection('users').authRefresh();
 
-	// remove the provider from localStorage/UserDefaults/SharedPreferences
-	await removeProvider();
+	// remove the provider from:
+	// - cookies (adapter-node)
+	// - UserDefaults/SharedPreferences (adapter-static)
+	await removeProvider(cookies);
 
-	await goto('/', { invalidateAll: true });
+	if (PUBLIC_ADAPTER === 'node' && cookies) {
+		const payload = getTokenPayload(pb.authStore.token);
+		cookies.set(
+			'pb_auth',
+			JSON.stringify({
+				token: pb.authStore.token,
+				model: pb.authStore.model
+			}),
+			{
+				path: '/',
+				expires: new Date(payload.exp * 1000)
+			}
+		);
+	}
+
+	redirect(303, '/');
 }
 
-export function signout() {
+export function signout(pb: TypedPocketBase) {
 	pb.authStore.clear();
 }

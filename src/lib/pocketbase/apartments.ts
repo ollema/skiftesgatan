@@ -1,10 +1,9 @@
-import type { ApartmentsResponse, UsersResponse } from '$lib/pocketbase-types';
+import type { TypedPocketBase, ApartmentsResponse, UsersResponse } from '$lib/pocketbase-types';
 import { Collections } from '$lib/pocketbase-types';
 import type { AuthModel } from 'pocketbase';
 
-import { pb } from './client';
-
 export async function maybeGetApartmentForUser(
+	pb: TypedPocketBase,
 	authModel: AuthModel,
 	fetchImplementation?: typeof fetch
 ) {
@@ -31,7 +30,11 @@ type Texpand = {
 	subtenants: UsersResponse[];
 };
 
-export async function getApartment(apartment: string, fetchImplementation?: typeof fetch) {
+export async function getApartment(
+	pb: TypedPocketBase,
+	apartment: string,
+	fetchImplementation?: typeof fetch
+) {
 	const selectedFetchImplementation = fetchImplementation ? fetchImplementation : fetch;
 	return await pb
 		.collection(Collections.Apartments)

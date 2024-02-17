@@ -5,7 +5,7 @@ import sequence from 'svelte-sequential-preprocessor';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { preprocessMeltUI } from '@melt-ui/pp';
 
-const adapter = process.env.ADAPTER === 'node' ? adapterNode : adapterStatic;
+const adapter = process.env.PUBLIC_ADAPTER === 'node' ? adapterNode : adapterStatic;
 const adapterConfig =
 	process.env.ADAPTER === 'node'
 		? {
@@ -28,7 +28,7 @@ const config = {
 			checkOrigin: process.env.NODE_ENV === 'development' ? false : true
 		},
 		serviceWorker: {
-			register: false
+			register: process.env.ADAPTER === 'node'
 		}
 	}
 };

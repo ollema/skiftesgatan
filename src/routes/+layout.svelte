@@ -10,6 +10,11 @@
 	import { page } from '$app/stores';
 </script>
 
+<svelte:head>
+	<title>{$page.data.meta.title}</title>
+	<meta name="description" content={$page.data.meta.description} />
+</svelte:head>
+
 <div class="relative flex min-h-screen flex-col">
 	<SiteHeader />
 
