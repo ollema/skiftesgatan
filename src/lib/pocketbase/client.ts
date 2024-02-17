@@ -10,7 +10,7 @@ const preferencesAsyncAuthStore = new AsyncAuthStore({
 });
 
 export const pb = new PocketBase(
-	'https://skiftesgatan.com',
+	'https://pocketbase.skiftesgatan.com',
 	preferencesAsyncAuthStore
 ) as TypedPocketBase;
 
