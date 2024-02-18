@@ -14,8 +14,8 @@
 
 	import { PUBLIC_ADAPTER } from '$env/static/public';
 
-	let start = toCalendarDateTime(date, timeslot.start);
-	let end = toCalendarDateTime(date, timeslot.end);
+	$: start = toCalendarDateTime(date, timeslot.start);
+	$: end = toCalendarDateTime(date, timeslot.end);
 
 	function hourToString(hour: number) {
 		return hour.toString().padStart(2, '0');
