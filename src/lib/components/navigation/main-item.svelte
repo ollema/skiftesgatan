@@ -2,7 +2,7 @@
 	import MainLink from './main-link.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import { Button } from '$lib/components/ui/button';
-	import { ChevronDown } from 'radix-icons-svelte';
+	import ChevronDown from 'svelte-radix/ChevronDown.svelte';
 	import type { NavItem } from '$lib/config';
 	import { afterNavigate } from '$app/navigation';
 

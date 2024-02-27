@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Calendar } from 'bits-ui';
-	import { ChevronLeft, ChevronRight } from 'radix-icons-svelte';
+	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
+	import ChevronRight from 'svelte-radix/ChevronRight.svelte';
 	import LaundryDate from './LaundryDate.svelte';
 	import Timeslot from './Timeslot.svelte';
 

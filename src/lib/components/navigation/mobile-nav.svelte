@@ -2,7 +2,7 @@
 	import MobileItem from './mobile-item.svelte';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Button } from '$lib/components/ui/button';
-	import { HamburgerMenu } from 'radix-icons-svelte';
+	import HamburgerMenu from 'svelte-radix/HamburgerMenu.svelte';
 	import { siteConfig, navigation } from '$lib/config';
 	import { afterNavigate } from '$app/navigation';
 

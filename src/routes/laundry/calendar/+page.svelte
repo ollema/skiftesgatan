@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Update } from 'radix-icons-svelte';
+	import Update from 'svelte-radix/Update.svelte';
 	import Calendar from './Calendar.svelte';
 
 	import { getCurrentTime } from './helpers';
