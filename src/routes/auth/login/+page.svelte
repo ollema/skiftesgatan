@@ -20,7 +20,9 @@
 				<div class="grid gap-2">
 					<div class="flex items-center">
 						<Label for="password">Lösenord</Label>
-						<a href="##" class="ml-auto inline-block text-sm underline">Glömt ditt lösenord?</a>
+						<a href="/auth/forgot-password" class="ml-auto inline-block text-sm underline"
+							>Glömt ditt lösenord?</a
+						>
 					</div>
 					<Input id="password" type="password" required />
 				</div>
