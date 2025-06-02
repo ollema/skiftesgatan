@@ -7,7 +7,7 @@ import { and, eq } from 'drizzle-orm';
 
 export type User = typeof user.$inferSelect;
 
-function generateUserId() {
+export function generateUserId() {
 	// ID with 120 bits of entropy, or about the same as UUID v4.
 	const bytes = crypto.getRandomValues(new Uint8Array(15));
 	const id = encodeBase32LowerCase(bytes);
@@ -15,8 +15,12 @@ function generateUserId() {
 }
 
 export function verifyApartmentInput(apartment: string): boolean {
-	// TODO: use apartment here instead of username
-	return apartment.length > 3 && apartment.length < 32 && apartment.trim() === apartment;
+   if (typeof apartment !== 'string') {
+    return false;
+  }
+ 
+  const apartmentRegex = /^[A-D]1[0-3]0[1-2]$/;
+  return apartmentRegex.test(apartment.trim());
 }
 
 export async function createUser(
