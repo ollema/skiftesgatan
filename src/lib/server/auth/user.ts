@@ -15,12 +15,12 @@ export function generateUserId() {
 }
 
 export function verifyApartmentInput(apartment: string): boolean {
-   if (typeof apartment !== 'string') {
-    return false;
-  }
- 
-  const apartmentRegex = /^[A-D]1[0-3]0[1-2]$/;
-  return apartmentRegex.test(apartment.trim());
+	if (typeof apartment !== 'string') {
+		return false;
+	}
+
+	const apartmentRegex = /^[A-D]1[0-3]0[1-2]$/;
+	return apartmentRegex.test(apartment.trim());
 }
 
 export async function createUser(
