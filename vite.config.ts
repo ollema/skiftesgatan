@@ -1,10 +1,11 @@
 import tailwindcss from '@tailwindcss/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
+import devtoolsJson from 'vite-plugin-devtools-json';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
 	test: {
 		workspace: [
 			{
