@@ -3,7 +3,10 @@ import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
+import type { session } from '$lib/server/db/schema';
 import * as table from '$lib/server/db/schema';
+
+export type Session = typeof session.$inferSelect;
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -17,7 +20,7 @@ export function generateSessionToken() {
 
 export async function createSession(token: string, userId: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const session: table.Session = {
+	const session: Session = {
 		id: sessionId,
 		userId,
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
@@ -30,8 +33,13 @@ export async function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const [result] = await db
 		.select({
-			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.username },
+			// TODO: adjust user table here to tweak returned data
+			user: {
+				id: table.user.id,
+				apartment: table.user.apartment,
+				email: table.user.email,
+				emailVerified: table.user.emailVerified
+			},
 			session: table.session
 		})
 		.from(table.session)
