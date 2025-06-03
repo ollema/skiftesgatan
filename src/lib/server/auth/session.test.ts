@@ -57,7 +57,7 @@ describe('generateSessionToken', () => {
 
 describe('constants', () => {
 	it('should export correct session cookie name', () => {
-		expect(sessionCookieName).toBe('auth-session');
+		expect(sessionCookieName).toBe('auth_session');
 	});
 });
 

@@ -19,7 +19,10 @@ import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
 export const load = async (event) => {
+	console.log('[auth] Settings page load function triggered');
+
 	if (event.locals.session === null || event.locals.user === null) {
+		console.log('[auth] No session or user found, redirecting to /auth/login');
 		return redirect(302, '/auth/login');
 	}
 	return {
@@ -29,7 +32,10 @@ export const load = async (event) => {
 
 export const actions = {
 	password: async (event) => {
+		console.log('[auth] Update password form action triggered');
+
 		if (event.locals.session === null || event.locals.user === null) {
+			console.log('[auth] No session or user found, returning 401');
 			return fail(401, {
 				password: {
 					message: 'Not authenticated'
@@ -37,6 +43,7 @@ export const actions = {
 			});
 		}
 		if (!passwordUpdateBucket.check(event.locals.session.id, 1)) {
+			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				password: {
 					message: 'Too many requests'
@@ -49,6 +56,7 @@ export const actions = {
 		const newPassword = formData.get('new_password');
 
 		if (typeof password !== 'string' || typeof newPassword !== 'string') {
+			console.log('[auth] Invalid or missing fields');
 			return fail(400, {
 				password: {
 					message: 'Invalid or missing fields'
@@ -57,6 +65,7 @@ export const actions = {
 		}
 		const strongPassword = await verifyPasswordStrength(newPassword);
 		if (!strongPassword) {
+			console.log('[auth] Weak password provided');
 			return fail(400, {
 				password: {
 					message: 'Weak password'
@@ -65,6 +74,7 @@ export const actions = {
 		}
 
 		if (!passwordUpdateBucket.consume(event.locals.session.id, 1)) {
+			console.log('[auth] Too many requests for session:', event.locals.session.id);
 			return fail(429, {
 				password: {
 					message: 'Too many requests'
@@ -75,6 +85,7 @@ export const actions = {
 		const passwordHash = await getUserPasswordHash(event.locals.user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, password);
 		if (!validPassword) {
+			console.log('[auth] Incorrect password for user:', event.locals.user.id);
 			return fail(400, {
 				password: {
 					message: 'Incorrect password'
@@ -82,12 +93,14 @@ export const actions = {
 			});
 		}
 		passwordUpdateBucket.reset(event.locals.session.id);
-		invalidateUserSessions(event.locals.user.id);
+		await invalidateUserSessions(event.locals.user.id);
 		await updateUserPassword(event.locals.user.id, newPassword);
 
 		const sessionToken = generateSessionToken();
 		const session = await createSession(sessionToken, event.locals.user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
+
+		console.log('[auth] Password updated successfully for user:', event.locals.user.id);
 		return {
 			password: {
 				message: 'Updated password'
@@ -95,7 +108,10 @@ export const actions = {
 		};
 	},
 	email: async (event) => {
+		console.log('[auth] Update email form action triggered');
+
 		if (event.locals.session === null || event.locals.user === null) {
+			console.log('[auth] No session or user found, returning 401');
 			return fail(401, {
 				email: {
 					message: 'Not authenticated'
@@ -103,6 +119,7 @@ export const actions = {
 			});
 		}
 		if (!sendVerificationEmailBucket.check(event.locals.user.id, 1)) {
+			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				email: {
 					message: 'Too many requests'
@@ -112,7 +129,9 @@ export const actions = {
 
 		const formData = await event.request.formData();
 		const email = formData.get('email');
+
 		if (typeof email !== 'string') {
+			console.log('[auth] Invalid or missing email field');
 			return fail(400, {
 				email: {
 					message: 'Invalid or missing fields'
@@ -120,6 +139,7 @@ export const actions = {
 			});
 		}
 		if (email === '') {
+			console.log('[auth] Email is empty');
 			return fail(400, {
 				email: {
 					message: 'Please enter your email'
@@ -127,14 +147,16 @@ export const actions = {
 			});
 		}
 		if (!verifyEmailInput(email)) {
+			console.log('[auth] Invalid email:', email);
 			return fail(400, {
 				email: {
 					message: 'Please enter a valid email'
 				}
 			});
 		}
-		const emailAvailable = checkEmailAvailability(email);
+		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
+			console.log('[auth] Email is already used:', email);
 			return fail(400, {
 				email: {
 					message: 'This email is already used'
@@ -142,6 +164,7 @@ export const actions = {
 			});
 		}
 		if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
+			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				email: {
 					message: 'Too many requests'
@@ -151,6 +174,7 @@ export const actions = {
 		const verificationRequest = await createEmailVerificationRequest(event.locals.user.id, email);
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
+
 		return redirect(302, '/auth/verify-email');
 	}
 };

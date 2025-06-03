@@ -2,7 +2,8 @@ import { RefillingTokenBucket } from '$lib/server/auth/rate-limit';
 import {
 	validateSessionToken,
 	setSessionTokenCookie,
-	deleteSessionTokenCookie
+	deleteSessionTokenCookie,
+	sessionCookieName
 } from '$lib/server/auth/session';
 import type { Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -30,7 +31,7 @@ const handleRateLimit: Handle = async ({ event, resolve }) => {
 };
 
 const handleAuth: Handle = async ({ event, resolve }) => {
-	const token = event.cookies.get('session') ?? null;
+	const token = event.cookies.get(sessionCookieName) ?? null;
 	if (token === null) {
 		event.locals.user = null;
 		event.locals.session = null;
@@ -38,6 +39,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	}
 
 	const { session, user } = await validateSessionToken(token);
+
 	if (session !== null) {
 		setSessionTokenCookie(event, token, session.expiresAt);
 	} else {
