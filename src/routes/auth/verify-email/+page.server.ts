@@ -14,7 +14,7 @@ import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 
 export const load = async (event) => {
 	if (event.locals.user === null) {
-		return redirect(302, '/login');
+		return redirect(302, '/auth/login');
 	}
 	let verificationRequest = await getUserEmailVerificationRequestFromRequest(event);
 	if (verificationRequest === null || Date.now() >= verificationRequest.expiresAt.getTime()) {
