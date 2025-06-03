@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '@fontsource-variable/merriweather';
 	import '../app.css';
 
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
