@@ -1,36 +1,11 @@
-import adapterStatic from '@sveltejs/adapter-static';
-import adapterNode from '@sveltejs/adapter-node';
-
-import sequence from 'svelte-sequential-preprocessor';
+import { mdsvex } from 'mdsvex';
+import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { preprocessMeltUI } from '@melt-ui/pp';
 
-const adapter = process.env.PUBLIC_ADAPTER === 'node' ? adapterNode : adapterStatic;
-const adapterConfig =
-	process.env.PUBLIC_ADAPTER === 'node'
-		? {
-				out: 'build-node'
-			}
-		: {
-				pages: 'build-static',
-				assets: 'build-static',
-				fallback: 'index.html',
-				precompress: false,
-				strict: true
-			};
-
-/** @type {import('@sveltejs/kit').Config} */
 const config = {
-	preprocess: sequence([vitePreprocess({}), preprocessMeltUI()]),
-	kit: {
-		adapter: adapter(adapterConfig),
-		csrf: {
-			checkOrigin: process.env.NODE_ENV === 'development' ? false : true
-		},
-		serviceWorker: {
-			register: process.env.ADAPTER === 'node'
-		}
-	}
+	preprocess: [vitePreprocess(), mdsvex()],
+	kit: { adapter: adapter() },
+	extensions: ['.svelte', '.svx']
 };
 
 export default config;

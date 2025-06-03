@@ -1,18 +1,9 @@
-import { ApartmentsResponse, TypedPocketBase } from '$lib/pocketbase-types';
-import type { AuthModel } from 'pocketbase';
-
+// for information about these interfaces
 declare global {
-	declare namespace App {
-		interface PageData {
-			user?: AuthModel;
-			apartment?: ApartmentsResponse;
-			meta: {
-				title: string;
-				description: string;
-			};
-		}
+	namespace App {
 		interface Locals {
-			pb: TypedPocketBase;
+			user: import('$lib/server/auth/session').SessionValidationResult['user'];
+			session: import('$lib/server/auth/session').SessionValidationResult['session'];
 		}
 	}
 }

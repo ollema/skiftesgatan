@@ -1,38 +1,54 @@
-import * as Sentry from '@sentry/sveltekit';
-import { initSentry, sentryServerErrorHandler } from '$lib/sentry';
-import PocketBase from 'pocketbase';
-import type { TypedPocketBase } from '$lib/pocketbase-types';
-
-import { sequence } from '@sveltejs/kit/hooks';
+import { RefillingTokenBucket } from '$lib/server/auth/rate-limit';
+import {
+	validateSessionToken,
+	setSessionTokenCookie,
+	deleteSessionTokenCookie,
+	sessionCookieName
+} from '$lib/server/auth/session';
 import type { Handle } from '@sveltejs/kit';
-import { dev } from '$app/environment';
+import { sequence } from '@sveltejs/kit/hooks';
 
-// handling errors with Sentry
-initSentry();
-export const handleError = Sentry.handleErrorWithSentry(sentryServerErrorHandler);
+const bucket = new RefillingTokenBucket<string>(100, 1);
 
-// authentification with PocketBase
-export const handleAuth: Handle = async ({ event, resolve }) => {
-	event.locals.pb = new PocketBase('https://pocketbase.skiftesgatan.com') as TypedPocketBase;
-	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
-
-	try {
-		event.locals.pb.authStore.isValid && (await event.locals.pb.collection('users').authRefresh());
-	} catch (_) {
-		event.locals.pb.authStore.clear();
+const handleRateLimit: Handle = async ({ event, resolve }) => {
+	// note: assumes X-Forwarded-For will always be defined.
+	const clientIP = event.request.headers.get('X-Forwarded-For');
+	if (clientIP === null) {
+		return resolve(event);
 	}
-
-	const response = await resolve(event);
-
-	response.headers.append(
-		'set-cookie',
-		event.locals.pb.authStore.exportToCookie({
-			sameSite: 'lax',
-			secure: !dev
-		})
-	);
-
-	return response;
+	let cost: number;
+	if (event.request.method === 'GET' || event.request.method === 'OPTIONS') {
+		cost = 1;
+	} else {
+		cost = 3;
+	}
+	if (!bucket.consume(clientIP, cost)) {
+		return new Response('Too many requests', {
+			status: 429
+		});
+	}
+	return resolve(event);
 };
 
-export const handle = sequence(Sentry.sentryHandle(), handleAuth);
+const handleAuth: Handle = async ({ event, resolve }) => {
+	const token = event.cookies.get(sessionCookieName) ?? null;
+	if (token === null) {
+		event.locals.user = null;
+		event.locals.session = null;
+		return resolve(event);
+	}
+
+	const { session, user } = await validateSessionToken(token);
+
+	if (session !== null) {
+		setSessionTokenCookie(event, token, session.expiresAt);
+	} else {
+		deleteSessionTokenCookie(event);
+	}
+
+	event.locals.session = session;
+	event.locals.user = user;
+	return resolve(event);
+};
+
+export const handle = sequence(handleRateLimit, handleAuth);
