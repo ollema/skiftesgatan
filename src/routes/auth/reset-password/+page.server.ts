@@ -16,10 +16,10 @@ import { updateUserPassword } from '$lib/server/auth/user';
 export const load = async (event) => {
 	const { session } = await validatePasswordResetSessionRequest(event);
 	if (session === null) {
-		return redirect(302, '/forgot-password');
+		return redirect(302, '/auth/forgot-password');
 	}
 	if (!session.emailVerified) {
-		return redirect(302, '/reset-password/verify-email');
+		return redirect(302, '/auth/reset-password/verify-email');
 	}
 	return {};
 };

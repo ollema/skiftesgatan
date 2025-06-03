@@ -63,6 +63,6 @@ export const actions = {
 		const session = await createPasswordResetSession(sessionToken, user.id, user.email);
 		sendPasswordResetEmail(session.email, session.code);
 		setPasswordResetSessionTokenCookie(event, sessionToken, session.expiresAt);
-		return redirect(302, '/reset-password/verify-email');
+		return redirect(302, '/auth/reset-password/verify-email');
 	}
 };

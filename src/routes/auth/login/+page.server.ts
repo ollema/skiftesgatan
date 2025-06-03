@@ -12,7 +12,7 @@ import {
 export const load = (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
-			return redirect(302, '/verify-email');
+			return redirect(302, '/auth/verify-email');
 		}
 		return redirect(302, '/');
 	}

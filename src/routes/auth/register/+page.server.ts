@@ -19,7 +19,7 @@ const ipBucket = new RefillingTokenBucket<string>(3, 10);
 export const load = (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
-			return redirect(302, '/verify-email');
+			return redirect(302, '/auth/verify-email');
 		}
 		return redirect(302, '/');
 	}
@@ -106,6 +106,6 @@ export const actions = {
 		const sessionToken = generateSessionToken();
 		const session = await createSession(sessionToken, user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
-		throw redirect(302, '/verify-email');
+		throw redirect(302, '/auth/verify-email');
 	}
 };
