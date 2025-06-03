@@ -45,7 +45,7 @@
 										<Sidebar.MenuItem>
 											<Sidebar.MenuButton>
 												{#snippet child({ props })}
-													<a href={subItem.url} {...props}>{subItem.title}</a>
+													<a href={subItem.href} {...props}>{subItem.title}</a>
 												{/snippet}
 											</Sidebar.MenuButton>
 										</Sidebar.MenuItem>
@@ -62,7 +62,7 @@
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton class="font-medium">
 									{#snippet child({ props })}
-										<a href={item.url} {...props}>{item.title}</a>
+										<a href={item.href} {...props}>{item.title}</a>
 									{/snippet}
 								</Sidebar.MenuButton>
 							</Sidebar.MenuItem>

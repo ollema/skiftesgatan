@@ -1,56 +1,62 @@
 export interface NavigationItem {
 	title: string;
-	url?: string;
+	href: string;
 	items?: NavigationItem[];
+	content?: string;
 }
 
 export const navigation: NavigationItem[] = [
 	{
 		title: 'Nyheter',
-		url: '#'
+		href: '#'
 	},
 	{
 		title: 'Information',
-		url: '#',
+		href: '#',
 		items: [
 			{
 				title: 'Om föreningen',
-				url: '#'
+				href: '#',
+				content: 'Allmän information om vår bostadsrättsförening.'
 			},
 			{
 				title: 'Ekonomi',
-				url: '#'
+				href: '#',
+				content: 'Information om föreningens ekonomi, budget och årsredovisning.'
 			},
 			{
 				title: 'Renoveringar',
-				url: '#'
+				href: '#',
+				content: 'Information om planerade och genomförda renoveringar i föreningen.'
 			},
 			{
 				title: 'Stadgar',
-				url: '#'
+				href: '#',
+				content: 'Föreningens stadgar och regler som alla medlemmar bör känna till.'
 			},
 			{
 				title: 'Styrelsen',
-				url: '#'
+				href: '#',
+				content: 'Information om styrelsemedlemmarna och deras kontaktuppgifter.'
 			}
 		]
 	},
 	{
 		title: 'Bokningar',
-		url: '#',
+		href: '#',
 		items: [
 			{
 				title: 'Boka tvättstuga',
-				url: '#'
+				href: '#'
 			},
 			{
 				title: 'Boka uteplats',
-				url: '#'
+				href: '#'
 			}
 		]
 	},
 	{
 		title: 'Kontakt',
-		url: '#'
+		href: '#'
 	}
 ];
