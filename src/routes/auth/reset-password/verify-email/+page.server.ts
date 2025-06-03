@@ -68,6 +68,6 @@ export const actions = {
 				message: 'Please restart the process'
 			});
 		}
-		return redirect(302, '/reset-password/2fa');
+		return redirect(302, '/auth/reset-password/2fa');
 	}
 };

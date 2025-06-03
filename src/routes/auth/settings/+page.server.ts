@@ -151,6 +151,6 @@ export const actions = {
 		const verificationRequest = await createEmailVerificationRequest(event.locals.user.id, email);
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
-		return redirect(302, '/verify-email');
+		return redirect(302, '/auth/verify-email');
 	}
 };
