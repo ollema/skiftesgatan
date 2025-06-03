@@ -112,7 +112,7 @@ export const actions = {
 				apartment
 			});
 		}
-		const user = await createUser(email, apartment, password);
+		const user = await createUser(apartment, email, password);
 		const emailVerificationRequest = await createEmailVerificationRequest(user.id, user.email);
 		sendVerificationEmail(emailVerificationRequest.email, emailVerificationRequest.code);
 		setEmailVerificationRequestCookie(event, emailVerificationRequest);
