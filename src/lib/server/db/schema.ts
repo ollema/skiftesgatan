@@ -36,3 +36,14 @@ export const passwordResetSession = sqliteTable('password_reset_session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false)
 });
+
+export const booking = sqliteTable('booking', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id),
+	bookingType: text('booking_type', { enum: ['laundry', 'bbq'] }).notNull(),
+	startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
+	endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(new Date())
+});
