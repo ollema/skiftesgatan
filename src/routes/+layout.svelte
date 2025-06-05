@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '@fontsource-variable/inter';
 	import '@fontsource-variable/merriweather';
 	import '../app.css';
 
@@ -51,9 +52,9 @@
 	<AppSidebar />
 	<Sidebar.Inset>
 		<header
-			class="bg-background sticky top-0 grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b px-4"
+			class="bg-sidebar text-sidebar-foreground sticky top-0 grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b px-4"
 		>
-			<a class="text-foreground mr-6 flex flex-shrink-0 items-center text-2xl font-black" href="/">
+			<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-bold" href="/">
 				<div>Skiftesgatan</div>
 				<Logo />
 			</a>
@@ -63,7 +64,11 @@
 						{#each navigation as item (item.title)}
 							{#if item.items !== undefined}
 								<NavigationMenu.Item>
-									<NavigationMenu.Trigger>{item.title}</NavigationMenu.Trigger>
+									<NavigationMenu.Trigger
+										class="bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground data-[state=open]:focus:bg-sidebar-accent data-[state=open]:bg-sidebar-accent/50"
+									>
+										{item.title}
+									</NavigationMenu.Trigger>
 									<NavigationMenu.Content>
 										<ul class="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
 											{#each item.items as subItem (subItem.title)}
@@ -78,7 +83,13 @@
 								</NavigationMenu.Item>
 							{:else}
 								<NavigationMenu.Item>
-									<NavigationMenu.Link href={item.href} class={cn(navigationMenuTriggerStyle())}>
+									<NavigationMenu.Link
+										href={item.href}
+										class={cn(
+											navigationMenuTriggerStyle(),
+											'bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent focus:bg-sidebar focus:text-sidebar-accent-foreground hover:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground data-[state=open]:focus:bg-sidebar-accent data-[state=open]:bg-sidebar-accent/50'
+										)}
+									>
 										{item.title}
 									</NavigationMenu.Link>
 								</NavigationMenu.Item>
@@ -91,7 +102,11 @@
 				{:else}
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger
-							class={cn('justify-self-end', buttonVariants({ variant: 'ghost' }))}
+							class={cn(
+								'justify-self-end',
+								buttonVariants({ variant: 'ghost' }),
+								'bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground data-[state=open]:focus:bg-sidebar-accent data-[state=open]:bg-sidebar-accent/50'
+							)}
 						>
 							{data.user.apartment}
 						</DropdownMenu.Trigger>
