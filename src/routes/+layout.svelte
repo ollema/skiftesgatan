@@ -6,6 +6,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import Logo from '$lib/components/logo.svelte';
 	import * as NavigationMenu from '$lib/components/ui/navigation-menu/index.js';
+	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 	import { navigation } from '$lib/config/navigation';
@@ -79,7 +80,7 @@
 								</NavigationMenu.Item>
 							{:else}
 								<NavigationMenu.Item>
-									<NavigationMenu.Link href={item.href}>
+									<NavigationMenu.Link href={item.href} class={cn(navigationMenuTriggerStyle())}>
 										{item.title}
 									</NavigationMenu.Link>
 								</NavigationMenu.Item>
