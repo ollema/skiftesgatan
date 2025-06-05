@@ -14,6 +14,8 @@
 	import { navigation } from '$lib/config/navigation';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { cn } from '$lib/utils';
+	import { route } from '$lib/routes';
+	import { enhance } from '$app/forms';
 
 	const isMobile = new IsMobile();
 
@@ -55,7 +57,7 @@
 			<div
 				class="mx-auto grid h-16 max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 sm:px-6 lg:px-8"
 			>
-				<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-extrabold" href="/">
+				<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-extrabold" href={route('/')}>
 					<div>Skiftesgatan</div>
 					<Logo />
 				</a>
@@ -99,7 +101,7 @@
 						</NavigationMenu.List>
 					</NavigationMenu.Root>
 					{#if data.user === null}
-						<a href="/auth/sign-in" class="justify-self-end">Logga in</a>
+						<a href={route('/auth/sign-in')} class="justify-self-end">Logga in</a>
 					{:else}
 						<DropdownMenu.Root>
 							<DropdownMenu.Trigger
@@ -113,10 +115,10 @@
 							</DropdownMenu.Trigger>
 							<DropdownMenu.Content>
 								<DropdownMenu.Item>
-									<a href="/settings">Inställningar</a>
+									<a href={route('/settings')}>Inställningar</a>
 								</DropdownMenu.Item>
 								<DropdownMenu.Item>
-									<form method="post" action="/auth/sign-out/">
+									<form method="post" action={route('default /auth/sign-out')} use:enhance>
 										<button type="submit" class="w-full text-left">Logga ut</button>
 									</form>
 								</DropdownMenu.Item>

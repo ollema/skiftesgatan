@@ -5,6 +5,7 @@ import {
 } from '$lib/server/auth/password-reset';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { setUserAsEmailVerifiedIfEmailMatches } from '$lib/server/auth/user';
+import { route } from '$lib/routes';
 
 const bucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
@@ -14,13 +15,13 @@ export const load = async (event) => {
 	const { session } = await validatePasswordResetSessionRequest(event);
 	if (session === null) {
 		console.log('[auth] No password reset session found, redirecting to /auth/forgot-password');
-		return redirect(302, '/auth/forgot-password');
+		return redirect(302, route('/auth/forgot-password'));
 	}
 	if (session.emailVerified) {
 		console.log(
 			'[auth] Password reset session found but email is already verified, redirecting to /auth/reset-password'
 		);
-		return redirect(302, '/auth/reset-password');
+		return redirect(302, route('/auth/reset-password'));
 	}
 	return {
 		email: session.email
@@ -88,6 +89,6 @@ export const actions = {
 		}
 
 		console.log('[auth] Email verified successfully, redirecting to /auth/reset-password');
-		return redirect(302, '/auth/reset-password');
+		return redirect(302, route('/auth/reset-password'));
 	}
 };

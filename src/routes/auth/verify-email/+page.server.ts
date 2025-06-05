@@ -11,19 +11,20 @@ import {
 import { invalidateUserPasswordResetSessions } from '$lib/server/auth/password-reset';
 import { updateUserEmailAndSetEmailAsVerified } from '$lib/server/auth/user';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
+import { route } from '$lib/routes';
 
 export const load = async (event) => {
 	console.log('[auth] Verify email page load function triggered');
 
 	if (event.locals.user === null) {
 		console.log('[auth] No user found, redirecting to /auth/sign-in');
-		return redirect(302, '/auth/sign-in');
+		return redirect(302, route('/auth/sign-in'));
 	}
 	let verificationRequest = await getUserEmailVerificationRequestFromRequest(event);
 	if (verificationRequest === null || Date.now() >= verificationRequest.expiresAt.getTime()) {
 		if (event.locals.user.emailVerified) {
 			console.log('[auth] User email is already verified, redirecting to /');
-			return redirect(302, '/');
+			return redirect(302, route('/'));
 		}
 		// note: we don't need rate limiting since it takes time before requests expire
 		verificationRequest = await createEmailVerificationRequest(
@@ -124,7 +125,7 @@ export const actions = {
 		deleteEmailVerificationRequestCookie(event);
 
 		console.log('[auth] Email verified successfully, redirecting to /');
-		return redirect(302, '/');
+		return redirect(302, route('/'));
 	},
 	resend: async (event) => {
 		console.log('[auth] Resend verification email form action triggered');

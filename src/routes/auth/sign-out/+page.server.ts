@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
+import { route } from '$lib/routes';
 
 export const actions = {
 	default: async (event) => {
@@ -10,6 +11,6 @@ export const actions = {
 		}
 		await invalidateSession(event.locals.session.id);
 		deleteSessionTokenCookie(event);
-		return redirect(302, '/');
+		return redirect(302, route('/'));
 	}
 };

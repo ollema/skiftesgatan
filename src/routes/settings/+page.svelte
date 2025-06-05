@@ -4,6 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { route } from '$lib/routes';
 
 	let { data, form } = $props();
 </script>
@@ -17,7 +18,7 @@
 			<Card.Description>Din nuvarande e-post: {data.user.email}</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form method="post" use:enhance action="?/email" class="grid gap-4">
+			<form method="post" action={route('email /settings')} class="grid gap-4" use:enhance>
 				<div class="grid gap-2">
 					<Label for="email">Ny e-post</Label>
 					<Input id="email" name="email" type="email" placeholder="namn@email.se" required />
@@ -36,7 +37,7 @@
 			<Card.Description>Ändra ditt nuvarande lösenord</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form method="post" use:enhance action="?/password" class="grid gap-4">
+			<form method="post" action={route('password /settings')} class="grid gap-4" use:enhance>
 				<div class="grid gap-2">
 					<Label for="password">Nuvarande lösenord</Label>
 					<Input

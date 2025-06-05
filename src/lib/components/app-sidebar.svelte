@@ -5,6 +5,7 @@
 	import type { ComponentProps } from 'svelte';
 	import { navigation } from '$lib/config/navigation';
 	import Logo from '$lib/components/logo.svelte';
+	import { route } from '$lib/routes';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
@@ -12,7 +13,7 @@
 <Sidebar.Root bind:ref {...restProps}>
 	<Sidebar.Header>
 		<div class="px-2 py-2">
-			<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-extrabold" href="/">
+			<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-extrabold" href={route('/')}>
 				<div>Skiftesgatan</div>
 				<Logo />
 			</a>

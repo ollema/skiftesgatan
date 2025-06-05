@@ -8,6 +8,7 @@ import {
 	generateSessionToken,
 	setSessionTokenCookie
 } from '$lib/server/auth/session';
+import { route } from '$lib/routes';
 
 export const load = (event) => {
 	console.log('[auth] Sign in page load function triggered');
@@ -17,10 +18,10 @@ export const load = (event) => {
 			console.log(
 				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email'
 			);
-			return redirect(302, '/auth/verify-email');
+			return redirect(302, route('/auth/verify-email'));
 		}
 		console.log('[auth] User is already logged in, redirecting to /');
-		return redirect(302, '/');
+		return redirect(302, route('/'));
 	}
 	return {};
 };
@@ -105,10 +106,10 @@ export const actions = {
 
 		if (!user.emailVerified) {
 			console.log('[auth] User email not verified, redirecting to /auth/verify-email');
-			return redirect(302, '/auth/verify-email');
+			return redirect(302, route('/auth/verify-email'));
 		}
 
 		console.log('[auth] User logged in successfully, redirecting to /');
-		return redirect(302, '/');
+		return redirect(302, route('/'));
 	}
 };

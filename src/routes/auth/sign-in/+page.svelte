@@ -4,6 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { route } from '$lib/routes';
 
 	let { form } = $props();
 </script>
@@ -15,7 +16,7 @@
 			<Card.Description>Ange din email och lösenord för att logga in</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form method="post" use:enhance class="grid gap-4">
+			<form method="post" action={route('default /auth/sign-in')} class="grid gap-4" use:enhance>
 				<div class="grid gap-2">
 					<Label for="email">Email</Label>
 					<Input
@@ -31,7 +32,7 @@
 				<div class="grid gap-2">
 					<div class="flex items-center">
 						<Label for="password">Lösenord</Label>
-						<a href="/auth/forgot-password" class="ml-auto inline-block text-sm underline">
+						<a href={route('/auth/forgot-password')} class="ml-auto inline-block text-sm underline">
 							Glömt ditt lösenord?
 						</a>
 					</div>
@@ -50,7 +51,7 @@
 			</form>
 			<div class="mt-4 text-center text-sm">
 				Har du inte ett konto?
-				<a href="/auth/sign-up" class="underline">Registrera dig</a>
+				<a href={route('/auth/sign-up')} class="underline">Registrera dig</a>
 			</div>
 		</Card.Content>
 	</Card.Root>

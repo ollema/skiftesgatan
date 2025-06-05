@@ -4,6 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { route } from '$lib/routes';
 
 	let { form } = $props();
 </script>
@@ -15,7 +16,12 @@
 			<Card.Description>Ange din email för att återställa ditt lösenord</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form method="post" use:enhance class="grid gap-4">
+			<form
+				method="post"
+				action={route('default /auth/forgot-password')}
+				class="grid gap-4"
+				use:enhance
+			>
 				<div class="grid gap-2">
 					<Label for="email">Email</Label>
 					<Input
@@ -34,7 +40,7 @@
 			</form>
 			<div class="mt-4 text-center text-sm">
 				Kom du på ditt lösenord?
-				<a href="/auth/sign-in" class="underline">Logga in</a>
+				<a href={route('/auth/sign-in')} class="underline">Logga in</a>
 			</div>
 		</Card.Content>
 	</Card.Root>

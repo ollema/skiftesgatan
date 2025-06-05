@@ -15,6 +15,7 @@ import {
 	setSessionTokenCookie
 } from '$lib/server/auth/session';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
+import { route } from '$lib/routes';
 
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
@@ -23,7 +24,7 @@ export const load = (event) => {
 
 	if (event.locals.session === null || event.locals.user === null) {
 		console.log('[auth] No session or user found, redirecting to /auth/sign-in');
-		return redirect(302, '/auth/sign-in');
+		return redirect(302, route('/auth/sign-in'));
 	}
 	return {
 		user: event.locals.user
@@ -175,6 +176,6 @@ export const actions = {
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
 
-		return redirect(302, '/auth/verify-email');
+		return redirect(302, route('/auth/verify-email'));
 	}
 };

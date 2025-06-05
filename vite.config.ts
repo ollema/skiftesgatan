@@ -2,10 +2,16 @@ import tailwindcss from '@tailwindcss/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
+import { kitRoutes } from 'vite-plugin-kit-routes';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	plugins: [
+		tailwindcss(),
+		sveltekit(),
+		devtoolsJson(),
+		kitRoutes({ generated_file_path: 'src/lib/routes.ts' })
+	],
 	test: {
 		projects: [
 			{

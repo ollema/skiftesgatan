@@ -12,6 +12,7 @@ import {
 	setSessionTokenCookie
 } from '$lib/server/auth/session';
 import { updateUserPassword } from '$lib/server/auth/user';
+import { route } from '$lib/routes';
 
 export const load = async (event) => {
 	console.log('[auth] Reset password page load function triggered');
@@ -19,13 +20,13 @@ export const load = async (event) => {
 	const { session } = await validatePasswordResetSessionRequest(event);
 	if (session === null) {
 		console.log('[auth] No password reset session found, redirecting to /auth/forgot-password');
-		return redirect(302, '/auth/forgot-password');
+		return redirect(302, route('/auth/forgot-password'));
 	}
 	if (!session.emailVerified) {
 		console.log(
 			'[auth] Password reset session found but email is not verified, redirecting to /auth/reset-password/verify-email'
 		);
-		return redirect(302, '/auth/reset-password/verify-email');
+		return redirect(302, route('/auth/reset-password/verify-email'));
 	}
 	return {};
 };
@@ -75,6 +76,6 @@ export const actions = {
 		deletePasswordResetSessionTokenCookie(event);
 
 		console.log('[auth] Password reset successful, redirecting to /');
-		return redirect(302, '/');
+		return redirect(302, route('/'));
 	}
 };

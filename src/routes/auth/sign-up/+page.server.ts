@@ -13,6 +13,7 @@ import {
 	sendVerificationEmail,
 	setEmailVerificationRequestCookie
 } from '$lib/server/auth/email-verification';
+import { route } from '$lib/routes';
 
 const ipBucket = new RefillingTokenBucket<string>(3, 10);
 
@@ -24,10 +25,10 @@ export const load = (event) => {
 			console.log(
 				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email'
 			);
-			return redirect(302, '/auth/verify-email');
+			return redirect(302, route('/auth/verify-email'));
 		}
 		console.log('[auth] User is already logged in, redirecting to /');
-		return redirect(302, '/');
+		return redirect(302, route('/'));
 	}
 	return {};
 };
@@ -122,6 +123,6 @@ export const actions = {
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		console.log('[auth] Registration successful, redirecting to /auth/verify-email');
-		throw redirect(302, '/auth/verify-email');
+		throw redirect(302, route('/auth/verify-email'));
 	}
 };

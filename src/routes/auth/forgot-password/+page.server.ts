@@ -9,6 +9,7 @@ import {
 } from '$lib/server/auth/password-reset';
 import { RefillingTokenBucket } from '$lib/server/auth/rate-limit';
 import { generateSessionToken } from '$lib/server/auth/session';
+import { route } from '$lib/routes';
 
 const ipBucket = new RefillingTokenBucket<string>(3, 60);
 const userBucket = new RefillingTokenBucket<string>(3, 60);
@@ -74,6 +75,6 @@ export const actions = {
 
 		console.log('[auth] Password reset email sent to:', session.email);
 		console.log('[auth] Redirecting to /auth/reset-password/verify-email');
-		return redirect(302, '/auth/reset-password/verify-email');
+		return redirect(302, route('/auth/reset-password/verify-email'));
 	}
 };
