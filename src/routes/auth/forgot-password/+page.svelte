@@ -13,7 +13,8 @@
 	<Card.Root class="mx-auto w-full max-w-sm">
 		<Card.Header>
 			<Card.Title class="text-2xl">Glömt ditt lösenord?</Card.Title>
-			<Card.Description>Ange din email för att återställa ditt lösenord</Card.Description>
+			<Card.Description>Ange ditt lägenhetsnummer för att återställa ditt lösenord</Card.Description
+			>
 		</Card.Header>
 		<Card.Content>
 			<form
@@ -23,14 +24,14 @@
 				use:enhance
 			>
 				<div class="grid gap-2">
-					<Label for="email">Email</Label>
+					<Label for="apartment">Lägenhetsnummer</Label>
 					<Input
-						id="email"
-						name="email"
-						type="email"
-						placeholder="namn@email.se"
+						id="apartment"
+						name="apartment"
+						type="text"
+						placeholder="A1001"
 						required
-						value={form?.email ?? ''}
+						value={form?.apartment ?? ''}
 					/>
 				</div>
 				<Button type="submit" class="w-full">Skicka</Button>

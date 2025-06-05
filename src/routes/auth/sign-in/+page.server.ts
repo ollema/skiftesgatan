@@ -1,6 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { verifyEmailInput } from '$lib/server/auth/email';
-import { getUserFromEmail, getUserPasswordHash } from '$lib/server/auth/user';
+import {
+	getUserFromApartment,
+	getUserPasswordHash,
+	verifyApartmentInput
+} from '$lib/server/auth/user';
 import { RefillingTokenBucket, Throttler } from '$lib/server/auth/rate-limit';
 import { verifyPasswordHash } from '$lib/server/auth/password';
 import {
@@ -39,55 +42,55 @@ export const actions = {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
 				message: 'För många förfrågningar',
-				email: ''
+				apartment: ''
 			});
 		}
 
 		const formData = await event.request.formData();
-		const email = formData.get('email');
+		const apartment = formData.get('apartment');
 		const password = formData.get('password');
 
-		if (typeof email !== 'string' || typeof password !== 'string') {
+		if (typeof apartment !== 'string' || typeof password !== 'string') {
 			console.log('[auth] Invalid or missing fields');
 			return fail(400, {
 				message: 'Ogiltiga eller saknade fält',
-				email: ''
+				apartment: ''
 			});
 		}
-		if (email === '' || password === '') {
-			console.log('[auth] Email or password is empty');
+		if (apartment === '' || password === '') {
+			console.log('[auth] Apartment or password is empty');
 			return fail(400, {
-				message: 'Ange din e-postadress och lösenord.',
-				email
+				message: 'Ange ditt lägenhetsnummer och lösenord.',
+				apartment
 			});
 		}
-		if (!verifyEmailInput(email)) {
-			console.log('[auth] Invalid email:', email);
+		if (!verifyApartmentInput(apartment)) {
+			console.log('[auth] Invalid apartment:', apartment);
 			return fail(400, {
-				message: 'Ogiltig e-postadress',
-				email
+				message: 'Ogiltigt lägenhetsnummer',
+				apartment
 			});
 		}
-		const user = await getUserFromEmail(email);
+		const user = await getUserFromApartment(apartment);
 		if (user === null) {
-			console.log('[auth] Account does not exist for email:', email);
+			console.log('[auth] Account does not exist for apartment:', apartment);
 			return fail(400, {
 				message: 'Kontot finns inte',
-				email
+				apartment
 			});
 		}
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
 				message: 'För många förfrågningar',
-				email: ''
+				apartment: ''
 			});
 		}
 		if (!throttler.consume(user.id)) {
 			console.log('[auth] Too many requests for user:', user.id);
 			return fail(429, {
 				message: 'För många förfrågningar',
-				email: ''
+				apartment: ''
 			});
 		}
 		const passwordHash = await getUserPasswordHash(user.id);
@@ -96,7 +99,7 @@ export const actions = {
 			console.log('[auth] Invalid password for user:', user.id);
 			return fail(400, {
 				message: 'Felaktigt lösenord',
-				email
+				apartment
 			});
 		}
 		throttler.reset(user.id);

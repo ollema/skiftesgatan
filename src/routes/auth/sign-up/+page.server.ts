@@ -42,7 +42,7 @@ export const actions = {
 			return fail(429, {
 				message: 'För många förfrågningar',
 				email: '',
-				username: ''
+				apartment: ''
 			});
 		}
 
@@ -60,15 +60,15 @@ export const actions = {
 			return fail(400, {
 				message: 'Ogiltiga eller saknade fält',
 				email: '',
-				username: ''
+				apartment: ''
 			});
 		}
 		if (email === '' || password === '' || apartment === '') {
 			console.log('[auth] Email, apartment, or password is empty');
 			return fail(400, {
-				message: 'Ange ditt användarnamn, e-postadress och lösenord',
+				message: 'Ange ditt lägenhetsnummer, e-postadress och lösenord',
 				email: '',
-				username: ''
+				apartment: ''
 			});
 		}
 		if (!verifyEmailInput(email)) {

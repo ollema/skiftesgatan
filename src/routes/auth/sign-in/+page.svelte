@@ -13,20 +13,20 @@
 	<Card.Root class="mx-auto w-full max-w-sm">
 		<Card.Header>
 			<Card.Title class="text-2xl">Logga in</Card.Title>
-			<Card.Description>Ange din email och lösenord för att logga in</Card.Description>
+			<Card.Description>Ange ditt lägenhetsnummer och lösenord för att logga in</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<form method="post" action={route('default /auth/sign-in')} class="grid gap-4" use:enhance>
 				<div class="grid gap-2">
-					<Label for="email">Email</Label>
+					<Label for="apartment">Lägenhetsnummer</Label>
 					<Input
-						id="email"
-						name="email"
-						type="email"
-						placeholder="namn@email.se"
+						id="apartment"
+						name="apartment"
+						type="text"
+						placeholder="A1001"
 						autocomplete="username"
 						required
-						value={form?.email ?? ''}
+						value={form?.apartment ?? ''}
 					/>
 				</div>
 				<div class="grid gap-2">

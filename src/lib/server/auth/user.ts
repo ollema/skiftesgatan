@@ -88,3 +88,10 @@ export async function getUserFromEmail(email: string): Promise<User | null> {
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return user || null;
 }
+
+export async function getUserFromApartment(apartment: string): Promise<User | null> {
+	const [user] = await db.select().from(table.user).where(eq(table.user.apartment, apartment));
+
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	return user || null;
+}

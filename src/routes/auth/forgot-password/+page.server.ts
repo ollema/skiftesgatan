@@ -1,6 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { verifyEmailInput } from '$lib/server/auth/email';
-import { getUserFromEmail } from '$lib/server/auth/user';
+import { getUserFromApartment, verifyApartmentInput } from '$lib/server/auth/user';
 import {
 	createPasswordResetSession,
 	invalidateUserPasswordResetSessions,
@@ -24,47 +23,47 @@ export const actions = {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
 				message: 'För många förfrågningar',
-				email: ''
+				apartment: ''
 			});
 		}
 
 		const formData = await event.request.formData();
-		const email = formData.get('email');
+		const apartment = formData.get('apartment');
 
-		if (typeof email !== 'string') {
-			console.log('[auth] Invalid or missing email field');
+		if (typeof apartment !== 'string') {
+			console.log('[auth] Invalid or missing apartment field');
 			return fail(400, {
 				message: 'Ogiltiga eller saknade fält',
-				email: ''
+				apartment: ''
 			});
 		}
-		if (!verifyEmailInput(email)) {
-			console.log('[auth] Invalid email:', email);
+		if (!verifyApartmentInput(apartment)) {
+			console.log('[auth] Invalid apartment:', apartment);
 			return fail(400, {
-				message: 'Ogiltig e-postadress',
-				email
+				message: 'Ogiltigt lägenhetsnummer',
+				apartment
 			});
 		}
-		const user = await getUserFromEmail(email);
+		const user = await getUserFromApartment(apartment);
 		if (user === null) {
-			console.log('[auth] Account does not exist for email:', email);
+			console.log('[auth] Account does not exist for apartment:', apartment);
 			return fail(400, {
 				message: 'Kontot finns inte',
-				email
+				apartment
 			});
 		}
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(400, {
 				message: 'För många förfrågningar',
-				email
+				apartment
 			});
 		}
 		if (!userBucket.consume(user.id, 1)) {
 			console.log('[auth] Too many requests for user:', user.id);
 			return fail(400, {
 				message: 'För många förfrågningar',
-				email
+				apartment
 			});
 		}
 		await invalidateUserPasswordResetSessions(user.id);
