@@ -33,6 +33,9 @@ importers:
       '@eslint/js':
         specifier: ^9.28.0
         version: 9.28.0
+      '@fontsource-variable/inter':
+        specifier: ^5.2.5
+        version: 5.2.5
       '@fontsource-variable/merriweather':
         specifier: ^5.2.3
         version: 5.2.3
@@ -40,8 +43,8 @@ importers:
         specifier: ^3.8.1
         version: 3.8.1
       '@lucide/svelte':
-        specifier: ^0.511.0
-        version: 0.511.0(svelte@5.33.14)
+        specifier: ^0.513.0
+        version: 0.513.0(svelte@5.33.14)
       '@sveltejs/adapter-node':
         specifier: ^5.2.12
         version: 5.2.12(@sveltejs/kit@2.21.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.14)(vite@6.3.5(@types/node@22.15.29)(jiti@2.4.2)(lightningcss@1.30.1)))(svelte@5.33.14)(vite@6.3.5(@types/node@22.15.29)(jiti@2.4.2)(lightningcss@1.30.1)))
@@ -549,6 +552,9 @@ packages:
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
 
+  '@fontsource-variable/inter@5.2.5':
+    resolution: {integrity: sha512-TrWffUAFOnT8zroE9YmGybagoOgM/HjRqMQ8k9R0vVgXlnUh/vnpbGPAS/Caz1KIlOPnPGh6fvJbb7DHbFCncA==}
+
   '@fontsource-variable/merriweather@5.2.3':
     resolution: {integrity: sha512-679e/kqRbSeLoF/sWNPcZZo5F59F0C3Q1zL6P7GDg3oxg//2UBN0+JU9umOHfN7vjJLGCr/WklaTbA+5mXvPFA==}
 
@@ -597,8 +603,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@lucide/svelte@0.511.0':
-    resolution: {integrity: sha512-aLCSPMUJmHlCuLXzXENXa4Z1NV2mN1iAZAFKk4bEbey+/MdsNlu+/DqwVkgW3Yvj6p8y8Vn5xZ2v9CLmPlA6Vw==}
+  '@lucide/svelte@0.513.0':
+    resolution: {integrity: sha512-XwBQMQkMlr9qp9yVg+epx5MzhBBrqul8atO00y/ZfhlKRJuQZVmq3ELibApqyBtj9ys0Ai4FH/SZcODTUFYXig==}
     peerDependencies:
       svelte: ^5
 
@@ -1212,6 +1218,9 @@ packages:
 
   '@vitest/pretty-format@3.2.1':
     resolution: {integrity: sha512-xBh1X2GPlOGBupp6E1RcUQWIxw0w/hRLd3XyBS6H+dMdKTAqHDNsIR2AnJwPA3yYe9DFy3VUKTe3VRTrAiQ01g==}
+
+  '@vitest/pretty-format@3.2.2':
+    resolution: {integrity: sha512-FY4o4U1UDhO9KMd2Wee5vumwcaHw7Vg4V7yR4Oq6uK34nhEJOmdRYrk3ClburPRUA09lXD/oXWZ8y/Sdma0aUQ==}
 
   '@vitest/runner@3.2.1':
     resolution: {integrity: sha512-kygXhNTu/wkMYbwYpS3z/9tBe0O8qpdBuC3dD/AW9sWa0LE/DAZEjnHtWA9sIad7lpD4nFW1yQ+zN7mEKNH3yA==}
@@ -2031,6 +2040,10 @@ packages:
   min-indent@1.0.1:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
+
+  minimatch@10.0.1:
+    resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
+    engines: {node: 20 || >=22}
 
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -3037,6 +3050,8 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
+  '@fontsource-variable/inter@5.2.5': {}
+
   '@fontsource-variable/merriweather@5.2.3': {}
 
   '@humanfs/core@0.19.1': {}
@@ -3077,7 +3092,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@lucide/svelte@0.511.0(svelte@5.33.14)':
+  '@lucide/svelte@0.513.0(svelte@5.33.14)':
     dependencies:
       svelte: 5.33.14
 
@@ -3659,6 +3674,10 @@ snapshots:
     dependencies:
       tinyrainbow: 2.0.0
 
+  '@vitest/pretty-format@3.2.2':
+    dependencies:
+      tinyrainbow: 2.0.0
+
   '@vitest/runner@3.2.1':
     dependencies:
       '@vitest/utils': 3.2.1
@@ -3986,7 +4005,7 @@ snapshots:
       eslint: 9.28.0(jiti@2.4.2)
       eslint-import-context: 0.1.8(unrs-resolver@1.7.10)
       is-glob: 4.0.3
-      minimatch: 9.0.5
+      minimatch: 10.0.1
       semver: 7.7.2
       stable-hash: 0.0.5
       unrs-resolver: 1.7.10
@@ -4421,6 +4440,10 @@ snapshots:
   mimic-response@3.1.0: {}
 
   min-indent@1.0.1: {}
+
+  minimatch@10.0.1:
+    dependencies:
+      brace-expansion: 2.0.1
 
   minimatch@3.1.2:
     dependencies:
@@ -4992,7 +5015,7 @@ snapshots:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.1
       '@vitest/mocker': 3.2.1(vite@6.3.5(@types/node@22.15.29)(jiti@2.4.2)(lightningcss@1.30.1))
-      '@vitest/pretty-format': 3.2.1
+      '@vitest/pretty-format': 3.2.2
       '@vitest/runner': 3.2.1
       '@vitest/snapshot': 3.2.1
       '@vitest/spy': 3.2.1
