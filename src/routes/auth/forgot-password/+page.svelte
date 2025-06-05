@@ -22,7 +22,7 @@
 						id="email"
 						name="email"
 						type="email"
-						placeholder="m@example.com"
+						placeholder="namn@email.se"
 						required
 						value={form?.email ?? ''}
 					/>

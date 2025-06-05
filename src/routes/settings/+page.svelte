@@ -20,7 +20,7 @@
 			<form method="post" use:enhance action="?/email" class="grid gap-4">
 				<div class="grid gap-2">
 					<Label for="email">Ny e-post</Label>
-					<Input id="email" name="email" type="email" placeholder="ny@example.com" required />
+					<Input id="email" name="email" type="email" placeholder="namn@email.se" required />
 				</div>
 				<Button type="submit" class="w-full">Uppdatera e-post</Button>
 				{#if form?.email?.message}

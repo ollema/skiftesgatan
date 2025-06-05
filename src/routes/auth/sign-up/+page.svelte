@@ -35,7 +35,7 @@
 						id="email"
 						name="email"
 						type="email"
-						placeholder="m@example.com"
+						placeholder="namn@email.se"
 						autocomplete="username"
 						required
 						value={form?.email ?? ''}
