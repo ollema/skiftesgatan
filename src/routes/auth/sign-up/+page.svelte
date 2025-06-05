@@ -8,7 +8,7 @@
 	let { form } = $props();
 </script>
 
-<div class="flex h-screen w-full items-center justify-center px-4">
+<div class="mt-8 flex w-full items-center justify-center px-4">
 	<Card.Root class="mx-auto w-full max-w-sm">
 		<Card.Header>
 			<Card.Title class="text-2xl">Skapa konto</Card.Title>
