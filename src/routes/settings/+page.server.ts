@@ -22,8 +22,8 @@ export const load = async (event) => {
 	console.log('[auth] Settings page load function triggered');
 
 	if (event.locals.session === null || event.locals.user === null) {
-		console.log('[auth] No session or user found, redirecting to /auth/login');
-		return redirect(302, '/auth/login');
+		console.log('[auth] No session or user found, redirecting to /auth/sign-in');
+		return redirect(302, '/auth/sign-in');
 	}
 	return {
 		user: event.locals.user

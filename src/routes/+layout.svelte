@@ -3,11 +3,12 @@
 	import '../app.css';
 
 	import AppSidebar from '$lib/components/app-sidebar.svelte';
-	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar';
 	import Logo from '$lib/components/logo.svelte';
-	import * as NavigationMenu from '$lib/components/ui/navigation-menu/index.js';
+	import * as NavigationMenu from '$lib/components/ui/navigation-menu';
 	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
-
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 	import { navigation } from '$lib/config/navigation';
 	import type { HTMLAttributes } from 'svelte/elements';
@@ -15,7 +16,7 @@
 
 	const isMobile = new IsMobile();
 
-	let { children } = $props();
+	let { data, children } = $props();
 
 	type ListItemProps = HTMLAttributes<HTMLAnchorElement> & {
 		title: string;
@@ -52,10 +53,7 @@
 		<header
 			class="bg-background sticky top-0 grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 border-b px-4"
 		>
-			<a
-				class="text-foreground mr-6 flex flex-shrink-0 items-center text-2xl font-black hover:underline"
-				href="/"
-			>
+			<a class="text-foreground mr-6 flex flex-shrink-0 items-center text-2xl font-black" href="/">
 				<div>Skiftesgatan</div>
 				<Logo />
 			</a>
@@ -88,7 +86,27 @@
 						{/each}
 					</NavigationMenu.List>
 				</NavigationMenu.Root>
-				<div class="justify-self-end">Hello</div>
+				{#if data.user === null}
+					<a href="/auth/sign-in" class="justify-self-end">Logga in</a>
+				{:else}
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger
+							class={cn('justify-self-end', buttonVariants({ variant: 'ghost' }))}
+						>
+							{data.user.apartment}
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content>
+							<DropdownMenu.Item>
+								<a href="/settings">Inställningar</a>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item>
+								<form method="post" action="/auth/sign-out/">
+									<button type="submit" class="w-full text-left">Logga ut</button>
+								</form>
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				{/if}
 			{:else}
 				<div class="justify-self-center"></div>
 				<Sidebar.Trigger class="justify-self-end" />

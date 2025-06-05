@@ -30,7 +30,7 @@
 			</div>
 			<div class="mt-4 text-center text-sm">
 				Har du inte ett konto?
-				<a href="/auth/register" class="underline">Registrera dig</a>
+				<a href="/auth/sign-up" class="underline">Registrera dig</a>
 			</div>
 		</Card.Content>
 	</Card.Root>

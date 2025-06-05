@@ -49,11 +49,6 @@
 					{/if}
 				</form>
 			</div>
-
-			<div class="mt-4 text-center text-sm">
-				Fel e-postadress?
-				<a href="/auth/settings" class="underline">Ändra din e-post</a>
-			</div>
 		</Card.Content>
 	</Card.Root>
 </div>

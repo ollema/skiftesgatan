@@ -10,7 +10,7 @@ import {
 } from '$lib/server/auth/session';
 
 export const load = (event) => {
-	console.log('[auth] Login page load function triggered');
+	console.log('[auth] Sign in page load function triggered');
 
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
@@ -30,7 +30,7 @@ const ipBucket = new RefillingTokenBucket<string>(20, 1);
 
 export const actions = {
 	default: async (event) => {
-		console.log('[auth] Login form action triggered');
+		console.log('[auth] Sign in form action triggered');
 
 		// TODO: assumes X-Forwarded-For is always included.
 		const clientIP = event.request.headers.get('X-Forwarded-For');

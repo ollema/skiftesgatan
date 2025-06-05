@@ -59,7 +59,7 @@
 			</form>
 			<div class="mt-4 text-center text-sm">
 				Har du redan ett konto?
-				<a href="/auth/login" class="underline">Logga in</a>
+				<a href="/auth/sign-in" class="underline">Logga in</a>
 			</div>
 		</Card.Content>
 	</Card.Root>

@@ -17,7 +17,7 @@ import {
 const ipBucket = new RefillingTokenBucket<string>(3, 10);
 
 export const load = (event) => {
-	console.log('[auth] Register page load function triggered');
+	console.log('[auth] Sign up page load function triggered');
 
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {

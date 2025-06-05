@@ -16,8 +16,8 @@ export const load = async (event) => {
 	console.log('[auth] Verify email page load function triggered');
 
 	if (event.locals.user === null) {
-		console.log('[auth] No user found, redirecting to /auth/login');
-		return redirect(302, '/auth/login');
+		console.log('[auth] No user found, redirecting to /auth/sign-in');
+		return redirect(302, '/auth/sign-in');
 	}
 	let verificationRequest = await getUserEmailVerificationRequestFromRequest(event);
 	if (verificationRequest === null || Date.now() >= verificationRequest.expiresAt.getTime()) {

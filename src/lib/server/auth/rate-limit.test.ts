@@ -400,11 +400,11 @@ describe('Rate limiting integration scenarios', () => {
 		}
 	});
 
-	it('should handle login attempt throttling scenario', () => {
+	it('should handle sign in attempt throttling scenario', () => {
 		// progressive delays: 1s, 5s, 15s, 60s
 		const throttler = new Throttler([1, 5, 15, 60]);
 
-		// simulate failed login attempts
+		// simulate failed sign in attempts
 		expect(throttler.consume('192.168.1.1')).toBe(true); // first attempt
 
 		vi.advanceTimersByTime(1000); // wait 1 second
