@@ -12,7 +12,7 @@
 <Sidebar.Root bind:ref {...restProps}>
 	<Sidebar.Header>
 		<div class="px-2 py-2">
-			<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-black" href="/">
+			<a class="mr-6 flex flex-shrink-0 items-center text-2xl font-extrabold" href="/">
 				<div>Skiftesgatan</div>
 				<Logo />
 			</a>
