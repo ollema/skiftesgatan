@@ -49,7 +49,7 @@ export const actions = {
 			console.log('[auth] No session or user found, returning 401');
 			return fail(401, {
 				verify: {
-					message: 'Not authenticated'
+					message: 'Inte autentiserad'
 				}
 			});
 		}
@@ -57,7 +57,7 @@ export const actions = {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				verify: {
-					message: 'Too many requests'
+					message: 'För många förfrågningar'
 				}
 			});
 		}
@@ -78,7 +78,7 @@ export const actions = {
 			console.log('[auth] Invalid or missing code field');
 			return fail(400, {
 				verify: {
-					message: 'Invalid or missing fields'
+					message: 'Ogiltiga eller saknade fält'
 				}
 			});
 		}
@@ -86,7 +86,7 @@ export const actions = {
 			console.log('[auth] Code field is empty');
 			return fail(400, {
 				verify: {
-					message: 'Enter your code'
+					message: 'Ange din kod'
 				}
 			});
 		}
@@ -107,7 +107,7 @@ export const actions = {
 			console.log('[auth] Verification code expired, new code sent');
 			return {
 				verify: {
-					message: 'The verification code was expired. We sent another code to your inbox.'
+					message: 'Verifieringskoden har gått ut. Vi skickade en ny kod till din inkorg.'
 				}
 			};
 		}
@@ -115,7 +115,7 @@ export const actions = {
 			console.log('[auth] Incorrect code provided');
 			return fail(400, {
 				verify: {
-					message: 'Incorrect code.'
+					message: 'Felaktig kod.'
 				}
 			});
 		}
@@ -153,7 +153,7 @@ export const actions = {
 				console.log('[auth] User email is already verified');
 				return fail(403, {
 					resend: {
-						message: 'Forbidden'
+						message: 'Förbjuden'
 					}
 				});
 			}
@@ -189,7 +189,7 @@ export const actions = {
 		console.log("[auth] New verification code sent to user's email");
 		return {
 			resend: {
-				message: 'A new code was sent to your inbox.'
+				message: 'En ny kod skickades till din inkorg.'
 			}
 		};
 	}

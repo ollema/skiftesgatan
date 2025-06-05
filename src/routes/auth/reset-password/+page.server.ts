@@ -40,13 +40,13 @@ export const actions = {
 		if (passwordResetSession === null) {
 			console.log('[auth] No password reset session found, returning 401');
 			return fail(401, {
-				message: 'Not authenticated'
+				message: 'Inte autentiserad'
 			});
 		}
 		if (!passwordResetSession.emailVerified) {
 			console.log('[auth] Password reset session found but email is not verified, returning 403');
 			return fail(403, {
-				message: 'Forbidden'
+				message: 'Förbjuden'
 			});
 		}
 
@@ -55,7 +55,7 @@ export const actions = {
 
 		if (typeof password !== 'string') {
 			return fail(400, {
-				message: 'Invalid or missing fields'
+				message: 'Ogiltiga eller saknade fält'
 			});
 		}
 
@@ -63,7 +63,7 @@ export const actions = {
 		if (!strongPassword) {
 			console.log('[auth] Weak password provided');
 			return fail(400, {
-				message: 'Weak password'
+				message: 'Svagt lösenord'
 			});
 		}
 		await invalidateUserPasswordResetSessions(passwordResetSession.userId);

@@ -39,7 +39,7 @@ export const actions = {
 			console.log('[auth] No session or user found, returning 401');
 			return fail(401, {
 				password: {
-					message: 'Not authenticated'
+					message: 'Inte autentiserad'
 				}
 			});
 		}
@@ -47,7 +47,7 @@ export const actions = {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				password: {
-					message: 'Too many requests'
+					message: 'För många förfrågningar'
 				}
 			});
 		}
@@ -60,7 +60,7 @@ export const actions = {
 			console.log('[auth] Invalid or missing fields');
 			return fail(400, {
 				password: {
-					message: 'Invalid or missing fields'
+					message: 'Ogiltiga eller saknade fält'
 				}
 			});
 		}
@@ -69,7 +69,7 @@ export const actions = {
 			console.log('[auth] Weak password provided');
 			return fail(400, {
 				password: {
-					message: 'Weak password'
+					message: 'Svagt lösenord'
 				}
 			});
 		}
@@ -78,7 +78,7 @@ export const actions = {
 			console.log('[auth] Too many requests for session:', event.locals.session.id);
 			return fail(429, {
 				password: {
-					message: 'Too many requests'
+					message: 'För många förfrågningar'
 				}
 			});
 		}
@@ -89,7 +89,7 @@ export const actions = {
 			console.log('[auth] Incorrect password for user:', event.locals.user.id);
 			return fail(400, {
 				password: {
-					message: 'Incorrect password'
+					message: 'Felaktigt lösenord'
 				}
 			});
 		}
@@ -104,7 +104,7 @@ export const actions = {
 		console.log('[auth] Password updated successfully for user:', event.locals.user.id);
 		return {
 			password: {
-				message: 'Updated password'
+				message: 'Lösenordet uppdaterat'
 			}
 		};
 	},
@@ -115,7 +115,7 @@ export const actions = {
 			console.log('[auth] No session or user found, returning 401');
 			return fail(401, {
 				email: {
-					message: 'Not authenticated'
+					message: 'Inte autentiserad'
 				}
 			});
 		}
@@ -123,7 +123,7 @@ export const actions = {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				email: {
-					message: 'Too many requests'
+					message: 'För många förfrågningar'
 				}
 			});
 		}
@@ -135,7 +135,7 @@ export const actions = {
 			console.log('[auth] Invalid or missing email field');
 			return fail(400, {
 				email: {
-					message: 'Invalid or missing fields'
+					message: 'Ogiltiga eller saknade fält'
 				}
 			});
 		}
@@ -143,7 +143,7 @@ export const actions = {
 			console.log('[auth] Email is empty');
 			return fail(400, {
 				email: {
-					message: 'Please enter your email'
+					message: 'Ange din e-postadress'
 				}
 			});
 		}
@@ -151,7 +151,7 @@ export const actions = {
 			console.log('[auth] Invalid email:', email);
 			return fail(400, {
 				email: {
-					message: 'Please enter a valid email'
+					message: 'Ange en giltig e-postadress'
 				}
 			});
 		}
@@ -160,7 +160,7 @@ export const actions = {
 			console.log('[auth] Email is already used:', email);
 			return fail(400, {
 				email: {
-					message: 'This email is already used'
+					message: 'Denna e-postadress används redan'
 				}
 			});
 		}
@@ -168,7 +168,7 @@ export const actions = {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
 			return fail(429, {
 				email: {
-					message: 'Too many requests'
+					message: 'För många förfrågningar'
 				}
 			});
 		}

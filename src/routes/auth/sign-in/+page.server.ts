@@ -38,7 +38,7 @@ export const actions = {
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
-				message: 'Too many requests',
+				message: 'För många förfrågningar',
 				email: ''
 			});
 		}
@@ -50,21 +50,21 @@ export const actions = {
 		if (typeof email !== 'string' || typeof password !== 'string') {
 			console.log('[auth] Invalid or missing fields');
 			return fail(400, {
-				message: 'Invalid or missing fields',
+				message: 'Ogiltiga eller saknade fält',
 				email: ''
 			});
 		}
 		if (email === '' || password === '') {
 			console.log('[auth] Email or password is empty');
 			return fail(400, {
-				message: 'Please enter your email and password.',
+				message: 'Ange din e-postadress och lösenord.',
 				email
 			});
 		}
 		if (!verifyEmailInput(email)) {
 			console.log('[auth] Invalid email:', email);
 			return fail(400, {
-				message: 'Invalid email',
+				message: 'Ogiltig e-postadress',
 				email
 			});
 		}
@@ -72,21 +72,21 @@ export const actions = {
 		if (user === null) {
 			console.log('[auth] Account does not exist for email:', email);
 			return fail(400, {
-				message: 'Account does not exist',
+				message: 'Kontot finns inte',
 				email
 			});
 		}
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
-				message: 'Too many requests',
+				message: 'För många förfrågningar',
 				email: ''
 			});
 		}
 		if (!throttler.consume(user.id)) {
 			console.log('[auth] Too many requests for user:', user.id);
 			return fail(429, {
-				message: 'Too many requests',
+				message: 'För många förfrågningar',
 				email: ''
 			});
 		}
@@ -95,7 +95,7 @@ export const actions = {
 		if (!validPassword) {
 			console.log('[auth] Invalid password for user:', user.id);
 			return fail(400, {
-				message: 'Invalid password',
+				message: 'Felaktigt lösenord',
 				email
 			});
 		}

@@ -6,7 +6,7 @@ export const actions = {
 	default: async (event) => {
 		if (event.locals.session === null) {
 			return fail(401, {
-				message: 'Not authenticated'
+				message: 'Inte autentiserad'
 			});
 		}
 		await invalidateSession(event.locals.session.id);

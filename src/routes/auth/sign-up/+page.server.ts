@@ -40,7 +40,7 @@ export const actions = {
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
-				message: 'Too many requests',
+				message: 'För många förfrågningar',
 				email: '',
 				username: ''
 			});
@@ -58,7 +58,7 @@ export const actions = {
 		) {
 			console.log('[auth] Invalid or missing fields');
 			return fail(400, {
-				message: 'Invalid or missing fields',
+				message: 'Ogiltiga eller saknade fält',
 				email: '',
 				username: ''
 			});
@@ -66,7 +66,7 @@ export const actions = {
 		if (email === '' || password === '' || apartment === '') {
 			console.log('[auth] Email, apartment, or password is empty');
 			return fail(400, {
-				message: 'Please enter your username, email, and password',
+				message: 'Ange ditt användarnamn, e-postadress och lösenord',
 				email: '',
 				username: ''
 			});
@@ -74,7 +74,7 @@ export const actions = {
 		if (!verifyEmailInput(email)) {
 			console.log('[auth] Invalid email:', email);
 			return fail(400, {
-				message: 'Invalid email',
+				message: 'Ogiltig e-postadress',
 				email,
 				apartment
 			});
@@ -83,7 +83,7 @@ export const actions = {
 		if (!emailAvailable) {
 			console.log('[auth] Email is already used:', email);
 			return fail(400, {
-				message: 'Email is already used',
+				message: 'E-postadressen används redan',
 				email,
 				apartment
 			});
@@ -91,7 +91,7 @@ export const actions = {
 		if (!verifyApartmentInput(apartment)) {
 			console.log('[auth] Invalid apartment name:', apartment);
 			return fail(400, {
-				message: 'Invalid apartment name',
+				message: 'Ogiltigt lägenhetsnamn',
 				email,
 				apartment
 			});
@@ -100,7 +100,7 @@ export const actions = {
 		if (!strongPassword) {
 			console.log('[auth] Weak password for email:', email);
 			return fail(400, {
-				message: 'Weak password',
+				message: 'Svagt lösenord',
 				email,
 				apartment
 			});
@@ -108,7 +108,7 @@ export const actions = {
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
 			console.log('[auth] Too many requests from IP:', clientIP);
 			return fail(429, {
-				message: 'Too many requests',
+				message: 'För många förfrågningar',
 				email,
 				apartment
 			});

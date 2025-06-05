@@ -36,7 +36,7 @@ export const actions = {
 		if (session === null) {
 			console.log('[auth] No password reset session found, returning 401');
 			return fail(401, {
-				message: 'Not authenticated'
+				message: 'Inte autentiserad'
 			});
 		}
 		if (session.emailVerified) {
@@ -44,13 +44,13 @@ export const actions = {
 				'[auth] Password reset session found but email is already verified, returning 403'
 			);
 			return fail(403, {
-				message: 'Forbidden'
+				message: 'Förbjuden'
 			});
 		}
 		if (!bucket.check(session.userId, 1)) {
 			console.log('[auth] Too many requests for user:', session.userId);
 			return fail(429, {
-				message: 'Too many requests'
+				message: 'För många förfrågningar'
 			});
 		}
 
@@ -59,23 +59,23 @@ export const actions = {
 		if (typeof code !== 'string') {
 			console.log('[auth] Invalid or missing code field');
 			return fail(400, {
-				message: 'Invalid or missing fields'
+				message: 'Ogiltiga eller saknade fält'
 			});
 		}
 		if (code === '') {
 			console.log('[auth] Code is empty');
 			return fail(400, {
-				message: 'Please enter your code'
+				message: 'Ange din kod'
 			});
 		}
 		if (!bucket.consume(session.userId, 1)) {
 			console.log('[auth] Too many requests for user:', session.userId);
-			return fail(429, { message: 'Too many requests' });
+			return fail(429, { message: 'För många förfrågningar' });
 		}
 		if (code !== session.code) {
 			console.log('[auth] Incorrect code provided');
 			return fail(400, {
-				message: 'Incorrect code'
+				message: 'Felaktig kod'
 			});
 		}
 		bucket.reset(session.userId);
@@ -84,7 +84,7 @@ export const actions = {
 		if (!emailMatches) {
 			console.log('[auth] Email does not match user email, returning 400');
 			return fail(400, {
-				message: 'Please restart the process'
+				message: 'Vänligen starta om processen'
 			});
 		}
 
