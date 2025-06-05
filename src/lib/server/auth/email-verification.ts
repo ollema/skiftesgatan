@@ -1,12 +1,11 @@
+import { encodeBase32 } from '@oslojs/encoding';
+import { and, eq } from 'drizzle-orm';
+import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateRandomOTP } from '$lib/server/auth/utils';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
-import { encodeBase32 } from '@oslojs/encoding';
-import { eq, and } from 'drizzle-orm';
 import { dev } from '$app/environment';
-
-import type { RequestEvent } from '@sveltejs/kit';
 
 export const emailVerificationRequestCookieName = 'email_verification';
 

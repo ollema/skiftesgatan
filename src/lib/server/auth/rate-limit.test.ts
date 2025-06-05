@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { RefillingTokenBucket, Throttler, ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ExpiringTokenBucket, RefillingTokenBucket, Throttler } from '$lib/server/auth/rate-limit';
 
 describe('RefillingTokenBucket', () => {
 	beforeEach(() => {

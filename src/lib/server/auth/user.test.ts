@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { generateUserId, verifyApartmentInput } from '$lib/server/auth/user';
 
 describe('generateUserId', () => {

@@ -1,5 +1,5 @@
-import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
 import { fail, redirect } from '@sveltejs/kit';
+import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/session';
 
 export const actions = {
 	default: async (event) => {
@@ -8,7 +8,7 @@ export const actions = {
 				message: 'Not authenticated'
 			});
 		}
-		invalidateSession(event.locals.session.id);
+		await invalidateSession(event.locals.session.id);
 		deleteSessionTokenCookie(event);
 		return redirect(302, '/');
 	}

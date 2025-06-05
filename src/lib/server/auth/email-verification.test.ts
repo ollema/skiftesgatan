@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import type { EmailVerificationRequest } from '$lib/server/auth/email-verification';
 import {
-	setEmailVerificationRequestCookie,
 	deleteEmailVerificationRequestCookie,
-	type EmailVerificationRequest,
-	emailVerificationRequestCookieName
+	emailVerificationRequestCookieName,
+	setEmailVerificationRequestCookie
 } from '$lib/server/auth/email-verification';
 
 const createMockEvent = () =>

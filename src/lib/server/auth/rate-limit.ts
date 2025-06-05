@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export class RefillingTokenBucket<_Key> {
 	public max: number;
 	public refillIntervalSeconds: number;
@@ -46,11 +47,11 @@ export class RefillingTokenBucket<_Key> {
 }
 
 export class Throttler<_Key> {
-	public timeoutSeconds: number[];
+	public timeoutSeconds: Array<number>;
 
 	private storage = new Map<_Key, ThrottlingCounter>();
 
-	constructor(timeoutSeconds: number[]) {
+	constructor(timeoutSeconds: Array<number>) {
 		this.timeoutSeconds = timeoutSeconds;
 	}
 

@@ -1,10 +1,10 @@
+import { fail, redirect } from '@sveltejs/kit';
 import {
-	validatePasswordResetSessionRequest,
-	setPasswordResetSessionAsEmailVerified
+	setPasswordResetSessionAsEmailVerified,
+	validatePasswordResetSessionRequest
 } from '$lib/server/auth/password-reset';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { setUserAsEmailVerifiedIfEmailMatches } from '$lib/server/auth/user';
-import { fail, redirect } from '@sveltejs/kit';
 
 const bucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 

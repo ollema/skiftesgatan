@@ -1,4 +1,4 @@
-export const load = async (event) => {
+export const load = (event) => {
 	return {
 		user: event.locals.user
 	};

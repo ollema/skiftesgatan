@@ -1,3 +1,4 @@
+import { fail, redirect } from '@sveltejs/kit';
 import { verifyEmailInput } from '$lib/server/auth/email';
 import { getUserFromEmail } from '$lib/server/auth/user';
 import {
@@ -8,7 +9,6 @@ import {
 } from '$lib/server/auth/password-reset';
 import { RefillingTokenBucket } from '$lib/server/auth/rate-limit';
 import { generateSessionToken } from '$lib/server/auth/session';
-import { fail, redirect } from '@sveltejs/kit';
 
 const ipBucket = new RefillingTokenBucket<string>(3, 60);
 const userBucket = new RefillingTokenBucket<string>(3, 60);

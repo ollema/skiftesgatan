@@ -6,6 +6,7 @@ import globals from 'globals';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
+import { tanstackConfig } from '@tanstack/eslint-config';
 
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
@@ -16,11 +17,12 @@ export default ts.config(
 	...svelte.configs.recommended,
 	prettier,
 	...svelte.configs.prettier,
+	...tanstackConfig,
 	{
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node }
 		},
-		rules: { 'no-undef': 'off' }
+		rules: { 'no-undef': 'off', 'no-shadow': 'off' }
 	},
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
@@ -32,5 +34,14 @@ export default ts.config(
 				svelteConfig
 			}
 		}
+	},
+	{
+		ignores: [
+			'vitest-setup-client.ts',
+			'*.config.{ts,js}',
+			'**/service-worker.ts',
+			'**/components/ui/**',
+			'src/lib/utils.ts'
+		]
 	}
 );

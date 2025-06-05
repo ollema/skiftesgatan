@@ -1,12 +1,12 @@
+import { sequence } from '@sveltejs/kit/hooks';
+import type { Handle } from '@sveltejs/kit';
 import { RefillingTokenBucket } from '$lib/server/auth/rate-limit';
 import {
-	validateSessionToken,
-	setSessionTokenCookie,
 	deleteSessionTokenCookie,
-	sessionCookieName
+	sessionCookieName,
+	setSessionTokenCookie,
+	validateSessionToken
 } from '$lib/server/auth/session';
-import type { Handle } from '@sveltejs/kit';
-import { sequence } from '@sveltejs/kit/hooks';
 
 const bucket = new RefillingTokenBucket<string>(100, 1);
 

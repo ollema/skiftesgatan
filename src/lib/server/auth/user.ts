@@ -1,9 +1,9 @@
+import { encodeBase32LowerCase } from '@oslojs/encoding';
+import { and, eq } from 'drizzle-orm';
+import type { user } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { hashPassword } from '$lib/server/auth/password';
-import { user } from '$lib/server/db/schema';
-import { encodeBase32LowerCase } from '@oslojs/encoding';
-import { and, eq } from 'drizzle-orm';
 
 export type User = typeof user.$inferSelect;
 
@@ -74,6 +74,7 @@ export async function getUserPasswordHash(userId: string): Promise<string> {
 		.from(table.user)
 		.where(eq(table.user.id, userId));
 
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!user) {
 		throw new Error('Invalid user ID');
 	}
@@ -84,5 +85,6 @@ export async function getUserPasswordHash(userId: string): Promise<string> {
 export async function getUserFromEmail(email: string): Promise<User | null> {
 	const [user] = await db.select().from(table.user).where(eq(table.user.email, email));
 
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return user || null;
 }

@@ -1,6 +1,6 @@
+import { count, eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { eq, count } from 'drizzle-orm';
 
 export function verifyEmailInput(email: string): boolean {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z0-9]{2,}$/;

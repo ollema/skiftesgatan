@@ -1,9 +1,9 @@
-import type { RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '$lib/server/db';
+import type { RequestEvent } from '@sveltejs/kit';
 import type { session } from '$lib/server/db/schema';
+import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 
 export type Session = typeof session.$inferSelect;
@@ -46,6 +46,7 @@ export async function validateSessionToken(token: string) {
 		.innerJoin(table.user, eq(table.session.userId, table.user.id))
 		.where(eq(table.session.id, sessionId));
 
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!result) {
 		return { session: null, user: null };
 	}

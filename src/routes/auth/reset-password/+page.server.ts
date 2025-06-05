@@ -1,9 +1,9 @@
+import { fail, redirect } from '@sveltejs/kit';
 import {
 	deletePasswordResetSessionTokenCookie,
 	invalidateUserPasswordResetSessions,
 	validatePasswordResetSessionRequest
 } from '$lib/server/auth/password-reset';
-import { fail, redirect } from '@sveltejs/kit';
 import { verifyPasswordStrength } from '$lib/server/auth/password';
 import {
 	createSession,

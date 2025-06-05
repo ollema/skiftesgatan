@@ -1,10 +1,10 @@
+import { fail, redirect } from '@sveltejs/kit';
 import {
 	createEmailVerificationRequest,
 	sendVerificationEmail,
 	sendVerificationEmailBucket,
 	setEmailVerificationRequestCookie
 } from '$lib/server/auth/email-verification';
-import { fail, redirect } from '@sveltejs/kit';
 import { checkEmailAvailability, verifyEmailInput } from '$lib/server/auth/email';
 import { verifyPasswordHash, verifyPasswordStrength } from '$lib/server/auth/password';
 import { getUserPasswordHash, updateUserPassword } from '$lib/server/auth/user';
@@ -18,7 +18,7 @@ import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
-export const load = async (event) => {
+export const load = (event) => {
 	console.log('[auth] Settings page load function triggered');
 
 	if (event.locals.session === null || event.locals.user === null) {

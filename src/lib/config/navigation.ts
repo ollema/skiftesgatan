@@ -1,11 +1,11 @@
 export interface NavigationItem {
 	title: string;
 	href: string;
-	items?: NavigationItem[];
+	items?: Array<NavigationItem>;
 	content?: string;
 }
 
-export const navigation: NavigationItem[] = [
+export const navigation: Array<NavigationItem> = [
 	{
 		title: 'Nyheter',
 		href: '#'
