@@ -15,12 +15,11 @@ const userBucket = new RefillingTokenBucket<string>(3, 60);
 
 export const actions = {
 	default: async (event) => {
-		console.log('[auth] Forgot password form action triggered');
-
 		// TODO: assumes X-Forwarded-For is always included.
 		const clientIP = event.request.headers.get('X-Forwarded-For');
+		console.log('[auth] Forgot password form action triggered');
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
-			console.log('[auth] Too many requests from IP:', clientIP);
+			console.log('[auth] IP rate limit exceeded during forgot-password check', { ip: clientIP });
 			return fail(429, {
 				message: 'För många förfrågningar',
 				apartment: ''
@@ -31,14 +30,16 @@ export const actions = {
 		const apartment = formData.get('apartment');
 
 		if (typeof apartment !== 'string') {
-			console.log('[auth] Invalid or missing apartment field');
+			console.log('[auth] Invalid or missing apartment field during forgot-password', {
+				ip: clientIP
+			});
 			return fail(400, {
 				message: 'Ogiltiga eller saknade fält',
 				apartment: ''
 			});
 		}
 		if (!verifyApartmentInput(apartment)) {
-			console.log('[auth] Invalid apartment:', apartment);
+			console.log('[auth] Invalid apartment format during forgot-password', { apartment });
 			return fail(400, {
 				message: 'Ogiltigt lägenhetsnummer',
 				apartment
@@ -46,21 +47,28 @@ export const actions = {
 		}
 		const user = await getUserFromApartment(apartment);
 		if (user === null) {
-			console.log('[auth] Account does not exist for apartment:', apartment);
+			console.log('[auth] Account does not exist during forgot-password', { apartment });
 			return fail(400, {
 				message: 'Kontot finns inte',
 				apartment
 			});
 		}
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
-			console.log('[auth] Too many requests from IP:', clientIP);
+			console.log('[auth] IP rate limit exceeded during forgot-password consume', {
+				ip: clientIP,
+				apartment
+			});
 			return fail(400, {
 				message: 'För många förfrågningar',
 				apartment
 			});
 		}
 		if (!userBucket.consume(user.id, 1)) {
-			console.log('[auth] Too many requests for user:', user.id);
+			console.log('[auth] User rate limit exceeded during forgot-password', {
+				apartment,
+				email: user.email,
+				userId: user.id
+			});
 			return fail(400, {
 				message: 'För många förfrågningar',
 				apartment
@@ -72,8 +80,14 @@ export const actions = {
 		sendPasswordResetEmail(session.email, session.code);
 		setPasswordResetSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		console.log('[auth] Password reset email sent to:', session.email);
-		console.log('[auth] Redirecting to /auth/reset-password/verify-email');
+		console.log('[auth] Password reset email sent successfully', {
+			apartment,
+			email: session.email
+		});
+		console.log('[auth] Redirecting to /auth/reset-password/verify-email', {
+			apartment,
+			email: session.email
+		});
 		return redirect(302, route('/auth/reset-password/verify-email'));
 	}
 };

@@ -43,7 +43,8 @@ const bucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
 export const actions = {
 	verify: async (event) => {
-		console.log('[auth] Verify email form action triggered');
+		const clientIP = event.request.headers.get('X-Forwarded-For');
+		console.log('[auth] Verify email form action triggered', { ip: clientIP });
 
 		if (event.locals.session === null || event.locals.user === null) {
 			console.log('[auth] No session or user found, returning 401');

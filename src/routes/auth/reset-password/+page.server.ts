@@ -24,7 +24,8 @@ export const load = (event) => {
 	}
 	if (!session.emailVerified) {
 		console.log(
-			'[auth] Password reset session found but email is not verified, redirecting to /auth/reset-password/verify-email'
+			'[auth] Password reset session found but email is not verified, redirecting to /auth/reset-password/verify-email',
+			{ email: session.email }
 		);
 		return redirect(302, route('/auth/reset-password/verify-email'));
 	}
@@ -43,7 +44,9 @@ export const actions = {
 			});
 		}
 		if (!passwordResetSession.emailVerified) {
-			console.log('[auth] Password reset session found but email is not verified, returning 403');
+			console.log('[auth] Password reset session found but email is not verified, returning 403', {
+				email: passwordResetSession.email
+			});
 			return fail(403, {
 				message: 'Förbjuden'
 			});
@@ -60,7 +63,9 @@ export const actions = {
 
 		const strongPassword = await verifyPasswordStrength(password);
 		if (!strongPassword) {
-			console.log('[auth] Weak password provided');
+			console.log('[auth] Weak password provided during reset', {
+				email: passwordResetSession.email
+			});
 			return fail(400, {
 				message: 'Svagt lösenord'
 			});
@@ -74,7 +79,10 @@ export const actions = {
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		deletePasswordResetSessionTokenCookie(event);
 
-		console.log('[auth] Password reset successful, redirecting to /');
+		console.log('[auth] Password reset successful, redirecting to /', {
+			apartment: user.apartment,
+			email: user.email
+		});
 		return redirect(302, route('/'));
 	}
 };

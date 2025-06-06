@@ -23,11 +23,14 @@ export const load = (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
 			console.log(
-				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email'
+				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email',
+				{ apartment: event.locals.user.apartment }
 			);
 			return redirect(302, route('/auth/verify-email'));
 		}
-		console.log('[auth] User is already logged in, redirecting to /');
+		console.log('[auth] User is already logged in, redirecting to /', {
+			apartment: event.locals.user.apartment
+		});
 		return redirect(302, route('/'));
 	}
 	return {};
@@ -37,8 +40,9 @@ export const actions = {
 	default: async (event) => {
 		// TODO: assumes X-Forwarded-For is always included.
 		const clientIP = event.request.headers.get('X-Forwarded-For');
+		console.log('[auth] Sign up form action triggered');
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
-			console.log('[auth] Too many requests from IP:', clientIP);
+			console.log('[auth] IP rate limit exceeded during sign-up check', { ip: clientIP });
 			return fail(429, {
 				message: 'För många förfrågningar',
 				email: '',
@@ -56,7 +60,7 @@ export const actions = {
 			typeof apartment !== 'string' ||
 			typeof password !== 'string'
 		) {
-			console.log('[auth] Invalid or missing fields');
+			console.log('[auth] Invalid or missing fields during sign-up', { ip: clientIP });
 			return fail(400, {
 				message: 'Ogiltiga eller saknade fält',
 				email: '',
@@ -64,7 +68,7 @@ export const actions = {
 			});
 		}
 		if (email === '' || password === '' || apartment === '') {
-			console.log('[auth] Email, apartment, or password is empty');
+			console.log('[auth] Email, apartment, or password is empty during sign-up', { ip: clientIP });
 			return fail(400, {
 				message: 'Ange ditt lägenhetsnummer, e-postadress och lösenord',
 				email: '',
@@ -72,7 +76,7 @@ export const actions = {
 			});
 		}
 		if (!verifyEmailInput(email)) {
-			console.log('[auth] Invalid email:', email);
+			console.log('[auth] Invalid email format during sign-up', { email });
 			return fail(400, {
 				message: 'Ogiltig e-postadress',
 				email,
@@ -81,7 +85,7 @@ export const actions = {
 		}
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
-			console.log('[auth] Email is already used:', email);
+			console.log('[auth] Email is already used during sign-up', { email });
 			return fail(400, {
 				message: 'E-postadressen används redan',
 				email,
@@ -89,7 +93,7 @@ export const actions = {
 			});
 		}
 		if (!verifyApartmentInput(apartment)) {
-			console.log('[auth] Invalid apartment name:', apartment);
+			console.log('[auth] Invalid apartment format during sign-up', { apartment, email });
 			return fail(400, {
 				message: 'Ogiltigt lägenhetsnamn',
 				email,
@@ -98,7 +102,7 @@ export const actions = {
 		}
 		const strongPassword = await verifyPasswordStrength(password);
 		if (!strongPassword) {
-			console.log('[auth] Weak password for email:', email);
+			console.log('[auth] Weak password during sign-up', { email, apartment });
 			return fail(400, {
 				message: 'Svagt lösenord',
 				email,
@@ -106,7 +110,11 @@ export const actions = {
 			});
 		}
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
-			console.log('[auth] Too many requests from IP:', clientIP);
+			console.log('[auth] IP rate limit exceeded during sign-up consume', {
+				ip: clientIP,
+				email,
+				apartment
+			});
 			return fail(429, {
 				message: 'För många förfrågningar',
 				email,
@@ -122,7 +130,10 @@ export const actions = {
 		const session = createSession(sessionToken, user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		console.log('[auth] Registration successful, redirecting to /auth/verify-email');
+		console.log('[auth] Registration successful, redirecting to /auth/verify-email', {
+			apartment,
+			email
+		});
 		throw redirect(302, route('/auth/verify-email'));
 	}
 };

@@ -30,7 +30,8 @@ export const load = (event) => {
 
 export const actions = {
 	default: async (event) => {
-		console.log('[auth] Verify email form action triggered');
+		const clientIP = event.request.headers.get('X-Forwarded-For');
+		console.log('[auth] Verify email form action triggered', { ip: clientIP });
 
 		const { session } = validatePasswordResetSessionRequest(event);
 		if (session === null) {

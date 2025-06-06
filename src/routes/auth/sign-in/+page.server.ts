@@ -19,11 +19,14 @@ export const load = (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
 			console.log(
-				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email'
+				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email',
+				{ apartment: event.locals.user.apartment }
 			);
 			return redirect(302, route('/auth/verify-email'));
 		}
-		console.log('[auth] User is already logged in, redirecting to /');
+		console.log('[auth] User is already logged in, redirecting to /', {
+			apartment: event.locals.user.apartment
+		});
 		return redirect(302, route('/'));
 	}
 	return {};
@@ -36,10 +39,11 @@ export const actions = {
 	default: async (event) => {
 		console.log('[auth] Sign in form action triggered');
 
-		// TODO: assumes X-Forwarded-For is always included.
 		const clientIP = event.request.headers.get('X-Forwarded-For');
+
+		// TODO: assumes X-Forwarded-For is always included.
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
-			console.log('[auth] Too many requests from IP:', clientIP);
+			console.log('[auth] IP rate limit exceeded during sign-in check', { ip: clientIP });
 			return fail(429, {
 				message: 'För många förfrågningar',
 				apartment: ''
@@ -51,21 +55,21 @@ export const actions = {
 		const password = formData.get('password');
 
 		if (typeof apartment !== 'string' || typeof password !== 'string') {
-			console.log('[auth] Invalid or missing fields');
+			console.log('[auth] Invalid or missing fields during sign-in', { ip: clientIP });
 			return fail(400, {
 				message: 'Ogiltiga eller saknade fält',
 				apartment: ''
 			});
 		}
 		if (apartment === '' || password === '') {
-			console.log('[auth] Apartment or password is empty');
+			console.log('[auth] Apartment or password is empty during sign-in', { ip: clientIP });
 			return fail(400, {
 				message: 'Ange ditt lägenhetsnummer och lösenord.',
 				apartment
 			});
 		}
 		if (!verifyApartmentInput(apartment)) {
-			console.log('[auth] Invalid apartment:', apartment);
+			console.log('[auth] Invalid apartment format during sign-in', { apartment });
 			return fail(400, {
 				message: 'Ogiltigt lägenhetsnummer',
 				apartment
@@ -73,21 +77,24 @@ export const actions = {
 		}
 		const user = await getUserFromApartment(apartment);
 		if (user === null) {
-			console.log('[auth] Account does not exist for apartment:', apartment);
+			console.log('[auth] Account does not exist during sign-in', { apartment });
 			return fail(400, {
 				message: 'Kontot finns inte',
 				apartment
 			});
 		}
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
-			console.log('[auth] Too many requests from IP:', clientIP);
+			console.log('[auth] IP rate limit exceeded during sign-in consume', {
+				ip: clientIP,
+				apartment
+			});
 			return fail(429, {
 				message: 'För många förfrågningar',
 				apartment: ''
 			});
 		}
 		if (!throttler.consume(user.id)) {
-			console.log('[auth] Too many requests for user:', user.id);
+			console.log('[auth] User rate limit exceeded during sign-in', { apartment, userId: user.id });
 			return fail(429, {
 				message: 'För många förfrågningar',
 				apartment: ''
@@ -96,7 +103,7 @@ export const actions = {
 		const passwordHash = await getUserPasswordHash(user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, password);
 		if (!validPassword) {
-			console.log('[auth] Invalid password for user:', user.id);
+			console.log('[auth] Invalid password during sign-in', { apartment });
 			return fail(400, {
 				message: 'Felaktigt lösenord',
 				apartment
@@ -108,11 +115,17 @@ export const actions = {
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		if (!user.emailVerified) {
-			console.log('[auth] User email not verified, redirecting to /auth/verify-email');
+			console.log(
+				'[auth] User email not verified after sign-in, redirecting to /auth/verify-email',
+				{ apartment, email: user.email }
+			);
 			return redirect(302, route('/auth/verify-email'));
 		}
 
-		console.log('[auth] User logged in successfully, redirecting to /');
+		console.log('[auth] User logged in successfully, redirecting to /', {
+			apartment,
+			email: user.email
+		});
 		return redirect(302, route('/'));
 	}
 };
