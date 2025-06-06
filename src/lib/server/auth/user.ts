@@ -65,13 +65,12 @@ export function setUserAsEmailVerifiedIfEmailMatches(userId: string, email: stri
 }
 
 export function getUserPasswordHash(userId: string): string {
-	const [user] = db
+	const user = db
 		.select({ passwordHash: table.user.passwordHash })
 		.from(table.user)
 		.where(eq(table.user.id, userId))
-		.all();
+		.get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!user) {
 		throw new Error('Invalid user ID');
 	}
@@ -80,15 +79,13 @@ export function getUserPasswordHash(userId: string): string {
 }
 
 export function getUserFromEmail(email: string): User | null {
-	const [user] = db.select().from(table.user).where(eq(table.user.email, email)).all();
+	const user = db.select().from(table.user).where(eq(table.user.email, email)).get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return user || null;
 }
 
 export function getUserFromApartment(apartment: string): User | null {
-	const [user] = db.select().from(table.user).where(eq(table.user.apartment, apartment)).all();
+	const user = db.select().from(table.user).where(eq(table.user.apartment, apartment)).get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return user || null;
 }

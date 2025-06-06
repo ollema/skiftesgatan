@@ -37,26 +37,18 @@ export function validatePasswordResetSessionToken(
 ): PasswordResetSessionValidationResult {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-	const [session] = db
+	const session = db
 		.select()
 		.from(table.passwordResetSession)
 		.where(eq(table.passwordResetSession.id, sessionId))
-		.limit(1)
-		.all();
+		.get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!session) {
 		return { session: null, user: null };
 	}
 
-	const [user] = db
-		.select()
-		.from(table.user)
-		.where(eq(table.user.id, session.userId))
-		.limit(1)
-		.all();
+	const user = db.select().from(table.user).where(eq(table.user.id, session.userId)).get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!user) {
 		db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.id, sessionId)).run();
 		return { session: null, user: null };

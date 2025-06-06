@@ -13,7 +13,7 @@ export function getUserEmailVerificationRequest(
 	userId: string,
 	id: string
 ): EmailVerificationRequest | null {
-	const [request] = db
+	const request = db
 		.select()
 		.from(table.emailVerificationRequest)
 		.where(
@@ -22,10 +22,8 @@ export function getUserEmailVerificationRequest(
 				eq(table.emailVerificationRequest.userId, userId)
 			)
 		)
-		.limit(1)
-		.all();
+		.get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return request || null;
 }
 

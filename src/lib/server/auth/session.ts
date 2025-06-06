@@ -31,7 +31,7 @@ export function createSession(token: string, userId: string): Session {
 
 export function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [result] = db
+	const result = db
 		.select({
 			// TODO: adjust user table here to tweak returned data
 			user: {
@@ -45,9 +45,8 @@ export function validateSessionToken(token: string) {
 		.from(table.session)
 		.innerJoin(table.user, eq(table.session.userId, table.user.id))
 		.where(eq(table.session.id, sessionId))
-		.all();
+		.get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!result) {
 		return { session: null, user: null };
 	}

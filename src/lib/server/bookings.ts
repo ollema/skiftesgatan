@@ -140,14 +140,8 @@ export function getFutureBookingsPerUser(
  * Get booking by booking ID
  */
 export function getBookingById(bookingId: string): Booking | null {
-	const [booking] = db
-		.select()
-		.from(table.booking)
-		.where(eq(table.booking.id, bookingId))
-		.limit(1)
-		.all();
+	const booking = db.select().from(table.booking).where(eq(table.booking.id, bookingId)).get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return booking || null;
 }
 
@@ -167,7 +161,7 @@ function getBookingInTimeSlot(
 	startTime: Date,
 	endTime: Date
 ): Booking | null {
-	const [booking] = db
+	const booking = db
 		.select()
 		.from(table.booking)
 		.where(
@@ -177,9 +171,7 @@ function getBookingInTimeSlot(
 				gt(table.booking.endTime, startTime)
 			)
 		)
-		.limit(1)
-		.all();
+		.get();
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return booking || null;
 }
