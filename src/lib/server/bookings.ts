@@ -15,6 +15,11 @@ export function generateBookingId(): string {
 	return encodeBase32LowerCase(bytes);
 }
 
+function normalizeDate(date: Date): Date {
+	// Remove milliseconds to match SQLite timestamp mode behavior
+	return new Date(Math.floor(date.getTime() / 1000) * 1000);
+}
+
 // Time slot definitions for reference
 export const LAUNDRY_SLOTS = [
 	{ start: 7, end: 11, label: '07:00-11:00' },
@@ -27,7 +32,7 @@ export const BBQ_SLOT = { start: 8, end: 20, label: '08:00-20:00' } as const;
 
 // Conversion utilities
 export function zonedDateTimeToDate(zdt: ZonedDateTime): Date {
-	return zdt.toDate();
+	return normalizeDate(zdt.toDate());
 }
 
 export function dateToZonedDateTime(date: Date): ZonedDateTime {
@@ -100,9 +105,10 @@ export async function createBooking(
 	startTime: ZonedDateTime,
 	endTime: ZonedDateTime
 ): Promise<Booking> {
-	const startDate = zonedDateTimeToDate(startTime);
-	const endDate = zonedDateTimeToDate(endTime);
-	const now = new Date();
+	// Normalize dates to avoid precision issues with SQLite timestamp mode
+	const startDate = normalizeDate(zonedDateTimeToDate(startTime));
+	const endDate = normalizeDate(zonedDateTimeToDate(endTime));
+	const now = normalizeDate(new Date());
 
 	// Validate that the booking is in the future
 	if (startDate <= now) {
@@ -131,7 +137,7 @@ export async function createBooking(
 			bookingType,
 			startTime: startDate,
 			endTime: endDate,
-			createdAt: new Date()
+			createdAt: now
 		})
 		.returning();
 
@@ -240,8 +246,8 @@ export async function isTimeSlotAvailable(
 	endTime: ZonedDateTime,
 	excludeUserId?: string
 ): Promise<boolean> {
-	const startDate = zonedDateTimeToDate(startTime);
-	const endDate = zonedDateTimeToDate(endTime);
+	const startDate = normalizeDate(zonedDateTimeToDate(startTime));
+	const endDate = normalizeDate(zonedDateTimeToDate(endTime));
 
 	const conflictingBooking = await getBookingInTimeSlot(bookingType, startDate, endDate);
 

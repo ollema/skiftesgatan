@@ -30,7 +30,7 @@ const testUser2 = {
 };
 
 beforeEach(() => {
-	vi.useFakeTimers(); // TODO: is this needed? why?
+	vi.useFakeTimers();
 
 	db.run(
 		`INSERT INTO user (id, apartment, email, email_verified, password_hash) VALUES ('${testUser1.id}', '${testUser1.apartment}', '${testUser1.email}', ${testUser1.emailVerified}, '${testUser1.passwordHash}')`
@@ -43,6 +43,62 @@ beforeEach(() => {
 afterEach(() => {
 	db.run('DELETE FROM booking');
 	db.run('DELETE FROM user');
+	vi.useRealTimers();
+});
+
+function expectDatesClose(actual: Date, expected: Date, toleranceMs = 1000) {
+	// Normalize both dates to remove milliseconds (like SQLite timestamp mode does)
+	const normalizeDate = (date: Date) => new Date(Math.floor(date.getTime() / 1000) * 1000);
+
+	const normalizedActual = normalizeDate(actual);
+	const normalizedExpected = normalizeDate(expected);
+
+	const diff = Math.abs(normalizedActual.getTime() - normalizedExpected.getTime());
+	expect(diff).toBeLessThan(toleranceMs);
+}
+
+function insertTestBooking(
+	userId: string,
+	bookingType: 'laundry' | 'bbq',
+	startTime: ZonedDateTime,
+	endTime: ZonedDateTime
+) {
+	const startDate = startTime.toDate();
+	const endDate = endTime.toDate();
+	const id = 'test-' + Math.random().toString(36).substring(2);
+
+	db.run(`
+		INSERT INTO booking (id, user_id, booking_type, start_time, end_time, created_at)
+		VALUES ('${id}', '${userId}', '${bookingType}', '${startDate.toISOString()}', '${endDate.toISOString()}', '${Math.floor(Date.now() / 1000)}')
+	`);
+
+	return id;
+}
+
+describe('Debug date precision', () => {
+	it('should show date precision behavior', async () => {
+		vi.setSystemTime(new Date(2024, 5, 10));
+
+		const startTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
+		const endTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
+
+		console.log('Original ZonedDateTime dates:');
+		console.log('Start:', startTime.toDate().toISOString());
+		console.log('End:', endTime.toDate().toISOString());
+
+		const booking = await createBooking(testUser1.id, 'laundry', startTime, endTime);
+
+		console.log('Stored in database:');
+		console.log('Start:', booking.startTime.toISOString());
+		console.log('End:', booking.endTime.toISOString());
+
+		// Check if dates match exactly
+		console.log(
+			'Dates match exactly:',
+			booking.startTime.getTime() === startTime.toDate().getTime() &&
+				booking.endTime.getTime() === endTime.toDate().getTime()
+		);
+	});
 });
 
 describe('Booking Management', () => {
@@ -51,7 +107,6 @@ describe('Booking Management', () => {
 			const startTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
 			const endTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
 
-			// set current time to before the booking
 			vi.setSystemTime(new Date(2024, 5, 10)); // June 10, 2024
 
 			const booking = await createBooking(testUser1.id, 'laundry', startTime, endTime);
@@ -59,15 +114,14 @@ describe('Booking Management', () => {
 			expect(booking).toBeDefined();
 			expect(booking.userId).toBe(testUser1.id);
 			expect(booking.bookingType).toBe('laundry');
-			expect(booking.startTime).toEqual(startTime.toDate());
-			expect(booking.endTime).toEqual(endTime.toDate());
+			expectDatesClose(booking.startTime, startTime.toDate());
+			expectDatesClose(booking.endTime, endTime.toDate());
 		});
 
 		it('should reject booking in the past', async () => {
 			const startTime = new ZonedDateTime(2024, 6, 10, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
 			const endTime = new ZonedDateTime(2024, 6, 10, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
 
-			// set current time to after the booking
 			vi.setSystemTime(new Date(2024, 5, 15)); // June 15, 2024
 
 			await expect(createBooking(testUser1.id, 'laundry', startTime, endTime)).rejects.toThrow(
@@ -76,28 +130,23 @@ describe('Booking Management', () => {
 		});
 
 		it('should implement smart booking by cancelling existing future booking', async () => {
-			// set current time
 			vi.setSystemTime(new Date(2024, 5, 10)); // June 10, 2024
 
-			// create first booking
 			const firstStart = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
 			const firstEnd = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
 
 			const firstBooking = await createBooking(testUser1.id, 'laundry', firstStart, firstEnd);
 			expect(firstBooking).toBeDefined();
 
-			// create second booking of same type - should cancel first and create new
 			const secondStart = new ZonedDateTime(2024, 6, 16, STOCKHOLM_TZ, 15, 0, 0, 0, 0);
 			const secondEnd = new ZonedDateTime(2024, 6, 16, STOCKHOLM_TZ, 19, 0, 0, 0, 0);
 
 			const secondBooking = await createBooking(testUser1.id, 'laundry', secondStart, secondEnd);
 
-			// verify first booking was cancelled
 			const oldBooking = await getBookingById(firstBooking.id);
 			expect(oldBooking).toBeNull();
 
-			// verify second booking exists
-			expect(secondBooking.startTime).toEqual(secondStart.toDate());
+			expectDatesClose(secondBooking.startTime, secondStart.toDate());
 		});
 
 		it('should allow multiple bookings of different types', async () => {
@@ -125,10 +174,15 @@ describe('Booking Management', () => {
 			const startTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
 			const endTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
 
-			// first user books successfully
-			await createBooking(testUser1.id, 'laundry', startTime, endTime);
+			console.log('Creating first booking for user1...');
+			const firstBooking = await createBooking(testUser1.id, 'laundry', startTime, endTime);
+			console.log('First booking created:', firstBooking.id);
 
-			// second user should be rejected
+			// Check if booking was actually stored
+			const allBookings = await getUserBookings(testUser1.id);
+			console.log('All user1 bookings after first create:', allBookings.length);
+
+			console.log('Attempting to create conflicting booking for user2...');
 			await expect(createBooking(testUser2.id, 'laundry', startTime, endTime)).rejects.toThrow(
 				'Den valda tiden är redan bokad'
 			);
@@ -161,28 +215,19 @@ describe('Booking Management', () => {
 		it('should return bookings for specific type and month', async () => {
 			vi.setSystemTime(new Date(2024, 5, 10));
 
-			// create bookings in June 2024
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'laundry',
-			// 	startTime: new Date(2024, 5, 15, 7, 0),
-			// 	endTime: new Date(2024, 5, 15, 11, 0)
-			// });
+			// create bookings in June 2024 using direct insert to avoid date validation
+			const booking1Start = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
+			const booking1End = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
+			await insertTestBooking(testUser1.id, 'laundry', booking1Start, booking1End);
 
-			// await seedTestBooking({
-			// 	userId: testUser2.id,
-			// 	bookingType: 'laundry',
-			// 	startTime: new Date(2024, 5, 20, 15, 0),
-			// 	endTime: new Date(2024, 5, 20, 19, 0)
-			// });
+			const booking2Start = new ZonedDateTime(2024, 6, 20, STOCKHOLM_TZ, 15, 0, 0, 0, 0);
+			const booking2End = new ZonedDateTime(2024, 6, 20, STOCKHOLM_TZ, 19, 0, 0, 0, 0);
+			await insertTestBooking(testUser2.id, 'laundry', booking2Start, booking2End);
 
 			// create a BBQ booking to ensure filtering works
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'bbq',
-			// 	startTime: new Date(2024, 5, 15, 8, 0),
-			// 	endTime: new Date(2024, 5, 15, 20, 0)
-			// });
+			const bbqStart = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 8, 0, 0, 0, 0);
+			const bbqEnd = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 20, 0, 0, 0, 0);
+			await insertTestBooking(testUser1.id, 'bbq', bbqStart, bbqEnd);
 
 			const bookings = await getBookings('laundry', 2024, 6);
 			expect(bookings).toHaveLength(2);
@@ -202,28 +247,19 @@ describe('Booking Management', () => {
 			const startDateTime = new ZonedDateTime(2024, 6, 1, STOCKHOLM_TZ, 0, 0, 0, 0, 0);
 			const endDateTime = new ZonedDateTime(2024, 6, 30, STOCKHOLM_TZ, 23, 59, 59, 999, 0);
 
-			// create bookings for user1
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'laundry',
-			// 	startTime: new Date(2024, 5, 15, 7, 0),
-			// 	endTime: new Date(2024, 5, 15, 11, 0)
-			// });
+			// create bookings for user1 using direct insert to avoid future date validation
+			const booking1Start = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
+			const booking1End = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
+			await insertTestBooking(testUser1.id, 'laundry', booking1Start, booking1End);
 
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'bbq',
-			// 	startTime: new Date(2024, 5, 20, 8, 0),
-			// 	endTime: new Date(2024, 5, 20, 20, 0)
-			// });
+			const booking2Start = new ZonedDateTime(2024, 6, 20, STOCKHOLM_TZ, 8, 0, 0, 0, 0);
+			const booking2End = new ZonedDateTime(2024, 6, 20, STOCKHOLM_TZ, 20, 0, 0, 0, 0);
+			await insertTestBooking(testUser1.id, 'bbq', booking2Start, booking2End);
 
 			// create booking for user2 (should not be included)
-			// await seedTestBooking({
-			// 	userId: testUser2.id,
-			// 	bookingType: 'laundry',
-			// 	startTime: new Date(2024, 5, 15, 15, 0),
-			// 	endTime: new Date(2024, 5, 15, 19, 0)
-			// });
+			const booking3Start = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 15, 0, 0, 0, 0);
+			const booking3End = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 19, 0, 0, 0, 0);
+			await insertTestBooking(testUser2.id, 'laundry', booking3Start, booking3End);
 
 			const bookings = await getApartmentBookings('A1101', startDateTime, endDateTime);
 			expect(bookings).toHaveLength(2);
@@ -255,10 +291,8 @@ describe('Booking Management', () => {
 			const startTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
 			const endTime = new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
 
-			// create a booking
 			await createBooking(testUser1.id, 'laundry', startTime, endTime);
 
-			// check if same time slot is available
 			const available = await isTimeSlotAvailable('laundry', startTime, endTime);
 			expect(available).toBe(false);
 		});
@@ -280,28 +314,19 @@ describe('Booking Management', () => {
 		it('should return only future bookings', async () => {
 			vi.setSystemTime(new Date(2024, 5, 15, 12, 0)); // June 15, 2024, 12:00
 
-			// create past booking
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'laundry',
-			// 	startTime: new Date(2024, 5, 10, 7, 0),
-			// 	endTime: new Date(2024, 5, 10, 11, 0)
-			// });
+			// create past booking using direct database insert
+			const pastStart = new ZonedDateTime(2024, 6, 10, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
+			const pastEnd = new ZonedDateTime(2024, 6, 10, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
+			await insertTestBooking(testUser1.id, 'laundry', pastStart, pastEnd);
 
-			// create future bookings
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'laundry',
-			// 	startTime: new Date(2024, 5, 20, 7, 0),
-			// 	endTime: new Date(2024, 5, 20, 11, 0)
-			// });
+			// create future bookings using createBooking (which validates dates)
+			const future1Start = new ZonedDateTime(2024, 6, 20, STOCKHOLM_TZ, 7, 0, 0, 0, 0);
+			const future1End = new ZonedDateTime(2024, 6, 20, STOCKHOLM_TZ, 11, 0, 0, 0, 0);
+			await createBooking(testUser1.id, 'laundry', future1Start, future1End);
 
-			// await seedTestBooking({
-			// 	userId: testUser1.id,
-			// 	bookingType: 'bbq',
-			// 	startTime: new Date(2024, 5, 25, 8, 0),
-			// 	endTime: new Date(2024, 5, 25, 20, 0)
-			// });
+			const future2Start = new ZonedDateTime(2024, 6, 25, STOCKHOLM_TZ, 8, 0, 0, 0, 0);
+			const future2End = new ZonedDateTime(2024, 6, 25, STOCKHOLM_TZ, 20, 0, 0, 0, 0);
+			await createBooking(testUser1.id, 'bbq', future2Start, future2End);
 
 			const futureBookings = await getUserFutureBookings(testUser1.id);
 			expect(futureBookings).toHaveLength(2);
@@ -346,7 +371,6 @@ describe('Booking Management', () => {
 				end: new ZonedDateTime(2024, 6, 15, STOCKHOLM_TZ, 20, 0, 0, 0, 0)
 			};
 
-			// both laundry and BBQ can be booked for overlapping times
 			await createBooking(testUser1.id, 'laundry', timeSlot.start, timeSlot.end);
 			await createBooking(testUser2.id, 'bbq', timeSlot.start, timeSlot.end);
 
