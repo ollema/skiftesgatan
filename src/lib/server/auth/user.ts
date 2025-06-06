@@ -10,6 +10,13 @@ export type UserPreferences = typeof userPreferences.$inferSelect;
 export type BookingType = 'laundry' | 'bbq';
 export type NotificationTiming = '1_hour' | '1_day' | '1_week';
 
+export interface PreferencesUpdate {
+	laundryNotificationsEnabled: boolean;
+	laundryNotificationTiming: NotificationTiming;
+	bbqNotificationsEnabled: boolean;
+	bbqNotificationTiming: NotificationTiming;
+}
+
 function createDefaultUserPreferences(userId: string): void {
 	const preferences = {
 		id: generateId(),
@@ -111,46 +118,10 @@ export function getUserPreferences(userId: string): UserPreferences | null {
 	return preferences || null;
 }
 
-export function getUserPreferenceByType(
-	userId: string,
-	bookingType: BookingType
-): { notificationsEnabled: boolean; notificationTiming: NotificationTiming } | null {
-	const preferences = getUserPreferences(userId);
-	if (!preferences) return null;
-
-	if (bookingType === 'laundry') {
-		return {
-			notificationsEnabled: preferences.laundryNotificationsEnabled,
-			notificationTiming: preferences.laundryNotificationTiming
-		};
-	} else {
-		return {
-			notificationsEnabled: preferences.bbqNotificationsEnabled,
-			notificationTiming: preferences.bbqNotificationTiming
-		};
-	}
-}
-
-export function updateUserPreference(
-	userId: string,
-	bookingType: BookingType,
-	notificationsEnabled: boolean,
-	notificationTiming: NotificationTiming
-): boolean {
-	const updateData =
-		bookingType === 'laundry'
-			? {
-					laundryNotificationsEnabled: notificationsEnabled,
-					laundryNotificationTiming: notificationTiming
-				}
-			: {
-					bbqNotificationsEnabled: notificationsEnabled,
-					bbqNotificationTiming: notificationTiming
-				};
-
+export function updateUserPreferences(userId: string, preferences: PreferencesUpdate): boolean {
 	const result = db
 		.update(table.userPreferences)
-		.set(updateData)
+		.set(preferences)
 		.where(eq(table.userPreferences.userId, userId))
 		.run();
 

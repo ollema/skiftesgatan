@@ -14,6 +14,99 @@
 
 	<Card.Root>
 		<Card.Header>
+			<Card.Title class="text-xl">Notifieringsinställningar</Card.Title>
+			<Card.Description
+				>Konfigurera när du vill bli notifierad innan dina bokningar börjar</Card.Description
+			>
+		</Card.Header>
+		<Card.Content>
+			<form method="post" action={route('preferences /settings')} class="grid gap-6" use:enhance>
+				<div class="space-y-4">
+					<h3 class="text-lg font-medium">Tvättstugebokningar</h3>
+					<div class="flex items-center space-x-2">
+						<input
+							type="checkbox"
+							id="laundry_enabled"
+							name="laundry_enabled"
+							class="h-4 w-4 rounded border-gray-300"
+							checked={data.preferences?.laundryNotificationsEnabled ?? true}
+						/>
+						<Label for="laundry_enabled">Aktivera notifieringar för tvättstuga</Label>
+					</div>
+					<div class="grid gap-2">
+						<Label for="laundry_timing">Meddela mig</Label>
+						<select
+							id="laundry_timing"
+							name="laundry_timing"
+							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							<option
+								value="1_hour"
+								selected={data.preferences?.laundryNotificationTiming === '1_hour'}
+								>1 timme innan</option
+							>
+							<option
+								value="1_day"
+								selected={data.preferences?.laundryNotificationTiming === '1_day'}
+								>1 dag innan</option
+							>
+							<option
+								value="1_week"
+								selected={data.preferences?.laundryNotificationTiming === '1_week'}
+								>1 vecka innan</option
+							>
+						</select>
+					</div>
+				</div>
+
+				<div class="space-y-4">
+					<h3 class="text-lg font-medium">Grillbokningar</h3>
+					<div class="flex items-center space-x-2">
+						<input
+							type="checkbox"
+							id="bbq_enabled"
+							name="bbq_enabled"
+							class="h-4 w-4 rounded border-gray-300"
+							checked={data.preferences?.bbqNotificationsEnabled ?? true}
+						/>
+						<Label for="bbq_enabled">Aktivera notifieringar för grill</Label>
+					</div>
+					<div class="grid gap-2">
+						<Label for="bbq_timing">Meddela mig</Label>
+						<select
+							id="bbq_timing"
+							name="bbq_timing"
+							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							<option value="1_hour" selected={data.preferences?.bbqNotificationTiming === '1_hour'}
+								>1 timme innan</option
+							>
+							<option value="1_day" selected={data.preferences?.bbqNotificationTiming === '1_day'}
+								>1 dag innan</option
+							>
+							<option value="1_week" selected={data.preferences?.bbqNotificationTiming === '1_week'}
+								>1 vecka innan</option
+							>
+						</select>
+					</div>
+				</div>
+
+				<Button type="submit" class="w-full">Spara inställningar</Button>
+				{#if form?.preferences?.message}
+					<p
+						class="text-center text-sm"
+						class:text-destructive={form.preferences.message !== 'Inställningar uppdaterade'}
+						class:text-green-600={form.preferences.message === 'Inställningar uppdaterade'}
+					>
+						{form.preferences.message}
+					</p>
+				{/if}
+			</form>
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root>
+		<Card.Header>
 			<Card.Title class="text-xl">Uppdatera e-post</Card.Title>
 			<Card.Description>Din nuvarande e-post: {data.user.email}</Card.Description>
 		</Card.Header>

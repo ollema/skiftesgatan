@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import type { PreferencesUpdate } from '$lib/server/auth/user';
 import {
 	createEmailVerificationRequest,
 	sendVerificationEmail,
@@ -7,7 +8,12 @@ import {
 } from '$lib/server/auth/email-verification';
 import { checkEmailAvailability, verifyEmailInput } from '$lib/server/auth/email';
 import { verifyPasswordHash, verifyPasswordStrength } from '$lib/server/auth/password';
-import { getUserPasswordHash, updateUserPassword } from '$lib/server/auth/user';
+import {
+	getUserPasswordHash,
+	getUserPreferences,
+	updateUserPassword,
+	updateUserPreferences
+} from '$lib/server/auth/user';
 import {
 	createSession,
 	generateSessionToken,
@@ -26,8 +32,12 @@ export const load = (event) => {
 		console.log('[auth] No session or user found, redirecting to /auth/sign-in');
 		return redirect(302, route('/auth/sign-in'));
 	}
+
+	const userPreferences = getUserPreferences(event.locals.user.id);
+
 	return {
-		user: event.locals.user
+		user: event.locals.user,
+		preferences: userPreferences
 	};
 };
 
@@ -177,5 +187,70 @@ export const actions = {
 		setEmailVerificationRequestCookie(event, verificationRequest);
 
 		return redirect(302, route('/auth/verify-email'));
+	},
+	preferences: async (event) => {
+		console.log('[auth] Update preferences form action triggered');
+
+		if (event.locals.session === null || event.locals.user === null) {
+			console.log('[auth] No session or user found, returning 401');
+			return fail(401, {
+				preferences: {
+					message: 'Inte autentiserad'
+				}
+			});
+		}
+
+		const formData = await event.request.formData();
+		const laundryEnabled = formData.get('laundry_enabled') === 'on';
+		const laundryTiming = formData.get('laundry_timing');
+		const bbqEnabled = formData.get('bbq_enabled') === 'on';
+		const bbqTiming = formData.get('bbq_timing');
+
+		if (typeof laundryTiming !== 'string' || typeof bbqTiming !== 'string') {
+			console.log('[auth] Invalid timing values');
+			return fail(400, {
+				preferences: {
+					message: 'Ogiltiga tidsinställningar'
+				}
+			});
+		}
+
+		if (
+			!['1_hour', '1_day', '1_week'].includes(laundryTiming) ||
+			!['1_hour', '1_day', '1_week'].includes(bbqTiming)
+		) {
+			console.log('[auth] Invalid timing enum values');
+			return fail(400, {
+				preferences: {
+					message: 'Ogiltiga tidsinställningar'
+				}
+			});
+		}
+
+		// Update preferences
+		const preferencesUpdate: PreferencesUpdate = {
+			laundryNotificationsEnabled: laundryEnabled,
+			laundryNotificationTiming: laundryTiming as '1_hour' | '1_day' | '1_week',
+			bbqNotificationsEnabled: bbqEnabled,
+			bbqNotificationTiming: bbqTiming as '1_hour' | '1_day' | '1_week'
+		};
+
+		const updated = updateUserPreferences(event.locals.user.id, preferencesUpdate);
+
+		if (!updated) {
+			console.log('[auth] Failed to update preferences for user:', event.locals.user.id);
+			return fail(500, {
+				preferences: {
+					message: 'Kunde inte uppdatera inställningar'
+				}
+			});
+		}
+
+		console.log('[auth] Preferences updated successfully for user:', event.locals.user.id);
+		return {
+			preferences: {
+				message: 'Inställningar uppdaterade'
+			}
+		};
 	}
 };

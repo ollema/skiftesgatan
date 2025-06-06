@@ -45,7 +45,8 @@ const ACTIONS = {
   "create /booking/laundry": `/booking/laundry?/create`,
   "cancel /booking/laundry": `/booking/laundry?/cancel`,
   "password /settings": `/settings?/password`,
-  "email /settings": `/settings?/email`
+  "email /settings": `/settings?/email`,
+  "preferences /settings": `/settings?/preferences`
 }
 
 /**
@@ -162,7 +163,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 export type KIT_ROUTES = {
   PAGES: { '/': never, '/auth/forgot-password': never, '/auth/reset-password': never, '/auth/reset-password/verify-email': never, '/auth/sign-in': never, '/auth/sign-up': never, '/auth/verify-email': never, '/booking/bbq': never, '/booking/laundry': never, '/settings': never }
   SERVERS: Record<string, never>
-  ACTIONS: { 'default /auth/forgot-password': never, 'default /auth/reset-password': never, 'default /auth/reset-password/verify-email': never, 'default /auth/sign-in': never, 'default /auth/sign-out': never, 'default /auth/sign-up': never, 'verify /auth/verify-email': never, 'resend /auth/verify-email': never, 'create /booking/bbq': never, 'cancel /booking/bbq': never, 'create /booking/laundry': never, 'cancel /booking/laundry': never, 'password /settings': never, 'email /settings': never }
+  ACTIONS: { 'default /auth/forgot-password': never, 'default /auth/reset-password': never, 'default /auth/reset-password/verify-email': never, 'default /auth/sign-in': never, 'default /auth/sign-out': never, 'default /auth/sign-up': never, 'verify /auth/verify-email': never, 'resend /auth/verify-email': never, 'create /booking/bbq': never, 'cancel /booking/bbq': never, 'create /booking/laundry': never, 'cancel /booking/laundry': never, 'password /settings': never, 'email /settings': never, 'preferences /settings': never }
   LINKS: Record<string, never>
   Params: Record<string, never>
 }

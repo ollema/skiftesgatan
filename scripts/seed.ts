@@ -74,6 +74,28 @@ const booking = sqliteTable('booking', {
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
 });
 
+const userPreferences = sqliteTable('user_preferences', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id)
+		.unique(),
+	laundryNotificationsEnabled: integer('laundry_notifications_enabled', { mode: 'boolean' })
+		.notNull()
+		.default(true),
+	laundryNotificationTiming: text('laundry_notification_timing', {
+		enum: ['1_hour', '1_day', '1_week']
+	})
+		.notNull()
+		.default('1_hour'),
+	bbqNotificationsEnabled: integer('bbq_notifications_enabled', { mode: 'boolean' })
+		.notNull()
+		.default(true),
+	bbqNotificationTiming: text('bbq_notification_timing', { enum: ['1_hour', '1_day', '1_week'] })
+		.notNull()
+		.default('1_week')
+});
+
 // Utility functions (standalone, not imported)
 function generateRandomId(length = 15): string {
 	const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -137,6 +159,24 @@ function createTestUsers() {
 	}
 
 	return users;
+}
+
+function createUserPreferences(users: any[]) {
+	console.log('⚙️  Creating user preferences...');
+
+	for (const user of users) {
+		const preferencesRecord = {
+			id: generateRandomId(),
+			userId: user.id,
+			laundryNotificationsEnabled: true,
+			laundryNotificationTiming: '1_hour' as const,
+			bbqNotificationsEnabled: true,
+			bbqNotificationTiming: '1_week' as const
+		};
+
+		db.insert(userPreferences).values(preferencesRecord).run();
+		console.log(`  ✅ Created preferences for: ${user.apartment}`);
+	}
 }
 
 function createTestBookings(users: any[]) {
@@ -251,6 +291,7 @@ function seed() {
 		// Clear existing data (optional - comment out if you want to keep existing data)
 		console.log('🧹 Clearing existing test data...');
 		db.delete(booking).run();
+		db.delete(userPreferences).run();
 		db.delete(session).run();
 		db.delete(emailVerificationRequest).run();
 		db.delete(passwordResetSession).run();
@@ -258,6 +299,7 @@ function seed() {
 
 		// Create test data
 		const users = createTestUsers();
+		createUserPreferences(users);
 		createTestBookings(users);
 
 		console.log('');
