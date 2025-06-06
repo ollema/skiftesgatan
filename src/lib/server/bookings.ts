@@ -1,26 +1,19 @@
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { and, eq, gte, lt, lte } from 'drizzle-orm';
-import { ZonedDateTime, fromDate } from '@internationalized/date';
+import { CalendarDateTime } from '@internationalized/date';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 
+export const timezone = 'Europe/Stockholm' as const;
+
 export type Booking = typeof table.booking.$inferSelect;
 export type BookingType = 'laundry' | 'bbq';
-
-// Stockholm timezone constant
-export const STOCKHOLM_TZ = 'Europe/Stockholm';
 
 export function generateBookingId(): string {
 	const bytes = crypto.getRandomValues(new Uint8Array(15));
 	return encodeBase32LowerCase(bytes);
 }
 
-function normalizeDate(date: Date): Date {
-	// Remove milliseconds to match SQLite timestamp mode behavior
-	return new Date(Math.floor(date.getTime() / 1000) * 1000);
-}
-
-// Time slot definitions for reference
 export const LAUNDRY_SLOTS = [
 	{ start: 7, end: 11, label: '07:00-11:00' },
 	{ start: 11, end: 15, label: '11:00-15:00' },
@@ -29,15 +22,6 @@ export const LAUNDRY_SLOTS = [
 ] as const;
 
 export const BBQ_SLOT = { start: 8, end: 20, label: '08:00-20:00' } as const;
-
-// Conversion utilities
-export function zonedDateTimeToDate(zdt: ZonedDateTime): Date {
-	return normalizeDate(zdt.toDate());
-}
-
-export function dateToZonedDateTime(date: Date): ZonedDateTime {
-	return fromDate(date, STOCKHOLM_TZ);
-}
 
 // MAIN EXTERNAL API FUNCTIONS
 
@@ -49,7 +33,7 @@ export async function getBookings(
 	year: number,
 	month: number
 ): Promise<Array<Booking>> {
-	const startOfMonth = new ZonedDateTime(year, month, 1, STOCKHOLM_TZ, 0, 0, 0, 0, 0);
+	const startOfMonth = new CalendarDateTime(year, month, 1, 0, 0, 0, 0);
 	const endOfMonth = startOfMonth.add({ months: 1 });
 
 	return await db
@@ -58,8 +42,8 @@ export async function getBookings(
 		.where(
 			and(
 				eq(table.booking.bookingType, bookingType),
-				gte(table.booking.startTime, zonedDateTimeToDate(startOfMonth)),
-				lt(table.booking.startTime, zonedDateTimeToDate(endOfMonth))
+				gte(table.booking.startTime, startOfMonth.toDate(timezone)),
+				lt(table.booking.startTime, endOfMonth.toDate(timezone))
 			)
 		)
 		.orderBy(table.booking.startTime);
@@ -70,8 +54,8 @@ export async function getBookings(
  */
 export async function getApartmentBookings(
 	apartment: string,
-	startDateTime: ZonedDateTime,
-	endDateTime: ZonedDateTime
+	startDateTime: CalendarDateTime,
+	endDateTime: CalendarDateTime
 ): Promise<Array<Booking>> {
 	const user = await db
 		.select()
@@ -89,8 +73,8 @@ export async function getApartmentBookings(
 		.where(
 			and(
 				eq(table.booking.userId, user[0].id),
-				gte(table.booking.startTime, zonedDateTimeToDate(startDateTime)),
-				lte(table.booking.startTime, zonedDateTimeToDate(endDateTime))
+				gte(table.booking.startTime, startDateTime.toDate(timezone)),
+				lte(table.booking.startTime, endDateTime.toDate(timezone))
 			)
 		)
 		.orderBy(table.booking.startTime);
@@ -102,32 +86,28 @@ export async function getApartmentBookings(
 export async function createBooking(
 	userId: string,
 	bookingType: BookingType,
-	startTime: ZonedDateTime,
-	endTime: ZonedDateTime
+	startTime: CalendarDateTime,
+	endTime: CalendarDateTime
 ): Promise<Booking> {
-	// Normalize dates to avoid precision issues with SQLite timestamp mode
-	const startDate = normalizeDate(zonedDateTimeToDate(startTime));
-	const endDate = normalizeDate(zonedDateTimeToDate(endTime));
-	const now = normalizeDate(new Date());
+	const startDate = startTime.toDate(timezone);
+	const endDate = endTime.toDate(timezone);
+	const now = new Date();
 
-	// Validate that the booking is in the future
 	if (startDate <= now) {
 		throw new Error('Bokningar kan endast göras för framtida tidpunkter');
 	}
 
-	// Check if the time slot is already taken by another user
 	const conflictingBooking = await getBookingInTimeSlot(bookingType, startDate, endDate);
 	if (conflictingBooking && conflictingBooking.userId !== userId) {
 		throw new Error('Den valda tiden är redan bokad');
 	}
 
-	// Cancel any existing future booking of this type for this user (smart booking)
+	// cancel any existing future booking of this type for this user (smart booking)
 	const existingBooking = await getUserFutureBooking(userId, bookingType);
 	if (existingBooking) {
 		await cancelBooking(existingBooking.id);
 	}
 
-	// Create the new booking
 	const bookingId = generateBookingId();
 	const booking = await db
 		.insert(table.booking)
@@ -149,7 +129,6 @@ export async function createBooking(
  */
 export async function cancelBooking(bookingId: string): Promise<boolean> {
 	const result = await db.delete(table.booking).where(eq(table.booking.id, bookingId));
-
 	return result.changes > 0;
 }
 
@@ -228,26 +207,24 @@ export async function getBookingById(bookingId: string): Promise<Booking | null>
 }
 
 export function formatBookingTime(booking: Booking): string {
-	const start = dateToZonedDateTime(new Date(booking.startTime));
-	const end = dateToZonedDateTime(new Date(booking.endTime));
+	const start = new Date(booking.startTime);
+	const end = new Date(booking.endTime);
 
-	const dateStr = start.toDate().toLocaleDateString('sv-SE');
-	const startTime = start
-		.toDate()
-		.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-	const endTime = end.toDate().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+	const dateStr = start.toLocaleDateString('sv-SE');
+	const startTime = start.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+	const endTime = end.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
 
 	return `${dateStr} ${startTime}-${endTime}`;
 }
 
 export async function isTimeSlotAvailable(
 	bookingType: BookingType,
-	startTime: ZonedDateTime,
-	endTime: ZonedDateTime,
+	startTime: CalendarDateTime,
+	endTime: CalendarDateTime,
 	excludeUserId?: string
 ): Promise<boolean> {
-	const startDate = normalizeDate(zonedDateTimeToDate(startTime));
-	const endDate = normalizeDate(zonedDateTimeToDate(endTime));
+	const startDate = startTime.toDate(timezone);
+	const endDate = endTime.toDate(timezone);
 
 	const conflictingBooking = await getBookingInTimeSlot(bookingType, startDate, endDate);
 
