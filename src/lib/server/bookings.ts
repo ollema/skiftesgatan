@@ -7,6 +7,15 @@ import * as table from '$lib/server/db/schema';
 export const timezone = 'Europe/Stockholm' as const;
 
 export type Booking = typeof table.booking.$inferSelect;
+export type BookingWithUser = {
+	id: string;
+	userId: string;
+	bookingType: BookingType;
+	startTime: Date;
+	endTime: Date;
+	createdAt: Date;
+	apartment: string;
+};
 export type BookingType = 'laundry' | 'bbq';
 
 export function generateBookingId(): string {
@@ -80,13 +89,22 @@ export function getBookingsPerMonth(
 	bookingType: BookingType,
 	year: number,
 	month: number
-): Array<Booking> {
+): Array<BookingWithUser> {
 	const startOfMonth = new CalendarDateTime(year, month, 1, 0, 0, 0, 0);
 	const endOfMonth = startOfMonth.add({ months: 1 });
 
 	return db
-		.select()
+		.select({
+			id: table.booking.id,
+			userId: table.booking.userId,
+			bookingType: table.booking.bookingType,
+			startTime: table.booking.startTime,
+			endTime: table.booking.endTime,
+			createdAt: table.booking.createdAt,
+			apartment: table.user.apartment
+		})
 		.from(table.booking)
+		.innerJoin(table.user, eq(table.booking.userId, table.user.id))
 		.where(
 			and(
 				eq(table.booking.bookingType, bookingType),
@@ -105,10 +123,19 @@ export function getBookingsPerUser(
 	userId: string,
 	bookingType: BookingType,
 	limit: number
-): Array<Booking> {
+): Array<BookingWithUser> {
 	return db
-		.select()
+		.select({
+			id: table.booking.id,
+			userId: table.booking.userId,
+			bookingType: table.booking.bookingType,
+			startTime: table.booking.startTime,
+			endTime: table.booking.endTime,
+			createdAt: table.booking.createdAt,
+			apartment: table.user.apartment
+		})
 		.from(table.booking)
+		.innerJoin(table.user, eq(table.booking.userId, table.user.id))
 		.where(and(eq(table.booking.userId, userId), eq(table.booking.bookingType, bookingType)))
 		.orderBy(table.booking.startTime)
 		.limit(limit)
@@ -118,11 +145,20 @@ export function getBookingsPerUser(
 export function getFutureBookingsPerUser(
 	userId: string,
 	bookingType: BookingType
-): Array<Booking> | null {
+): Array<BookingWithUser> | null {
 	const now = new Date();
 	const bookings = db
-		.select()
+		.select({
+			id: table.booking.id,
+			userId: table.booking.userId,
+			bookingType: table.booking.bookingType,
+			startTime: table.booking.startTime,
+			endTime: table.booking.endTime,
+			createdAt: table.booking.createdAt,
+			apartment: table.user.apartment
+		})
 		.from(table.booking)
+		.innerJoin(table.user, eq(table.booking.userId, table.user.id))
 		.where(
 			and(
 				eq(table.booking.userId, userId),

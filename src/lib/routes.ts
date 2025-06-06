@@ -16,6 +16,8 @@ const PAGES = {
 	'/auth/sign-in': `/auth/sign-in`,
 	'/auth/sign-up': `/auth/sign-up`,
 	'/auth/verify-email': `/auth/verify-email`,
+	'/booking/bbq': `/booking/bbq`,
+	'/booking/laundry': `/booking/laundry`,
 	'/settings': `/settings`
 };
 
@@ -36,6 +38,10 @@ const ACTIONS = {
 	'default /auth/sign-up': `/auth/sign-up`,
 	'verify /auth/verify-email': `/auth/verify-email?/verify`,
 	'resend /auth/verify-email': `/auth/verify-email?/resend`,
+	'create /booking/bbq': `/booking/bbq?/create`,
+	'cancel /booking/bbq': `/booking/bbq?/cancel`,
+	'create /booking/laundry': `/booking/laundry?/create`,
+	'cancel /booking/laundry': `/booking/laundry?/cancel`,
 	'password /settings': `/settings?/password`,
 	'email /settings': `/settings?/email`
 };
@@ -163,6 +169,8 @@ export type KIT_ROUTES = {
 		'/auth/sign-in': never;
 		'/auth/sign-up': never;
 		'/auth/verify-email': never;
+		'/booking/bbq': never;
+		'/booking/laundry': never;
 		'/settings': never;
 	};
 	SERVERS: Record<string, never>;
@@ -175,6 +183,10 @@ export type KIT_ROUTES = {
 		'default /auth/sign-up': never;
 		'verify /auth/verify-email': never;
 		'resend /auth/verify-email': never;
+		'create /booking/bbq': never;
+		'cancel /booking/bbq': never;
+		'create /booking/laundry': never;
+		'cancel /booking/laundry': never;
 		'password /settings': never;
 		'email /settings': never;
 	};

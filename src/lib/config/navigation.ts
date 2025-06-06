@@ -47,11 +47,11 @@ export const navigation: Array<NavigationItem> = [
 		items: [
 			{
 				title: 'Boka tvättstuga',
-				href: '#'
+				href: '/booking/laundry'
 			},
 			{
-				title: 'Boka uteplats',
-				href: '#'
+				title: 'Boka BBQ/uteplats',
+				href: '/booking/bbq'
 			}
 		]
 	},
