@@ -1,5 +1,5 @@
 import { encodeBase32LowerCase } from '@oslojs/encoding';
-import { and, eq, gte, lt } from 'drizzle-orm';
+import { and, eq, gt, gte, lt } from 'drizzle-orm';
 import { CalendarDateTime } from '@internationalized/date';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
@@ -35,6 +35,10 @@ export async function createBooking(
 	const startDate = startTime.toDate(timezone);
 	const endDate = endTime.toDate(timezone);
 	const now = new Date();
+
+	if (startDate >= endDate) {
+		throw new Error('Start time must be before end time');
+	}
 
 	if (startDate <= now) {
 		throw new Error('Bokningar kan endast göras för framtida tidpunkter');
@@ -165,7 +169,7 @@ async function getBookingInTimeSlot(
 			and(
 				eq(table.booking.bookingType, bookingType),
 				lt(table.booking.startTime, endTime),
-				gte(table.booking.endTime, startTime)
+				gt(table.booking.endTime, startTime)
 			)
 		)
 		.limit(1);
