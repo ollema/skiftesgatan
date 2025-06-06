@@ -43,8 +43,8 @@ importers:
         specifier: ^3.8.2
         version: 3.8.2
       '@lucide/svelte':
-        specifier: ^0.513.0
-        version: 0.513.0(svelte@5.33.14)
+        specifier: ^0.511.0
+        version: 0.511.0(svelte@5.33.14)
       '@sveltejs/adapter-node':
         specifier: ^5.2.12
         version: 5.2.12(@sveltejs/kit@2.21.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.14)(vite@6.3.5(@types/node@22.15.29)(jiti@2.4.2)(lightningcss@1.30.1)(tsx@4.19.4)))(svelte@5.33.14)(vite@6.3.5(@types/node@22.15.29)(jiti@2.4.2)(lightningcss@1.30.1)(tsx@4.19.4)))
@@ -630,8 +630,8 @@ packages:
     resolution: {integrity: sha512-2v75bu2vJB0xf7+qSAu0xcUyCYqzc7KeRE1RcKSpOGQTV9UpCqCs/xCsFWLUGnZRWb1VU6XYf+l6GJsDUW9pRQ==}
     engines: {node: ^16.14 || >=18}
 
-  '@lucide/svelte@0.513.0':
-    resolution: {integrity: sha512-XwBQMQkMlr9qp9yVg+epx5MzhBBrqul8atO00y/ZfhlKRJuQZVmq3ELibApqyBtj9ys0Ai4FH/SZcODTUFYXig==}
+  '@lucide/svelte@0.511.0':
+    resolution: {integrity: sha512-aLCSPMUJmHlCuLXzXENXa4Z1NV2mN1iAZAFKk4bEbey+/MdsNlu+/DqwVkgW3Yvj6p8y8Vn5xZ2v9CLmPlA6Vw==}
     peerDependencies:
       svelte: ^5
 
@@ -3172,7 +3172,7 @@ snapshots:
       recast: 0.23.11
       svelte: 5.33.14
 
-  '@lucide/svelte@0.513.0(svelte@5.33.14)':
+  '@lucide/svelte@0.511.0(svelte@5.33.14)':
     dependencies:
       svelte: 5.33.14
 
