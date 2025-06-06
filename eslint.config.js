@@ -39,6 +39,7 @@ export default ts.config(
 		ignores: [
 			'vitest-setup-client.ts',
 			'vitest-setup-server.ts',
+			'scripts/**',
 			'*.config.{ts,js}',
 			'**/service-worker.ts',
 			'**/components/ui/**',
