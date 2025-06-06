@@ -10,6 +10,7 @@ import {
 	timezone
 } from './bookings';
 import { db } from '$lib/server/db';
+import * as table from '$lib/server/db/schema';
 
 const testUser1 = {
 	id: 'user1' as const,
@@ -43,7 +44,7 @@ afterEach(() => {
 	vi.useRealTimers();
 });
 
-function insertTestBooking(
+async function insertTestBooking(
 	userId: string,
 	bookingType: 'laundry' | 'bbq',
 	startTime: CalendarDateTime,
@@ -53,10 +54,14 @@ function insertTestBooking(
 	const endDate = endTime.toDate(timezone);
 	const id = 'test-' + Math.random().toString(36).substring(2);
 
-	db.run(`
-		INSERT INTO booking (id, user_id, booking_type, start_time, end_time, created_at)
-		VALUES ('${id}', '${userId}', '${bookingType}', '${startDate.toISOString()}', '${endDate.toISOString()}', '${Math.floor(Date.now() / 1000)}')
-	`);
+	await db.insert(table.booking).values({
+		id,
+		userId,
+		bookingType,
+		startTime: startDate,
+		endTime: endDate,
+		createdAt: new Date()
+	});
 
 	return id;
 }
@@ -78,7 +83,6 @@ describe('Debug date precision', () => {
 		console.log('Start:', booking.startTime.toISOString());
 		console.log('End:', booking.endTime.toISOString());
 
-		// check if dates match exactly
 		console.log(
 			'Dates match exactly:',
 			booking.startTime.getTime() === startTime.toDate(timezone).getTime() &&
@@ -166,7 +170,6 @@ describe('Booking Management', () => {
 			const firstBooking = await createBooking(testUser1.id, 'laundry', startTime, endTime);
 			console.log('First booking created:', firstBooking.id);
 
-			// check if booking was actually stored
 			const allBookings = await getBookingsPerUser(testUser1.id, 'laundry', 10);
 			console.log('All user1 bookings after first create:', allBookings.length);
 
@@ -203,19 +206,17 @@ describe('Booking Management', () => {
 		it('should return bookings for specific type and month', async () => {
 			vi.setSystemTime(new Date(2024, 5, 10));
 
-			// create bookings in June 2024 using direct insert to avoid date validation
 			const booking1Start = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
 			const booking1End = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
-			insertTestBooking(testUser1.id, 'laundry', booking1Start, booking1End);
+			await insertTestBooking(testUser1.id, 'laundry', booking1Start, booking1End);
 
 			const booking2Start = new CalendarDateTime(2024, 6, 20, 15, 0, 0, 0);
 			const booking2End = new CalendarDateTime(2024, 6, 20, 19, 0, 0, 0);
-			insertTestBooking(testUser2.id, 'laundry', booking2Start, booking2End);
+			await insertTestBooking(testUser2.id, 'laundry', booking2Start, booking2End);
 
-			// create a BBQ booking to ensure filtering works
 			const bbqStart = new CalendarDateTime(2024, 6, 15, 8, 0, 0, 0);
 			const bbqEnd = new CalendarDateTime(2024, 6, 15, 20, 0, 0, 0);
-			insertTestBooking(testUser1.id, 'bbq', bbqStart, bbqEnd);
+			await insertTestBooking(testUser1.id, 'bbq', bbqStart, bbqEnd);
 
 			const bookings = await getBookingsPerMonth('laundry', 2024, 6);
 			expect(bookings).toHaveLength(2);
@@ -232,19 +233,17 @@ describe('Booking Management', () => {
 		it('should return bookings for a specific apartment', async () => {
 			vi.setSystemTime(new Date(2024, 5, 10));
 
-			// create bookings for user1 using direct insert to avoid future date validation
 			const booking1Start = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
 			const booking1End = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
-			insertTestBooking(testUser1.id, 'laundry', booking1Start, booking1End);
+			await insertTestBooking(testUser1.id, 'laundry', booking1Start, booking1End);
 
 			const booking2Start = new CalendarDateTime(2024, 6, 20, 8, 0, 0, 0);
 			const booking2End = new CalendarDateTime(2024, 6, 20, 20, 0, 0, 0);
-			insertTestBooking(testUser1.id, 'bbq', booking2Start, booking2End);
+			await insertTestBooking(testUser1.id, 'bbq', booking2Start, booking2End);
 
-			// create booking for user2 (should not be included)
 			const booking3Start = new CalendarDateTime(2024, 6, 15, 15, 0, 0, 0);
 			const booking3End = new CalendarDateTime(2024, 6, 15, 19, 0, 0, 0);
-			insertTestBooking(testUser2.id, 'laundry', booking3Start, booking3End);
+			await insertTestBooking(testUser2.id, 'laundry', booking3Start, booking3End);
 
 			const laundryBookings = await getBookingsPerUser(testUser1.id, 'laundry', 10);
 			const bbqBookings = await getBookingsPerUser(testUser1.id, 'bbq', 10);
@@ -254,8 +253,9 @@ describe('Booking Management', () => {
 			expect(bbqBookings[0].userId).toBe(testUser1.id);
 		});
 
-		it('should throw error for non-existent user', async () => {
-			await expect(getBookingsPerUser('user3', 'laundry', 10)).rejects.toThrow('User not found');
+		it('should return empty array for non-existent user', async () => {
+			const bookings = await getBookingsPerUser('user3', 'laundry', 10);
+			expect(bookings).toHaveLength(0);
 		});
 	});
 
@@ -263,12 +263,10 @@ describe('Booking Management', () => {
 		it('should return only future bookings', async () => {
 			vi.setSystemTime(new Date(2024, 5, 15, 12, 0)); // June 15, 2024, 12:00
 
-			// create past booking using direct database insert
 			const pastStart = new CalendarDateTime(2024, 6, 10, 7, 0, 0, 0);
 			const pastEnd = new CalendarDateTime(2024, 6, 10, 11, 0, 0, 0);
 			await insertTestBooking(testUser1.id, 'laundry', pastStart, pastEnd);
 
-			// create future bookings using createBooking (which validates dates)
 			const future1Start = new CalendarDateTime(2024, 6, 20, 7, 0, 0, 0);
 			const future1End = new CalendarDateTime(2024, 6, 20, 11, 0, 0, 0);
 			await createBooking(testUser1.id, 'laundry', future1Start, future1End);
