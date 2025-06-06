@@ -10,10 +10,10 @@
 
 	let { data, form } = $props();
 
-	let laundryEnabled = $state(data.preferences?.laundryNotificationsEnabled ?? true);
-	let laundryTiming = $state(data.preferences?.laundryNotificationTiming ?? '1_hour');
-	let bbqEnabled = $state(data.preferences?.bbqNotificationsEnabled ?? true);
-	let bbqTiming = $state(data.preferences?.bbqNotificationTiming ?? '1_week');
+	let laundryEnabled = $derived(data.preferences?.laundryNotificationsEnabled ?? true);
+	let laundryTiming = $derived(data.preferences?.laundryNotificationTiming ?? '1_hour');
+	let bbqEnabled = $derived(data.preferences?.bbqNotificationsEnabled ?? true);
+	let bbqTiming = $derived(data.preferences?.bbqNotificationTiming ?? '1_week');
 
 	const timingOptions = [
 		{ value: '1_hour', label: '1 timme innan' },
@@ -28,6 +28,8 @@
 	const bbqTimingLabel = $derived(
 		timingOptions.find((t) => t.value === bbqTiming)?.label ?? 'Välj tid'
 	);
+
+	let email = $derived(data.user.email);
 </script>
 
 <div class="container mx-auto max-w-2xl space-y-6 p-4">
@@ -133,7 +135,7 @@
 	<Card.Root>
 		<Card.Header>
 			<Card.Title class="text-xl">Uppdatera e-post</Card.Title>
-			<Card.Description>Din nuvarande e-post: {data.user.email}</Card.Description>
+			<Card.Description>Din nuvarande e-post: {email}</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<form method="post" action={route('email /settings')} class="grid gap-4" use:enhance>
