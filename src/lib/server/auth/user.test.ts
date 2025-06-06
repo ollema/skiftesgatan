@@ -1,48 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { generateUserId, verifyApartmentInput } from '$lib/server/auth/user';
-
-describe('generateUserId', () => {
-	it('should generate IDs of consistent length', () => {
-		const id1 = generateUserId();
-		const id2 = generateUserId();
-
-		expect(id1).toHaveLength(24);
-		expect(id2).toHaveLength(24);
-	});
-
-	it('should generate unique IDs', () => {
-		const ids = new Set();
-		const iterations = 1000;
-
-		for (let i = 0; i < iterations; i++) {
-			ids.add(generateUserId());
-		}
-
-		expect(ids.size).toBe(iterations);
-	});
-
-	it('should generate IDs containing only lowercase base32 characters', () => {
-		const id = generateUserId();
-		const base32Regex = /^[a-z2-7]+$/;
-		expect(id).toMatch(base32Regex);
-	});
-
-	it('should generate IDs that are strings', () => {
-		const id = generateUserId();
-		expect(typeof id).toBe('string');
-	});
-
-	it('should handle crypto.getRandomValues being called', () => {
-		const spy = vi.spyOn(crypto, 'getRandomValues');
-
-		generateUserId();
-
-		expect(spy).toHaveBeenCalledOnce();
-		expect(spy).toHaveBeenCalledWith(expect.any(Uint8Array));
-
-		spy.mockRestore();
-	});
-});
+import { describe, expect, it } from 'vitest';
+import { verifyApartmentInput } from '$lib/server/auth/user';
 
 describe('verifyApartmentInput', () => {
 	describe('valid cases - comprehensive boundary testing', () => {

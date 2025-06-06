@@ -1,17 +1,26 @@
-import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { and, eq } from 'drizzle-orm';
-import type { user } from '$lib/server/db/schema';
+import type { user, userPreferences } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { hashPassword } from '$lib/server/auth/password';
+import { generateId } from '$lib/server/auth/utils';
 
 export type User = typeof user.$inferSelect;
+export type UserPreferences = typeof userPreferences.$inferSelect;
+export type BookingType = 'laundry' | 'bbq';
+export type NotificationTiming = '1_hour' | '1_day' | '1_week';
 
-export function generateUserId() {
-	// ID with 120 bits of entropy, or about the same as UUID v4.
-	const bytes = crypto.getRandomValues(new Uint8Array(15));
-	const id = encodeBase32LowerCase(bytes);
-	return id;
+function createDefaultUserPreferences(userId: string): void {
+	const preferences = {
+		id: generateId(),
+		userId,
+		laundryNotificationsEnabled: true,
+		laundryNotificationTiming: '1_hour' as const,
+		bbqNotificationsEnabled: true,
+		bbqNotificationTiming: '1_week' as const
+	};
+
+	db.insert(table.userPreferences).values(preferences).run();
 }
 
 export function verifyApartmentInput(apartment: string): boolean {
@@ -28,7 +37,7 @@ export async function createUser(
 	email: string,
 	password: string
 ): Promise<User> {
-	const userId = generateUserId();
+	const userId = generateId();
 	const passwordHash = await hashPassword(password);
 
 	const user = db
@@ -41,6 +50,8 @@ export async function createUser(
 		})
 		.returning()
 		.all();
+
+	createDefaultUserPreferences(userId);
 
 	return user[0];
 }
@@ -88,4 +99,60 @@ export function getUserFromApartment(apartment: string): User | null {
 	const user = db.select().from(table.user).where(eq(table.user.apartment, apartment)).get();
 
 	return user || null;
+}
+
+export function getUserPreferences(userId: string): UserPreferences | null {
+	const preferences = db
+		.select()
+		.from(table.userPreferences)
+		.where(eq(table.userPreferences.userId, userId))
+		.get();
+
+	return preferences || null;
+}
+
+export function getUserPreferenceByType(
+	userId: string,
+	bookingType: BookingType
+): { notificationsEnabled: boolean; notificationTiming: NotificationTiming } | null {
+	const preferences = getUserPreferences(userId);
+	if (!preferences) return null;
+
+	if (bookingType === 'laundry') {
+		return {
+			notificationsEnabled: preferences.laundryNotificationsEnabled,
+			notificationTiming: preferences.laundryNotificationTiming
+		};
+	} else {
+		return {
+			notificationsEnabled: preferences.bbqNotificationsEnabled,
+			notificationTiming: preferences.bbqNotificationTiming
+		};
+	}
+}
+
+export function updateUserPreference(
+	userId: string,
+	bookingType: BookingType,
+	notificationsEnabled: boolean,
+	notificationTiming: NotificationTiming
+): boolean {
+	const updateData =
+		bookingType === 'laundry'
+			? {
+					laundryNotificationsEnabled: notificationsEnabled,
+					laundryNotificationTiming: notificationTiming
+				}
+			: {
+					bbqNotificationsEnabled: notificationsEnabled,
+					bbqNotificationTiming: notificationTiming
+				};
+
+	const result = db
+		.update(table.userPreferences)
+		.set(updateData)
+		.where(eq(table.userPreferences.userId, userId))
+		.run();
+
+	return result.changes > 0;
 }

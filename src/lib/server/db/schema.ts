@@ -47,3 +47,25 @@ export const booking = sqliteTable('booking', {
 	endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(new Date())
 });
+
+export const userPreferences = sqliteTable('user_preferences', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id)
+		.unique(),
+	laundryNotificationsEnabled: integer('laundry_notifications_enabled', { mode: 'boolean' })
+		.notNull()
+		.default(true),
+	laundryNotificationTiming: text('laundry_notification_timing', {
+		enum: ['1_hour', '1_day', '1_week']
+	})
+		.notNull()
+		.default('1_hour'),
+	bbqNotificationsEnabled: integer('bbq_notifications_enabled', { mode: 'boolean' })
+		.notNull()
+		.default(true),
+	bbqNotificationTiming: text('bbq_notification_timing', { enum: ['1_hour', '1_day', '1_week'] })
+		.notNull()
+		.default('1_week')
+});

@@ -1,8 +1,8 @@
-import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { and, eq, gt, gte, lt } from 'drizzle-orm';
 import { CalendarDateTime } from '@internationalized/date';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { generateId } from '$lib/server/auth/utils';
 
 export const timezone = 'Europe/Stockholm' as const;
 
@@ -17,11 +17,6 @@ export type BookingWithUser = {
 	apartment: string;
 };
 export type BookingType = 'laundry' | 'bbq';
-
-export function generateBookingId(): string {
-	const bytes = crypto.getRandomValues(new Uint8Array(15));
-	return encodeBase32LowerCase(bytes);
-}
 
 export const LAUNDRY_SLOTS = [
 	{ start: 7, end: 11, label: '07:00-11:00' },
@@ -65,7 +60,7 @@ export function createBooking(
 		}
 	}
 
-	const bookingId = generateBookingId();
+	const bookingId = generateId();
 	const booking = db
 		.insert(table.booking)
 		.values({
