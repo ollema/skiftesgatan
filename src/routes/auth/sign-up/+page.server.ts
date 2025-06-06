@@ -114,12 +114,12 @@ export const actions = {
 			});
 		}
 		const user = await createUser(apartment, email, password);
-		const emailVerificationRequest = await createEmailVerificationRequest(user.id, user.email);
+		const emailVerificationRequest = createEmailVerificationRequest(user.id, user.email);
 		sendVerificationEmail(emailVerificationRequest.email, emailVerificationRequest.code);
 		setEmailVerificationRequestCookie(event, emailVerificationRequest);
 
 		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, user.id);
+		const session = createSession(sessionToken, user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		console.log('[auth] Registration successful, redirecting to /auth/verify-email');

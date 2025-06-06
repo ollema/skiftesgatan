@@ -3,13 +3,13 @@ import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/auth/se
 import { route } from '$lib/routes';
 
 export const actions = {
-	default: async (event) => {
+	default: (event) => {
 		if (event.locals.session === null) {
 			return fail(401, {
 				message: 'Inte autentiserad'
 			});
 		}
-		await invalidateSession(event.locals.session.id);
+		invalidateSession(event.locals.session.id);
 		deleteSessionTokenCookie(event);
 		return redirect(302, route('/'));
 	}

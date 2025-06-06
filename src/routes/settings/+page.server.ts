@@ -94,11 +94,11 @@ export const actions = {
 			});
 		}
 		passwordUpdateBucket.reset(event.locals.session.id);
-		await invalidateUserSessions(event.locals.user.id);
+		invalidateUserSessions(event.locals.user.id);
 		await updateUserPassword(event.locals.user.id, newPassword);
 
 		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, event.locals.user.id);
+		const session = createSession(sessionToken, event.locals.user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		console.log('[auth] Password updated successfully for user:', event.locals.user.id);
@@ -172,7 +172,7 @@ export const actions = {
 				}
 			});
 		}
-		const verificationRequest = await createEmailVerificationRequest(event.locals.user.id, email);
+		const verificationRequest = createEmailVerificationRequest(event.locals.user.id, email);
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
 

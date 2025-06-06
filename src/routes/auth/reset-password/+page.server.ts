@@ -14,10 +14,10 @@ import {
 import { updateUserPassword } from '$lib/server/auth/user';
 import { route } from '$lib/routes';
 
-export const load = async (event) => {
+export const load = (event) => {
 	console.log('[auth] Reset password page load function triggered');
 
-	const { session } = await validatePasswordResetSessionRequest(event);
+	const { session } = validatePasswordResetSessionRequest(event);
 	if (session === null) {
 		console.log('[auth] No password reset session found, redirecting to /auth/forgot-password');
 		return redirect(302, route('/auth/forgot-password'));
@@ -35,8 +35,7 @@ export const actions = {
 	default: async (event) => {
 		console.log('[auth] Reset password form action triggered');
 
-		const { session: passwordResetSession, user } =
-			await validatePasswordResetSessionRequest(event);
+		const { session: passwordResetSession, user } = validatePasswordResetSessionRequest(event);
 		if (passwordResetSession === null) {
 			console.log('[auth] No password reset session found, returning 401');
 			return fail(401, {
@@ -66,12 +65,12 @@ export const actions = {
 				message: 'Svagt lösenord'
 			});
 		}
-		await invalidateUserPasswordResetSessions(passwordResetSession.userId);
-		await invalidateUserSessions(passwordResetSession.userId);
+		invalidateUserPasswordResetSessions(passwordResetSession.userId);
+		invalidateUserSessions(passwordResetSession.userId);
 		await updateUserPassword(passwordResetSession.userId, password);
 
 		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, user.id);
+		const session = createSession(sessionToken, user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		deletePasswordResetSessionTokenCookie(event);
 

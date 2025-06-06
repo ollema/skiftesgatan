@@ -18,20 +18,20 @@ export function generateSessionToken() {
 	return token;
 }
 
-export async function createSession(token: string, userId: string) {
+export function createSession(token: string, userId: string): Session {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const session: Session = {
 		id: sessionId,
 		userId,
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
 	};
-	await db.insert(table.session).values(session);
+	db.insert(table.session).values(session).run();
 	return session;
 }
 
-export async function validateSessionToken(token: string) {
+export function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [result] = await db
+	const [result] = db
 		.select({
 			// TODO: adjust user table here to tweak returned data
 			user: {
@@ -44,7 +44,8 @@ export async function validateSessionToken(token: string) {
 		})
 		.from(table.session)
 		.innerJoin(table.user, eq(table.session.userId, table.user.id))
-		.where(eq(table.session.id, sessionId));
+		.where(eq(table.session.id, sessionId))
+		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!result) {
@@ -54,30 +55,30 @@ export async function validateSessionToken(token: string) {
 
 	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 	if (sessionExpired) {
-		await db.delete(table.session).where(eq(table.session.id, session.id));
+		db.delete(table.session).where(eq(table.session.id, session.id)).run();
 		return { session: null, user: null };
 	}
 
 	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
 	if (renewSession) {
 		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(table.session)
+		db.update(table.session)
 			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.session.id, session.id));
+			.where(eq(table.session.id, session.id))
+			.run();
 	}
 
 	return { session, user };
 }
 
-export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
+export type SessionValidationResult = ReturnType<typeof validateSessionToken>;
 
-export async function invalidateSession(sessionId: string) {
-	await db.delete(table.session).where(eq(table.session.id, sessionId));
+export function invalidateSession(sessionId: string): void {
+	db.delete(table.session).where(eq(table.session.id, sessionId)).run();
 }
 
-export async function invalidateUserSessions(userId: string): Promise<void> {
-	await db.delete(table.session).where(eq(table.session.userId, userId));
+export function invalidateUserSessions(userId: string): void {
+	db.delete(table.session).where(eq(table.session.userId, userId)).run();
 }
 
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {

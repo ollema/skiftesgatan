@@ -31,7 +31,7 @@ export async function createUser(
 	const userId = generateUserId();
 	const passwordHash = await hashPassword(password);
 
-	const user = await db
+	const user = db
 		.insert(table.user)
 		.values({
 			id: userId,
@@ -39,40 +39,37 @@ export async function createUser(
 			email,
 			passwordHash
 		})
-		.returning();
+		.returning()
+		.all();
 
 	return user[0];
 }
 
 export async function updateUserPassword(userId: string, password: string): Promise<void> {
 	const passwordHash = await hashPassword(password);
-	await db.update(table.user).set({ passwordHash }).where(eq(table.user.id, userId));
+	db.update(table.user).set({ passwordHash }).where(eq(table.user.id, userId)).run();
 }
 
-export async function updateUserEmailAndSetEmailAsVerified(
-	userId: string,
-	email: string
-): Promise<void> {
-	await db.update(table.user).set({ email, emailVerified: true }).where(eq(table.user.id, userId));
+export function updateUserEmailAndSetEmailAsVerified(userId: string, email: string): void {
+	db.update(table.user).set({ email, emailVerified: true }).where(eq(table.user.id, userId)).run();
 }
 
-export async function setUserAsEmailVerifiedIfEmailMatches(
-	userId: string,
-	email: string
-): Promise<boolean> {
-	const result = await db
+export function setUserAsEmailVerifiedIfEmailMatches(userId: string, email: string): boolean {
+	const result = db
 		.update(table.user)
 		.set({ emailVerified: true })
-		.where(and(eq(table.user.id, userId), eq(table.user.email, email)));
+		.where(and(eq(table.user.id, userId), eq(table.user.email, email)))
+		.run();
 
 	return result.changes > 0;
 }
 
-export async function getUserPasswordHash(userId: string): Promise<string> {
-	const [user] = await db
+export function getUserPasswordHash(userId: string): string {
+	const [user] = db
 		.select({ passwordHash: table.user.passwordHash })
 		.from(table.user)
-		.where(eq(table.user.id, userId));
+		.where(eq(table.user.id, userId))
+		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (!user) {
@@ -82,15 +79,15 @@ export async function getUserPasswordHash(userId: string): Promise<string> {
 	return user.passwordHash;
 }
 
-export async function getUserFromEmail(email: string): Promise<User | null> {
-	const [user] = await db.select().from(table.user).where(eq(table.user.email, email));
+export function getUserFromEmail(email: string): User | null {
+	const [user] = db.select().from(table.user).where(eq(table.user.email, email)).all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return user || null;
 }
 
-export async function getUserFromApartment(apartment: string): Promise<User | null> {
-	const [user] = await db.select().from(table.user).where(eq(table.user.apartment, apartment));
+export function getUserFromApartment(apartment: string): User | null {
+	const [user] = db.select().from(table.user).where(eq(table.user.apartment, apartment)).all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return user || null;

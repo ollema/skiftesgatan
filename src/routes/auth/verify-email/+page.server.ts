@@ -13,21 +13,21 @@ import { updateUserEmailAndSetEmailAsVerified } from '$lib/server/auth/user';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { route } from '$lib/routes';
 
-export const load = async (event) => {
+export const load = (event) => {
 	console.log('[auth] Verify email page load function triggered');
 
 	if (event.locals.user === null) {
 		console.log('[auth] No user found, redirecting to /auth/sign-in');
 		return redirect(302, route('/auth/sign-in'));
 	}
-	let verificationRequest = await getUserEmailVerificationRequestFromRequest(event);
+	let verificationRequest = getUserEmailVerificationRequestFromRequest(event);
 	if (verificationRequest === null || Date.now() >= verificationRequest.expiresAt.getTime()) {
 		if (event.locals.user.emailVerified) {
 			console.log('[auth] User email is already verified, redirecting to /');
 			return redirect(302, route('/'));
 		}
 		// note: we don't need rate limiting since it takes time before requests expire
-		verificationRequest = await createEmailVerificationRequest(
+		verificationRequest = createEmailVerificationRequest(
 			event.locals.user.id,
 			event.locals.user.email
 		);
@@ -62,7 +62,7 @@ export const actions = {
 			});
 		}
 
-		let verificationRequest = await getUserEmailVerificationRequestFromRequest(event);
+		let verificationRequest = getUserEmailVerificationRequestFromRequest(event);
 		if (verificationRequest === null) {
 			console.log('[auth] No email verification request found, returning 401');
 			return fail(401, {
@@ -99,7 +99,7 @@ export const actions = {
 			});
 		}
 		if (Date.now() >= verificationRequest.expiresAt.getTime()) {
-			verificationRequest = await createEmailVerificationRequest(
+			verificationRequest = createEmailVerificationRequest(
 				verificationRequest.userId,
 				verificationRequest.email
 			);
@@ -119,15 +119,15 @@ export const actions = {
 				}
 			});
 		}
-		await deleteUserEmailVerificationRequest(event.locals.user.id);
-		await invalidateUserPasswordResetSessions(event.locals.user.id);
-		await updateUserEmailAndSetEmailAsVerified(event.locals.user.id, verificationRequest.email);
+		deleteUserEmailVerificationRequest(event.locals.user.id);
+		invalidateUserPasswordResetSessions(event.locals.user.id);
+		updateUserEmailAndSetEmailAsVerified(event.locals.user.id, verificationRequest.email);
 		deleteEmailVerificationRequestCookie(event);
 
 		console.log('[auth] Email verified successfully, redirecting to /');
 		return redirect(302, route('/'));
 	},
-	resend: async (event) => {
+	resend: (event) => {
 		console.log('[auth] Resend verification email form action triggered');
 
 		if (event.locals.session === null || event.locals.user === null) {
@@ -147,7 +147,7 @@ export const actions = {
 			});
 		}
 
-		let verificationRequest = await getUserEmailVerificationRequestFromRequest(event);
+		let verificationRequest = getUserEmailVerificationRequestFromRequest(event);
 		if (verificationRequest === null) {
 			if (event.locals.user.emailVerified) {
 				console.log('[auth] User email is already verified');
@@ -165,7 +165,7 @@ export const actions = {
 					}
 				});
 			}
-			verificationRequest = await createEmailVerificationRequest(
+			verificationRequest = createEmailVerificationRequest(
 				event.locals.user.id,
 				event.locals.user.email
 			);
@@ -178,7 +178,7 @@ export const actions = {
 					}
 				});
 			}
-			verificationRequest = await createEmailVerificationRequest(
+			verificationRequest = createEmailVerificationRequest(
 				event.locals.user.id,
 				verificationRequest.email
 			);

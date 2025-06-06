@@ -9,10 +9,10 @@ import { route } from '$lib/routes';
 
 const bucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
-export const load = async (event) => {
+export const load = (event) => {
 	console.log('[auth] Verify email page load function triggered');
 
-	const { session } = await validatePasswordResetSessionRequest(event);
+	const { session } = validatePasswordResetSessionRequest(event);
 	if (session === null) {
 		console.log('[auth] No password reset session found, redirecting to /auth/forgot-password');
 		return redirect(302, route('/auth/forgot-password'));
@@ -32,7 +32,7 @@ export const actions = {
 	default: async (event) => {
 		console.log('[auth] Verify email form action triggered');
 
-		const { session } = await validatePasswordResetSessionRequest(event);
+		const { session } = validatePasswordResetSessionRequest(event);
 		if (session === null) {
 			console.log('[auth] No password reset session found, returning 401');
 			return fail(401, {
@@ -79,8 +79,8 @@ export const actions = {
 			});
 		}
 		bucket.reset(session.userId);
-		await setPasswordResetSessionAsEmailVerified(session.id);
-		const emailMatches = await setUserAsEmailVerifiedIfEmailMatches(session.userId, session.email);
+		setPasswordResetSessionAsEmailVerified(session.id);
+		const emailMatches = setUserAsEmailVerifiedIfEmailMatches(session.userId, session.email);
 		if (!emailMatches) {
 			console.log('[auth] Email does not match user email, returning 400');
 			return fail(400, {

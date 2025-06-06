@@ -11,11 +11,11 @@ import { dev } from '$app/environment';
 
 export const passwordResetSessionCookieName = 'password_reset_session';
 
-export async function createPasswordResetSession(
+export function createPasswordResetSession(
 	token: string,
 	userId: string,
 	email: string
-): Promise<PasswordResetSession> {
+): PasswordResetSession {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
 	const session: PasswordResetSession = {
@@ -27,68 +27,68 @@ export async function createPasswordResetSession(
 		emailVerified: false
 	};
 
-	await db.insert(table.passwordResetSession).values(session);
+	db.insert(table.passwordResetSession).values(session).run();
 
 	return session;
 }
 
-export async function validatePasswordResetSessionToken(
+export function validatePasswordResetSessionToken(
 	token: string
-): Promise<PasswordResetSessionValidationResult> {
+): PasswordResetSessionValidationResult {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-	const sessions = await db
+	const [session] = db
 		.select()
 		.from(table.passwordResetSession)
 		.where(eq(table.passwordResetSession.id, sessionId))
-		.limit(1);
+		.limit(1)
+		.all();
 
-	if (sessions.length === 0) {
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (!session) {
 		return { session: null, user: null };
 	}
 
-	const session = sessions[0];
-
-	const users = await db
+	const [user] = db
 		.select()
 		.from(table.user)
 		.where(eq(table.user.id, session.userId))
-		.limit(1);
+		.limit(1)
+		.all();
 
-	if (users.length === 0) {
-		await db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.id, sessionId));
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (!user) {
+		db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.id, sessionId)).run();
 		return { session: null, user: null };
 	}
 
-	const user = users[0];
-
 	if (Date.now() > session.expiresAt.getTime()) {
-		await db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.id, sessionId));
+		db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.id, sessionId)).run();
 		return { session: null, user: null };
 	}
 
 	return { session, user };
 }
 
-export async function setPasswordResetSessionAsEmailVerified(sessionId: string): Promise<void> {
-	await db
-		.update(table.passwordResetSession)
+export function setPasswordResetSessionAsEmailVerified(sessionId: string): void {
+	db.update(table.passwordResetSession)
 		.set({ emailVerified: true })
-		.where(eq(table.passwordResetSession.id, sessionId));
+		.where(eq(table.passwordResetSession.id, sessionId))
+		.run();
 }
 
-export async function invalidateUserPasswordResetSessions(userId: string): Promise<void> {
-	await db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.userId, userId));
+export function invalidateUserPasswordResetSessions(userId: string): void {
+	db.delete(table.passwordResetSession).where(eq(table.passwordResetSession.userId, userId)).run();
 }
 
-export async function validatePasswordResetSessionRequest(
+export function validatePasswordResetSessionRequest(
 	event: RequestEvent
-): Promise<PasswordResetSessionValidationResult> {
+): PasswordResetSessionValidationResult {
 	const token = event.cookies.get(passwordResetSessionCookieName) ?? null;
 	if (token === null) {
 		return { session: null, user: null };
 	}
-	const result = await validatePasswordResetSessionToken(token);
+	const result = validatePasswordResetSessionToken(token);
 	if (result.session === null) {
 		deletePasswordResetSessionTokenCookie(event);
 	}

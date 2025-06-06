@@ -9,11 +9,11 @@ import { dev } from '$app/environment';
 
 export const emailVerificationRequestCookieName = 'email_verification';
 
-export async function getUserEmailVerificationRequest(
+export function getUserEmailVerificationRequest(
 	userId: string,
 	id: string
-): Promise<EmailVerificationRequest | null> {
-	const requests = await db
+): EmailVerificationRequest | null {
+	const [request] = db
 		.select()
 		.from(table.emailVerificationRequest)
 		.where(
@@ -22,20 +22,18 @@ export async function getUserEmailVerificationRequest(
 				eq(table.emailVerificationRequest.userId, userId)
 			)
 		)
-		.limit(1);
+		.limit(1)
+		.all();
 
-	if (requests.length === 0) {
-		return null;
-	}
-
-	return requests[0];
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	return request || null;
 }
 
-export async function createEmailVerificationRequest(
+export function createEmailVerificationRequest(
 	userId: string,
 	email: string
-): Promise<EmailVerificationRequest> {
-	await deleteUserEmailVerificationRequest(userId);
+): EmailVerificationRequest {
+	deleteUserEmailVerificationRequest(userId);
 
 	const idBytes = new Uint8Array(20);
 	crypto.getRandomValues(idBytes);
@@ -51,15 +49,15 @@ export async function createEmailVerificationRequest(
 		expiresAt
 	};
 
-	await db.insert(table.emailVerificationRequest).values(request);
+	db.insert(table.emailVerificationRequest).values(request).run();
 
 	return request;
 }
 
-export async function deleteUserEmailVerificationRequest(userId: string): Promise<void> {
-	await db
-		.delete(table.emailVerificationRequest)
-		.where(eq(table.emailVerificationRequest.userId, userId));
+export function deleteUserEmailVerificationRequest(userId: string): void {
+	db.delete(table.emailVerificationRequest)
+		.where(eq(table.emailVerificationRequest.userId, userId))
+		.run();
 }
 
 export function sendVerificationEmail(email: string, code: string): void {
@@ -89,9 +87,9 @@ export function deleteEmailVerificationRequestCookie(event: RequestEvent): void 
 	});
 }
 
-export async function getUserEmailVerificationRequestFromRequest(
+export function getUserEmailVerificationRequestFromRequest(
 	event: RequestEvent
-): Promise<EmailVerificationRequest | null> {
+): EmailVerificationRequest | null {
 	if (event.locals.user === null) {
 		return null;
 	}
@@ -99,7 +97,7 @@ export async function getUserEmailVerificationRequestFromRequest(
 	if (id === null) {
 		return null;
 	}
-	const request = await getUserEmailVerificationRequest(event.locals.user.id, id);
+	const request = getUserEmailVerificationRequest(event.locals.user.id, id);
 	if (request === null) {
 		deleteEmailVerificationRequestCookie(event);
 	}

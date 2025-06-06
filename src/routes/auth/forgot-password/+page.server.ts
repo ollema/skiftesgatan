@@ -66,9 +66,9 @@ export const actions = {
 				apartment
 			});
 		}
-		await invalidateUserPasswordResetSessions(user.id);
+		invalidateUserPasswordResetSessions(user.id);
 		const sessionToken = generateSessionToken();
-		const session = await createPasswordResetSession(sessionToken, user.id, user.email);
+		const session = createPasswordResetSession(sessionToken, user.id, user.email);
 		sendPasswordResetEmail(session.email, session.code);
 		setPasswordResetSessionTokenCookie(event, sessionToken, session.expiresAt);
 

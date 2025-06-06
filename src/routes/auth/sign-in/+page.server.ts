@@ -104,7 +104,7 @@ export const actions = {
 		}
 		throttler.reset(user.id);
 		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, user.id);
+		const session = createSession(sessionToken, user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		if (!user.emailVerified) {

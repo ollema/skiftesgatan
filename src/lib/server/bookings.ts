@@ -26,12 +26,12 @@ export const BBQ_SLOT = { start: 8, end: 20, label: '08:00-20:00' } as const;
 /**
  * Create booking - cancels any existing future bookings and creates new one
  */
-export async function createBooking(
+export function createBooking(
 	userId: string,
 	bookingType: BookingType,
 	startTime: CalendarDateTime,
 	endTime: CalendarDateTime
-): Promise<Booking> {
+): Booking {
 	const startDate = startTime.toDate(timezone);
 	const endDate = endTime.toDate(timezone);
 	const now = new Date();
@@ -44,20 +44,20 @@ export async function createBooking(
 		throw new Error('Bokningar kan endast göras för framtida tidpunkter');
 	}
 
-	const conflictingBooking = await getBookingInTimeSlot(bookingType, startDate, endDate);
+	const conflictingBooking = getBookingInTimeSlot(bookingType, startDate, endDate);
 	if (conflictingBooking && conflictingBooking.userId !== userId) {
 		throw new Error('Den valda tiden är redan bokad');
 	}
 
-	const existingBookings = await getFutureBookingsPerUser(userId, bookingType);
+	const existingBookings = getFutureBookingsPerUser(userId, bookingType);
 	if (existingBookings) {
 		for (const existingBooking of existingBookings) {
-			await cancelBooking(existingBooking.id);
+			cancelBooking(existingBooking.id);
 		}
 	}
 
 	const bookingId = generateBookingId();
-	const booking = await db
+	const booking = db
 		.insert(table.booking)
 		.values({
 			id: bookingId,
@@ -67,7 +67,8 @@ export async function createBooking(
 			endTime: endDate,
 			createdAt: now
 		})
-		.returning();
+		.returning()
+		.all();
 
 	return booking[0];
 }
@@ -75,15 +76,15 @@ export async function createBooking(
 /**
  * Get all bookings for a specific type, year and month
  */
-export async function getBookingsPerMonth(
+export function getBookingsPerMonth(
 	bookingType: BookingType,
 	year: number,
 	month: number
-): Promise<Array<Booking>> {
+): Array<Booking> {
 	const startOfMonth = new CalendarDateTime(year, month, 1, 0, 0, 0, 0);
 	const endOfMonth = startOfMonth.add({ months: 1 });
 
-	return await db
+	return db
 		.select()
 		.from(table.booking)
 		.where(
@@ -93,31 +94,33 @@ export async function getBookingsPerMonth(
 				lt(table.booking.startTime, endOfMonth.toDate(timezone))
 			)
 		)
-		.orderBy(table.booking.startTime);
+		.orderBy(table.booking.startTime)
+		.all();
 }
 
 /**
  * Get bookings for a specific type and user with a limit
  */
-export async function getBookingsPerUser(
+export function getBookingsPerUser(
 	userId: string,
 	bookingType: BookingType,
 	limit: number
-): Promise<Array<Booking>> {
-	return await db
+): Array<Booking> {
+	return db
 		.select()
 		.from(table.booking)
 		.where(and(eq(table.booking.userId, userId), eq(table.booking.bookingType, bookingType)))
 		.orderBy(table.booking.startTime)
-		.limit(limit);
+		.limit(limit)
+		.all();
 }
 
-export async function getFutureBookingsPerUser(
+export function getFutureBookingsPerUser(
 	userId: string,
 	bookingType: BookingType
-): Promise<Array<Booking> | null> {
+): Array<Booking> | null {
 	const now = new Date();
-	const bookings = await db
+	const bookings = db
 		.select()
 		.from(table.booking)
 		.where(
@@ -126,7 +129,8 @@ export async function getFutureBookingsPerUser(
 				eq(table.booking.bookingType, bookingType),
 				gte(table.booking.startTime, now)
 			)
-		);
+		)
+		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return bookings || null;
@@ -135,12 +139,13 @@ export async function getFutureBookingsPerUser(
 /**
  * Get booking by booking ID
  */
-export async function getBookingById(bookingId: string): Promise<Booking | null> {
-	const [booking] = await db
+export function getBookingById(bookingId: string): Booking | null {
+	const [booking] = db
 		.select()
 		.from(table.booking)
 		.where(eq(table.booking.id, bookingId))
-		.limit(1);
+		.limit(1)
+		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return booking || null;
@@ -149,20 +154,20 @@ export async function getBookingById(bookingId: string): Promise<Booking | null>
 /**
  * Cancel a booking
  */
-export async function cancelBooking(bookingId: string): Promise<boolean> {
-	const result = await db.delete(table.booking).where(eq(table.booking.id, bookingId));
+export function cancelBooking(bookingId: string): boolean {
+	const result = db.delete(table.booking).where(eq(table.booking.id, bookingId)).run();
 	return result.changes > 0;
 }
 
 /**
  * Get a booking in a specific time slot
  */
-async function getBookingInTimeSlot(
+function getBookingInTimeSlot(
 	bookingType: BookingType,
 	startTime: Date,
 	endTime: Date
-): Promise<Booking | null> {
-	const [booking] = await db
+): Booking | null {
+	const [booking] = db
 		.select()
 		.from(table.booking)
 		.where(
@@ -172,7 +177,8 @@ async function getBookingInTimeSlot(
 				gt(table.booking.endTime, startTime)
 			)
 		)
-		.limit(1);
+		.limit(1)
+		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	return booking || null;
