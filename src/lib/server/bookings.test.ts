@@ -26,16 +26,32 @@ const testUser2 = {
 	emailVerified: true as const,
 	passwordHash: 'hashed-password' as const
 };
+const testUser3 = {
+	id: 'user3' as const,
+	apartment: 'C1303' as const,
+	email: 'user3@test.com' as const,
+	emailVerified: true as const,
+	passwordHash: 'hashed-password' as const
+};
+const testUser4 = {
+	id: 'user4' as const,
+	apartment: 'D1304' as const,
+	email: 'user4@test.com' as const,
+	emailVerified: true as const,
+	passwordHash: 'hashed-password' as const
+};
+
+const testUsers = [testUser1, testUser2, testUser3, testUser4];
 
 beforeEach(() => {
 	vi.useFakeTimers();
 
-	db.run(
-		`INSERT INTO user (id, apartment, email, email_verified, password_hash) VALUES ('${testUser1.id}', '${testUser1.apartment}', '${testUser1.email}', ${testUser1.emailVerified}, '${testUser1.passwordHash}')`
-	);
-	db.run(
-		`INSERT INTO user (id, apartment, email, email_verified, password_hash) VALUES ('${testUser2.id}', '${testUser2.apartment}', '${testUser2.email}', ${testUser2.emailVerified}, '${testUser2.passwordHash}')`
-	);
+	// create all test users
+	for (const user of testUsers) {
+		db.run(
+			`INSERT INTO user (id, apartment, email, email_verified, password_hash) VALUES ('${user.id}', '${user.apartment}', '${user.email}', ${user.emailVerified}, '${user.passwordHash}')`
+		);
+	}
 });
 
 afterEach(() => {
@@ -93,6 +109,18 @@ describe('createBooking', () => {
 		);
 	});
 
+	it('should reject booking exactly at current time', async () => {
+		const now = new Date(2024, 5, 15, 7, 0);
+		vi.setSystemTime(now);
+
+		const startTime = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
+		const endTime = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
+
+		await expect(createBooking(testUser1.id, 'laundry', startTime, endTime)).rejects.toThrow(
+			'Bokningar kan endast göras för framtida tidpunkter'
+		);
+	});
+
 	it('should implement smart booking by cancelling existing future booking', async () => {
 		vi.setSystemTime(new Date(2024, 5, 10)); // June 10, 2024
 
@@ -113,7 +141,7 @@ describe('createBooking', () => {
 		expect(secondBooking.startTime.getTime()).toBe(secondStart.toDate(timezone).getTime());
 	});
 
-	it('should allow multiple bookings of different types', async () => {
+	it('should allow multiple bookings of different types for same user', async () => {
 		vi.setSystemTime(new Date(2024, 5, 10)); // June 10, 2024
 
 		const laundryStart = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
@@ -154,6 +182,128 @@ describe('createBooking', () => {
 	});
 });
 
+describe('booking type independence', () => {
+	it('should handle different booking types independently with overlapping times', async () => {
+		vi.setSystemTime(new Date(2024, 5, 10));
+
+		// bbq slot (08:00-20:00) overlaps with laundry slot (07:00-11:00) but different types
+		const laundryStart = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
+		const laundryEnd = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
+		
+		const bbqStart = new CalendarDateTime(2024, 6, 15, 8, 0, 0, 0);
+		const bbqEnd = new CalendarDateTime(2024, 6, 15, 20, 0, 0, 0);
+
+		await createBooking(testUser1.id, 'laundry', laundryStart, laundryEnd);
+		await createBooking(testUser2.id, 'bbq', bbqStart, bbqEnd);
+
+		const laundryBookings = await getBookingsPerMonth('laundry', 2024, 6);
+		const bbqBookings = await getBookingsPerMonth('bbq', 2024, 6);
+
+		expect(laundryBookings).toHaveLength(1);
+		expect(bbqBookings).toHaveLength(1);
+		expect(laundryBookings[0].userId).toBe(testUser1.id);
+		expect(bbqBookings[0].userId).toBe(testUser2.id);
+	});
+});
+
+describe('consecutive bookings', () => {
+	it('should allow adjacent laundry time slots on same day', async () => {
+		vi.setSystemTime(new Date(2024, 5, 10)); // June 10, 2024
+
+		const slot1Start = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);  // 07:00-11:00
+		const slot1End = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
+		
+		const slot2Start = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0); // 11:00-15:00
+		const slot2End = new CalendarDateTime(2024, 6, 15, 15, 0, 0, 0);
+
+		await createBooking(testUser1.id, 'laundry', slot1Start, slot1End);
+		await createBooking(testUser2.id, 'laundry', slot2Start, slot2End);
+
+		const bookings = await getBookingsPerMonth('laundry', 2024, 6);
+		expect(bookings).toHaveLength(2);
+		
+		const booking1 = bookings.find(b => b.userId === testUser1.id);
+		const booking2 = bookings.find(b => b.userId === testUser2.id);
+		
+		expect(booking1).toBeDefined();
+		expect(booking2).toBeDefined();
+		expect(booking1!.startTime.getTime()).toBe(slot1Start.toDate(timezone).getTime());
+		expect(booking1!.endTime.getTime()).toBe(slot1End.toDate(timezone).getTime());
+		expect(booking2!.startTime.getTime()).toBe(slot2Start.toDate(timezone).getTime());
+		expect(booking2!.endTime.getTime()).toBe(slot2End.toDate(timezone).getTime());
+	});
+
+	it('should allow later adjacent slots (15:00-19:00 → 19:00-22:00)', async () => {
+		vi.setSystemTime(new Date(2024, 5, 10));
+
+		const slot3Start = new CalendarDateTime(2024, 6, 15, 15, 0, 0, 0); // 15:00-19:00
+		const slot3End = new CalendarDateTime(2024, 6, 15, 19, 0, 0, 0);
+		
+		const slot4Start = new CalendarDateTime(2024, 6, 15, 19, 0, 0, 0); // 19:00-22:00
+		const slot4End = new CalendarDateTime(2024, 6, 15, 22, 0, 0, 0);
+
+		await createBooking(testUser1.id, 'laundry', slot3Start, slot3End);
+		await createBooking(testUser2.id, 'laundry', slot4Start, slot4End);
+
+		const bookings = await getBookingsPerMonth('laundry', 2024, 6);
+		expect(bookings).toHaveLength(2);
+		
+		// verify they're in chronological order
+		expect(bookings[0].startTime.getTime()).toBeLessThan(bookings[1].startTime.getTime());
+		expect(bookings[0].endTime.getTime()).toBe(bookings[1].startTime.getTime());
+	});
+
+	it('should allow all four laundry slots on same day by different users', async () => {
+		vi.setSystemTime(new Date(2024, 5, 10));
+
+		// book all four laundry slots on same day
+		const slot1 = { start: new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0), end: new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0) };
+		const slot2 = { start: new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0), end: new CalendarDateTime(2024, 6, 15, 15, 0, 0, 0) };
+		const slot3 = { start: new CalendarDateTime(2024, 6, 15, 15, 0, 0, 0), end: new CalendarDateTime(2024, 6, 15, 19, 0, 0, 0) };
+		const slot4 = { start: new CalendarDateTime(2024, 6, 15, 19, 0, 0, 0), end: new CalendarDateTime(2024, 6, 15, 22, 0, 0, 0) };
+
+		await createBooking(testUser1.id, 'laundry', slot1.start, slot1.end);
+		await createBooking(testUser2.id, 'laundry', slot2.start, slot2.end);
+		await createBooking(testUser3.id, 'laundry', slot3.start, slot3.end);
+		await createBooking(testUser4.id, 'laundry', slot4.start, slot4.end);
+
+		const bookings = await getBookingsPerMonth('laundry', 2024, 6);
+		expect(bookings).toHaveLength(4);
+
+		// verify all users got their slots and they're consecutive
+		expect(bookings[0].userId).toBe(testUser1.id);
+		expect(bookings[1].userId).toBe(testUser2.id);
+		expect(bookings[2].userId).toBe(testUser3.id);
+		expect(bookings[3].userId).toBe(testUser4.id);
+
+		// verify perfect continuity (each booking ends when next begins)
+		expect(bookings[0].endTime.getTime()).toBe(bookings[1].startTime.getTime());
+		expect(bookings[1].endTime.getTime()).toBe(bookings[2].startTime.getTime());
+		expect(bookings[2].endTime.getTime()).toBe(bookings[3].startTime.getTime());
+	});
+
+	it('should allow non-adjacent slots with gaps (07:00-11:00 → 15:00-19:00)', async () => {
+		vi.setSystemTime(new Date(2024, 5, 10));
+
+		const earlyStart = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
+		const earlyEnd = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
+		
+		const lateStart = new CalendarDateTime(2024, 6, 15, 15, 0, 0, 0);
+		const lateEnd = new CalendarDateTime(2024, 6, 15, 19, 0, 0, 0);
+
+		await createBooking(testUser1.id, 'laundry', earlyStart, earlyEnd);
+		await createBooking(testUser2.id, 'laundry', lateStart, lateEnd);
+
+		const bookings = await getBookingsPerMonth('laundry', 2024, 6);
+		expect(bookings).toHaveLength(2);
+		
+		// verify 4-hour gap between bookings (11:00 to 15:00)
+		const gapInMs = bookings[1].startTime.getTime() - bookings[0].endTime.getTime();
+		const fourHoursInMs = 4 * 60 * 60 * 1000;
+		expect(gapInMs).toBe(fourHoursInMs);
+	});
+});
+
 describe('cancelBooking', () => {
 	it('should cancel an existing booking', async () => {
 		vi.setSystemTime(new Date(2024, 5, 10));
@@ -176,7 +326,7 @@ describe('cancelBooking', () => {
 	});
 });
 
-describe('getBookings', () => {
+describe('query functions', () => {
 	it('should return bookings for specific type and month', async () => {
 		vi.setSystemTime(new Date(2024, 5, 10));
 
@@ -201,10 +351,8 @@ describe('getBookings', () => {
 		const bookings = await getBookingsPerMonth('laundry', 2024, 12);
 		expect(bookings).toHaveLength(0);
 	});
-});
 
-describe('getApartmentBookings', () => {
-	it('should return bookings for a specific apartment', async () => {
+	it('should return bookings for a specific user', async () => {
 		vi.setSystemTime(new Date(2024, 5, 10));
 
 		const booking1Start = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
@@ -228,13 +376,11 @@ describe('getApartmentBookings', () => {
 	});
 
 	it('should return empty array for non-existent user', async () => {
-		const bookings = await getBookingsPerUser('user3', 'laundry', 10);
+		const bookings = await getBookingsPerUser('non-existent-user', 'laundry', 10);
 		expect(bookings).toHaveLength(0);
 	});
-});
 
-describe('getFutureBookingsPerUser', () => {
-	it('should return only future bookings', async () => {
+	it('should return only future bookings for user', async () => {
 		vi.setSystemTime(new Date(2024, 5, 15, 12, 0)); // June 15, 2024, 12:00
 
 		const pastStart = new CalendarDateTime(2024, 6, 10, 7, 0, 0, 0);
@@ -255,37 +401,5 @@ describe('getFutureBookingsPerUser', () => {
 		expect(futureBbqBookings).toHaveLength(1);
 		expect(futureLaundryBookings![0].startTime > new Date()).toBe(true);
 		expect(futureBbqBookings![0].startTime > new Date()).toBe(true);
-	});
-});
-
-describe('edge cases', () => {
-	it('should handle booking exactly at current time', async () => {
-		const now = new Date(2024, 5, 15, 7, 0);
-		vi.setSystemTime(now);
-
-		const startTime = new CalendarDateTime(2024, 6, 15, 7, 0, 0, 0);
-		const endTime = new CalendarDateTime(2024, 6, 15, 11, 0, 0, 0);
-
-		await expect(createBooking(testUser1.id, 'laundry', startTime, endTime)).rejects.toThrow(
-			'Bokningar kan endast göras för framtida tidpunkter'
-		);
-	});
-
-	it('should handle different booking types independently', async () => {
-		vi.setSystemTime(new Date(2024, 5, 10));
-
-		const timeSlot = {
-			start: new CalendarDateTime(2024, 6, 15, 8, 0, 0, 0),
-			end: new CalendarDateTime(2024, 6, 15, 20, 0, 0, 0)
-		};
-
-		await createBooking(testUser1.id, 'laundry', timeSlot.start, timeSlot.end);
-		await createBooking(testUser2.id, 'bbq', timeSlot.start, timeSlot.end);
-
-		const laundryBookings = await getBookingsPerMonth('laundry', 2024, 6);
-		const bbqBookings = await getBookingsPerMonth('bbq', 2024, 6);
-
-		expect(laundryBookings).toHaveLength(1);
-		expect(bbqBookings).toHaveLength(1);
 	});
 });
