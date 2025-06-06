@@ -4,9 +4,30 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as Select from '$lib/components/ui/select';
 	import { route } from '$lib/routes';
 
 	let { data, form } = $props();
+
+	let laundryEnabled = $state(data.preferences?.laundryNotificationsEnabled ?? true);
+	let laundryTiming = $state(data.preferences?.laundryNotificationTiming ?? '1_hour');
+	let bbqEnabled = $state(data.preferences?.bbqNotificationsEnabled ?? true);
+	let bbqTiming = $state(data.preferences?.bbqNotificationTiming ?? '1_week');
+
+	const timingOptions = [
+		{ value: '1_hour', label: '1 timme innan' },
+		{ value: '1_day', label: '1 dag innan' },
+		{ value: '1_week', label: '1 vecka innan' }
+	];
+
+	const laundryTimingLabel = $derived(
+		timingOptions.find((t) => t.value === laundryTiming)?.label ?? 'Välj tid'
+	);
+
+	const bbqTimingLabel = $derived(
+		timingOptions.find((t) => t.value === bbqTiming)?.label ?? 'Välj tid'
+	);
 </script>
 
 <div class="container mx-auto max-w-2xl space-y-6 p-4">
@@ -24,70 +45,74 @@
 				<div class="space-y-4">
 					<h3 class="text-lg font-medium">Tvättstugebokningar</h3>
 					<div class="flex items-center space-x-2">
-						<input
-							type="checkbox"
+						<Checkbox
 							id="laundry_enabled"
 							name="laundry_enabled"
-							class="h-4 w-4 rounded border-gray-300"
-							checked={data.preferences?.laundryNotificationsEnabled ?? true}
+							bind:checked={laundryEnabled}
+							aria-labelledby="laundry_enabled_label"
 						/>
-						<Label for="laundry_enabled">Aktivera notifieringar för tvättstuga</Label>
+						<Label
+							id="laundry_enabled_label"
+							for="laundry_enabled"
+							class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							Aktivera notifieringar för tvättstuga
+						</Label>
 					</div>
 					<div class="grid gap-2">
 						<Label for="laundry_timing">Meddela mig</Label>
-						<select
-							id="laundry_timing"
-							name="laundry_timing"
-							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							<option
-								value="1_hour"
-								selected={data.preferences?.laundryNotificationTiming === '1_hour'}
-								>1 timme innan</option
-							>
-							<option
-								value="1_day"
-								selected={data.preferences?.laundryNotificationTiming === '1_day'}
-								>1 dag innan</option
-							>
-							<option
-								value="1_week"
-								selected={data.preferences?.laundryNotificationTiming === '1_week'}
-								>1 vecka innan</option
-							>
-						</select>
+						<Select.Root name="laundry_timing" type="single" bind:value={laundryTiming}>
+							<Select.Trigger class="w-full">
+								{laundryTimingLabel}
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									<Select.Label>Välj tid</Select.Label>
+									{#each timingOptions as option (option.value)}
+										<Select.Item value={option.value} label={option.label}>
+											{option.label}
+										</Select.Item>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+						</Select.Root>
 					</div>
 				</div>
 
 				<div class="space-y-4">
 					<h3 class="text-lg font-medium">Grillbokningar</h3>
 					<div class="flex items-center space-x-2">
-						<input
-							type="checkbox"
+						<Checkbox
 							id="bbq_enabled"
 							name="bbq_enabled"
-							class="h-4 w-4 rounded border-gray-300"
-							checked={data.preferences?.bbqNotificationsEnabled ?? true}
+							bind:checked={bbqEnabled}
+							aria-labelledby="bbq_enabled_label"
 						/>
-						<Label for="bbq_enabled">Aktivera notifieringar för grill</Label>
+						<Label
+							id="bbq_enabled_label"
+							for="bbq_enabled"
+							class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							Aktivera notifieringar för grill
+						</Label>
 					</div>
 					<div class="grid gap-2">
 						<Label for="bbq_timing">Meddela mig</Label>
-						<select
-							id="bbq_timing"
-							name="bbq_timing"
-							class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							<option value="1_hour" selected={data.preferences?.bbqNotificationTiming === '1_hour'}
-								>1 timme innan</option
-							>
-							<option value="1_day" selected={data.preferences?.bbqNotificationTiming === '1_day'}
-								>1 dag innan</option
-							>
-							<option value="1_week" selected={data.preferences?.bbqNotificationTiming === '1_week'}
-								>1 vecka innan</option
-							>
-						</select>
+						<Select.Root name="bbq_timing" type="single" bind:value={bbqTiming}>
+							<Select.Trigger class="w-full">
+								{bbqTimingLabel}
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									<Select.Label>Välj tid</Select.Label>
+									{#each timingOptions as option (option.value)}
+										<Select.Item value={option.value} label={option.label}>
+											{option.label}
+										</Select.Item>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+						</Select.Root>
 					</div>
 				</div>
 
