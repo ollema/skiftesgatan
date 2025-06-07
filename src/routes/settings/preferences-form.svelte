@@ -4,14 +4,15 @@
 	import * as Select from '$lib/components/ui/select';
 	import { route } from '$lib/routes';
 	import { preferencesFormSchema, type PreferencesFormSchema } from './schema';
-	import SuperDebug, { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
+	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	let { data }: { data: { preferencesForm: SuperValidated<Infer<PreferencesFormSchema>> } } =
 		$props();
 
 	const form = superForm(data.preferencesForm, {
-		validators: zodClient(preferencesFormSchema)
+		validators: zodClient(preferencesFormSchema),
+		resetForm: false
 	});
 
 	const { form: formData, enhance } = form;
@@ -27,9 +28,13 @@
 			? timingOptions.find((option) => option.value === $formData.laundryNotificationTiming)?.label
 			: 'Välj tid'
 	);
-</script>
 
-<SuperDebug data={$formData} />
+	const selectedBbqTiming = $derived(
+		$formData.bbqNotificationTiming
+			? timingOptions.find((option) => option.value === $formData.bbqNotificationTiming)?.label
+			: 'Välj tid'
+	);
+</script>
 
 <form method="POST" action={route('preferences /settings')} use:enhance>
 	<Form.Field
@@ -85,7 +90,7 @@
 				<Form.Label for="bbq_timing">Meddela mig</Form.Label>
 				<Select.Root type="single" bind:value={$formData.bbqNotificationTiming} name={props.name}>
 					<Select.Trigger {...props}>
-						{$formData.bbqNotificationTiming ? $formData.bbqNotificationTiming : 'Välj tid'}
+						{selectedBbqTiming}
 					</Select.Trigger>
 					<Select.Content>
 						<Select.Item value="1_hour" label="1 timme innan" />

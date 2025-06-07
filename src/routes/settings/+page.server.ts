@@ -39,12 +39,6 @@ export const load = async (event) => {
 
 	const preferences = getUserPreferences(event.locals.user.id);
 
-	console.log(
-		'Loading user preferences for user from database:',
-		event.locals.user.id,
-		preferences
-	);
-
 	const preferencesForm = await superValidate(preferences, zod(preferencesFormSchema));
 	const emailForm = await superValidate(zod(emailFormSchema));
 	const passwordForm = await superValidate(zod(passwordFormSchema));
@@ -87,12 +81,6 @@ export const actions = {
 			bbqNotificationsEnabled: preferencesForm.data.bbqNotificationsEnabled,
 			bbqNotificationTiming: preferencesForm.data.bbqNotificationTiming
 		};
-
-		console.log(
-			'Updating preferences for user based on form data:',
-			event.locals.user.id,
-			preferencesUpdate
-		);
 
 		try {
 			updateUserPreferences(event.locals.user.id, preferencesUpdate);
