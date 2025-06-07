@@ -55,7 +55,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const user = await getUserFromApartment(apartment);
+		const user = getUserFromApartment(apartment);
 		if (user === null) {
 			console.log('[auth] Account does not exist during forgot-password', { apartment });
 			setError(form, 'apartment', 'Kontot finns inte');

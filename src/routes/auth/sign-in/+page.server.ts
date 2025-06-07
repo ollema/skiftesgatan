@@ -74,7 +74,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const user = await getUserFromApartment(apartment);
+		const user = getUserFromApartment(apartment);
 		if (user === null) {
 			console.log('[auth] Account does not exist during sign-in', { apartment });
 			setError(form, 'apartment', 'Kontot finns inte');
@@ -108,7 +108,7 @@ export const actions = {
 			return fail(429, { form });
 		}
 
-		const passwordHash = await getUserPasswordHash(user.id);
+		const passwordHash = getUserPasswordHash(user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, password);
 		if (!validPassword) {
 			console.log('[auth] Invalid password during sign-in', { apartment });

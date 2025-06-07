@@ -255,7 +255,7 @@ export const actions = {
 			});
 		}
 
-		const passwordHash = await getUserPasswordHash(event.locals.user.id);
+		const passwordHash = getUserPasswordHash(event.locals.user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, currentPassword);
 		if (!validPassword) {
 			console.log('[auth] Incorrect password for user:', event.locals.user.id);
