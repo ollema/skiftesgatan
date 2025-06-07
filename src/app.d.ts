@@ -7,6 +7,7 @@ declare global {
 		}
 		interface PageData {
 			user: import('$lib/server/auth/session').SessionValidationResult['user'];
+			flash?: { type: 'success' | 'error'; message: string };
 		}
 	}
 }

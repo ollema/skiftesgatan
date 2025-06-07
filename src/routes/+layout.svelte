@@ -16,6 +16,26 @@
 	import { cn } from '$lib/utils';
 	import { route } from '$lib/routes';
 	import { enhance } from '$app/forms';
+	import { Toaster } from '$lib/components/ui/sonner';
+	import { getFlash } from 'sveltekit-flash-message';
+	import { page } from '$app/state';
+	import { toast } from 'svelte-sonner';
+
+	const flash = getFlash(page);
+
+	$effect(() => {
+		if (!$flash) return;
+
+		if ($flash.type === 'error') {
+			toast.error($flash.message);
+		} else if ($flash.type === 'success') {
+			toast.success($flash.message);
+		} else {
+			toast($flash.message);
+		}
+
+		$flash = undefined;
+	});
 
 	const isMobile = new IsMobile();
 
@@ -27,6 +47,8 @@
 		content: string;
 	};
 </script>
+
+<Toaster />
 
 {#snippet ListItem({ title, content, href, class: className, ...restProps }: ListItemProps)}
 	<li>
