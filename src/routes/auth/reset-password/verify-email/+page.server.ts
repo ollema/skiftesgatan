@@ -1,4 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { setFlash } from 'sveltekit-flash-message/server';
+import { setError, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 import {
 	setPasswordResetSessionAsEmailVerified,
 	validatePasswordResetSessionRequest
@@ -9,7 +13,7 @@ import { route } from '$lib/routes';
 
 const bucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
-export const load = (event) => {
+export const load = async (event) => {
 	console.log('[auth] Verify email page load function triggered');
 
 	const { session } = validatePasswordResetSessionRequest(event);
@@ -23,8 +27,11 @@ export const load = (event) => {
 		);
 		return redirect(302, route('/auth/reset-password'));
 	}
+
+	const form = await superValidate(zod(formSchema));
 	return {
-		email: session.email
+		email: session.email,
+		form
 	};
 };
 
@@ -33,60 +40,63 @@ export const actions = {
 		const clientIP = event.request.headers.get('X-Forwarded-For');
 		console.log('[auth] Verify email form action triggered', { ip: clientIP });
 
+		const form = await superValidate(event, zod(formSchema));
+		if (!form.valid) {
+			console.log('[auth] Invalid form submission:', form.errors);
+			return fail(400, { form });
+		}
+
 		const { session } = validatePasswordResetSessionRequest(event);
 		if (session === null) {
 			console.log('[auth] No password reset session found, returning 401');
-			return fail(401, {
-				message: 'Inte autentiserad'
-			});
+			return fail(401, { form });
 		}
 		if (session.emailVerified) {
 			console.log(
 				'[auth] Password reset session found but email is already verified, returning 403'
 			);
-			return fail(403, {
-				message: 'Förbjuden'
-			});
-		}
-		if (!bucket.check(session.userId, 1)) {
-			console.log('[auth] Too many requests for user:', session.userId);
-			return fail(429, {
-				message: 'För många förfrågningar'
-			});
+			return fail(403, { form });
 		}
 
-		const formData = await event.request.formData();
-		const code = formData.get('code');
-		if (typeof code !== 'string') {
-			console.log('[auth] Invalid or missing code field');
-			return fail(400, {
-				message: 'Ogiltiga eller saknade fält'
-			});
+		if (!bucket.check(session.userId, 1)) {
+			console.log('[auth] Too many requests for user:', session.userId);
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
-		if (code === '') {
-			console.log('[auth] Code is empty');
-			return fail(400, {
-				message: 'Ange din kod'
-			});
-		}
+
+		const { code } = form.data;
+
 		if (!bucket.consume(session.userId, 1)) {
 			console.log('[auth] Too many requests for user:', session.userId);
-			return fail(429, { message: 'För många förfrågningar' });
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
+
 		if (code !== session.code) {
 			console.log('[auth] Incorrect code provided');
-			return fail(400, {
-				message: 'Felaktig kod'
-			});
+			setError(form, 'code', 'Felaktig kod');
+			return fail(400, { form });
 		}
+
 		bucket.reset(session.userId);
 		setPasswordResetSessionAsEmailVerified(session.id);
 		const emailMatches = setUserAsEmailVerifiedIfEmailMatches(session.userId, session.email);
 		if (!emailMatches) {
 			console.log('[auth] Email does not match user email, returning 400');
-			return fail(400, {
-				message: 'Vänligen starta om processen'
-			});
+			setError(form, 'code', 'Vänligen starta om processen');
+			return fail(400, { form });
 		}
 
 		console.log('[auth] Email verified successfully, redirecting to /auth/reset-password');
