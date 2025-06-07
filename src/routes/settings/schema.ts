@@ -8,7 +8,7 @@ export const preferencesFormSchema = z.object({
 });
 
 export const emailFormSchema = z.object({
-	email: z.string().email('Ogiltig e-postadress')
+	email: z.string().email('Ogiltig emailadress')
 });
 
 export const passwordFormSchema = z

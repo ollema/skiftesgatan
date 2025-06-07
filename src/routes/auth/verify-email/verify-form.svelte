@@ -30,7 +30,7 @@
 				/>
 			{/snippet}
 		</Form.Control>
-		<Form.Description>Ange den 8-siffriga koden från din e-post</Form.Description>
+		<Form.Description>Ange den 8-siffriga koden från din email</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
 

@@ -61,7 +61,7 @@ export const actions = {
 			setFlash(
 				{
 					type: 'error',
-					message: 'Logga in för att verifiera din e-postadress'
+					message: 'Logga in för att verifiera din emailadress'
 				},
 				event
 			);
@@ -158,7 +158,7 @@ export const actions = {
 			route('/'),
 			{
 				type: 'success',
-				message: 'E-postadressen verifierad framgångsrikt'
+				message: 'Emailadressen verifierad framgångsrikt'
 			},
 			event
 		);
@@ -207,7 +207,7 @@ export const actions = {
 				setFlash(
 					{
 						type: 'error',
-						message: 'E-postadressen är redan verifierad'
+						message: 'Emailadressen är redan verifierad'
 					},
 					event
 				);

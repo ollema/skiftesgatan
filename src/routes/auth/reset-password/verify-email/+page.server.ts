@@ -105,7 +105,7 @@ export const actions = {
 			route('/auth/reset-password'),
 			{
 				type: 'success',
-				message: 'E-postadress verifierad. Nu kan du återställa ditt lösenord.'
+				message: 'Emailadress verifierad. Nu kan du återställa ditt lösenord.'
 			},
 			event
 		);

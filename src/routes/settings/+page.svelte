@@ -24,8 +24,8 @@
 
 	<Card.Root>
 		<Card.Header>
-			<Card.Title class="text-xl">Uppdatera e-post</Card.Title>
-			<Card.Description>Din nuvarande e-post: {data.user.email}</Card.Description>
+			<Card.Title class="text-xl">Uppdatera email</Card.Title>
+			<Card.Description>Din nuvarande email: {data.user.email}</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<EmailForm emailForm={data.emailForm} />

@@ -116,7 +116,7 @@ export const actions = {
 			setFlash(
 				{
 					type: 'error',
-					message: 'Logga in för att uppdatera din e-postadress'
+					message: 'Logga in för att uppdatera din emailadress'
 				},
 				event
 			);
@@ -149,7 +149,7 @@ export const actions = {
 
 		if (!verifyEmailInput(email)) {
 			console.log('[auth] Invalid email:', email);
-			setError(emailForm, 'email', 'Ange en giltig e-postadress');
+			setError(emailForm, 'email', 'Ange en giltig emailadress');
 			return fail(400, {
 				emailForm
 			});
@@ -158,7 +158,7 @@ export const actions = {
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
 			console.log('[auth] Email is already used:', email);
-			setError(emailForm, 'email', 'Denna e-postadress används redan');
+			setError(emailForm, 'email', 'Denna emailadress används redan');
 			return fail(400, {
 				emailForm
 			});
@@ -188,7 +188,7 @@ export const actions = {
 			{
 				type: 'success',
 				message:
-					'Ett e-postmeddelande har skickats för att verifiera din nya e-postadress. Följ instruktionerna i meddelandet.'
+					'Ett email har skickats för att verifiera din nya emailadress. Följ instruktionerna i meddelandet.'
 			},
 			event
 		);

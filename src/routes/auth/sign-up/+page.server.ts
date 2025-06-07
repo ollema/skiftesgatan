@@ -71,14 +71,14 @@ export const actions = {
 
 		if (!verifyEmailInput(email)) {
 			console.log('[auth] Invalid email format during sign-up', { email });
-			setError(form, 'email', 'Ange en giltig e-postadress');
+			setError(form, 'email', 'Ange en giltig emailadress');
 			return fail(400, { form });
 		}
 
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
 			console.log('[auth] Email is already used during sign-up', { email });
-			setError(form, 'email', 'E-postadressen används redan');
+			setError(form, 'email', 'Emailadressen används redan');
 			return fail(400, { form });
 		}
 
