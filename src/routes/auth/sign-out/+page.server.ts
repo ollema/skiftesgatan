@@ -11,6 +11,6 @@ export const actions = {
 		}
 		invalidateSession(event.locals.session.id);
 		deleteSessionTokenCookie(event);
-		return redirect(302, route('/'));
+		redirect(302, route('/'));
 	}
 };

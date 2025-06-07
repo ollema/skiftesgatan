@@ -34,7 +34,7 @@ export const load = async (event) => {
 
 	if (event.locals.session === null || event.locals.user === null) {
 		console.log('[auth] No session or user found, redirecting to /auth/sign-in');
-		return redirect(302, route('/auth/sign-in'));
+		redirect(302, route('/auth/sign-in'));
 	}
 
 	const preferences = getUserPreferences(event.locals.user.id);
@@ -182,7 +182,7 @@ export const actions = {
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
 
-		return redirect(
+		redirect(
 			302,
 			route('/auth/verify-email'),
 			{

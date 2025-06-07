@@ -1,5 +1,5 @@
-import { fail, redirect } from '@sveltejs/kit';
-import { setFlash } from 'sveltekit-flash-message/server';
+import { fail } from '@sveltejs/kit';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { resendFormSchema, verifyFormSchema } from './schema';
@@ -22,13 +22,13 @@ export const load = async (event) => {
 
 	if (event.locals.user === null) {
 		console.log('[auth] No user found, redirecting to /auth/sign-in');
-		return redirect(302, route('/auth/sign-in'));
+		redirect(302, route('/auth/sign-in'));
 	}
 	let verificationRequest = getUserEmailVerificationRequestFromRequest(event);
 	if (verificationRequest === null || Date.now() >= verificationRequest.expiresAt.getTime()) {
 		if (event.locals.user.emailVerified) {
 			console.log('[auth] User email is already verified, redirecting to /');
-			return redirect(302, route('/'));
+			redirect(302, route('/'));
 		}
 		// note: we don't need rate limiting since it takes time before requests expire
 		verificationRequest = createEmailVerificationRequest(
@@ -153,7 +153,15 @@ export const actions = {
 		deleteEmailVerificationRequestCookie(event);
 
 		console.log('[auth] Email verified successfully, redirecting to /');
-		return redirect(302, route('/'));
+		redirect(
+			302,
+			route('/'),
+			{
+				type: 'success',
+				message: 'E-postadressen verifierad framgångsrikt'
+			},
+			event
+		);
 	},
 	resend: async (event) => {
 		console.log('[auth] Resend verification email form action triggered');

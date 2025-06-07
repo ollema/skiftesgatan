@@ -107,6 +107,6 @@ export const actions = {
 			apartment,
 			email: session.email
 		});
-		return redirect(302, route('/auth/reset-password/verify-email'));
+		redirect(302, route('/auth/reset-password/verify-email'));
 	}
 };

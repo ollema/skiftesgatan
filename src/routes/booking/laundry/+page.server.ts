@@ -12,7 +12,7 @@ import { route } from '$lib/routes';
 
 export const load = (event) => {
 	if (event.locals.session === null || event.locals.user === null) {
-		return redirect(302, route('/auth/sign-in'));
+		redirect(302, route('/auth/sign-in'));
 	}
 
 	const now = new Date();

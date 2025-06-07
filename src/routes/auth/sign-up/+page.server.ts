@@ -30,12 +30,12 @@ export const load = async (event) => {
 				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email',
 				{ apartment: event.locals.user.apartment }
 			);
-			return redirect(302, route('/auth/verify-email'));
+			redirect(302, route('/auth/verify-email'));
 		}
 		console.log('[auth] User is already logged in, redirecting to /', {
 			apartment: event.locals.user.apartment
 		});
-		return redirect(302, route('/'));
+		redirect(302, route('/'));
 	}
 
 	const form = await superValidate(zod(formSchema));
@@ -124,6 +124,6 @@ export const actions = {
 			apartment,
 			email
 		});
-		return redirect(302, route('/auth/verify-email'));
+		redirect(302, route('/auth/verify-email'));
 	}
 };

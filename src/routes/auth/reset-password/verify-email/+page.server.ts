@@ -1,5 +1,5 @@
-import { fail, redirect } from '@sveltejs/kit';
-import { setFlash } from 'sveltekit-flash-message/server';
+import { fail } from '@sveltejs/kit';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
@@ -19,13 +19,13 @@ export const load = async (event) => {
 	const { session } = validatePasswordResetSessionRequest(event);
 	if (session === null) {
 		console.log('[auth] No password reset session found, redirecting to /auth/forgot-password');
-		return redirect(302, route('/auth/forgot-password'));
+		redirect(302, route('/auth/forgot-password'));
 	}
 	if (session.emailVerified) {
 		console.log(
 			'[auth] Password reset session found but email is already verified, redirecting to /auth/reset-password'
 		);
-		return redirect(302, route('/auth/reset-password'));
+		redirect(302, route('/auth/reset-password'));
 	}
 
 	const form = await superValidate(zod(formSchema));
@@ -100,6 +100,14 @@ export const actions = {
 		}
 
 		console.log('[auth] Email verified successfully, redirecting to /auth/reset-password');
-		return redirect(302, route('/auth/reset-password'));
+		redirect(
+			302,
+			route('/auth/reset-password'),
+			{
+				type: 'success',
+				message: 'E-postadress verifierad. Nu kan du återställa ditt lösenord.'
+			},
+			event
+		);
 	}
 };

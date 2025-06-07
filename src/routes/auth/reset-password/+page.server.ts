@@ -1,4 +1,5 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
+import { redirect } from 'sveltekit-flash-message/server';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { formSchema } from './schema';
@@ -23,14 +24,14 @@ export const load = async (event) => {
 	const { session } = validatePasswordResetSessionRequest(event);
 	if (session === null) {
 		console.log('[auth] No password reset session found, redirecting to /auth/forgot-password');
-		return redirect(302, route('/auth/forgot-password'));
+		redirect(302, route('/auth/forgot-password'));
 	}
 	if (!session.emailVerified) {
 		console.log(
 			'[auth] Password reset session found but email is not verified, redirecting to /auth/reset-password/verify-email',
 			{ email: session.email }
 		);
-		return redirect(302, route('/auth/reset-password/verify-email'));
+		redirect(302, route('/auth/reset-password/verify-email'));
 	}
 
 	const form = await superValidate(zod(formSchema));
@@ -83,6 +84,14 @@ export const actions = {
 			apartment: user.apartment,
 			email: user.email
 		});
-		return redirect(302, route('/'));
+		redirect(
+			302,
+			route('/'),
+			{
+				type: 'success',
+				message: 'Lösenordet återställt framgångsrikt'
+			},
+			event
+		);
 	}
 };
