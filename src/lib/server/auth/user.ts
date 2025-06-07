@@ -108,22 +108,45 @@ export function getUserFromApartment(apartment: string): User | null {
 	return user || null;
 }
 
-export function getUserPreferences(userId: string): UserPreferences | null {
+export function getUserPreferences(userId: string): UserPreferences {
+	const user = db.select().from(table.user).where(eq(table.user.id, userId)).get();
+	if (!user) {
+		throw new Error('Invalid user ID');
+	}
+
 	const preferences = db
 		.select()
 		.from(table.userPreferences)
 		.where(eq(table.userPreferences.userId, userId))
 		.get();
 
-	return preferences || null;
+	if (!preferences) {
+		return updateUserPreferences(userId, {
+			laundryNotificationsEnabled: true,
+			laundryNotificationTiming: '1_hour',
+			bbqNotificationsEnabled: true,
+			bbqNotificationTiming: '1_week'
+		});
+	}
+
+	return preferences;
 }
 
-export function updateUserPreferences(userId: string, preferences: PreferencesUpdate): boolean {
-	const result = db
+export function updateUserPreferences(
+	userId: string,
+	preferences: PreferencesUpdate
+): UserPreferences {
+	const newPreferences = db
 		.update(table.userPreferences)
 		.set(preferences)
 		.where(eq(table.userPreferences.userId, userId))
-		.run();
+		.returning()
+		.get();
 
-	return result.changes > 0;
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (!newPreferences) {
+		throw new Error('Failed to update user preferences');
+	}
+
+	return newPreferences;
 }

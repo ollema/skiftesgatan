@@ -1,4 +1,8 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
+import { redirect, setFlash } from 'sveltekit-flash-message/server';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { emailFormSchema, passwordFormSchema, preferencesFormSchema } from './schema';
 import type { PreferencesUpdate } from '$lib/server/auth/user';
 import {
 	createEmailVerificationRequest,
@@ -25,7 +29,7 @@ import { route } from '$lib/routes';
 
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
-export const load = (event) => {
+export const load = async (event) => {
 	console.log('[auth] Settings page load function triggered');
 
 	if (event.locals.session === null || event.locals.user === null) {
@@ -33,15 +37,168 @@ export const load = (event) => {
 		return redirect(302, route('/auth/sign-in'));
 	}
 
-	const userPreferences = getUserPreferences(event.locals.user.id);
+	const preferences = getUserPreferences(event.locals.user.id);
+
+	console.log(
+		'Loading user preferences for user from database:',
+		event.locals.user.id,
+		preferences
+	);
+
+	const preferencesForm = await superValidate(preferences, zod(preferencesFormSchema));
+	const emailForm = await superValidate(zod(emailFormSchema));
+	const passwordForm = await superValidate(zod(passwordFormSchema));
 
 	return {
 		user: event.locals.user,
-		preferences: userPreferences
+		preferencesForm,
+		emailForm,
+		passwordForm
 	};
 };
 
 export const actions = {
+	preferences: async (event) => {
+		console.log('[auth] Update preferences form action triggered');
+
+		if (event.locals.session === null || event.locals.user === null) {
+			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Logga in för att uppdatera dina inställningar'
+				},
+				event
+			);
+			redirect(302, route('/auth/sign-in'));
+		}
+
+		const preferencesForm = await superValidate(event, zod(preferencesFormSchema));
+		if (!preferencesForm.valid) {
+			console.log('[auth] Invalid preferences form submission:', preferencesForm.errors);
+			return fail(400, {
+				preferencesForm: preferencesForm
+			});
+		}
+
+		const preferencesUpdate: PreferencesUpdate = {
+			laundryNotificationsEnabled: preferencesForm.data.laundryNotificationsEnabled,
+			laundryNotificationTiming: preferencesForm.data.laundryNotificationTiming,
+			bbqNotificationsEnabled: preferencesForm.data.bbqNotificationsEnabled,
+			bbqNotificationTiming: preferencesForm.data.bbqNotificationTiming
+		};
+
+		console.log(
+			'Updating preferences for user based on form data:',
+			event.locals.user.id,
+			preferencesUpdate
+		);
+
+		try {
+			updateUserPreferences(event.locals.user.id, preferencesUpdate);
+		} catch {
+			console.log('[auth] Failed to update preferences for user:', event.locals.user.id);
+			setFlash(
+				{
+					type: 'error',
+					message: 'Misslyckades med att uppdatera inställningarna'
+				},
+				event
+			);
+			return fail(500, {
+				preferencesForm
+			});
+		}
+
+		console.log('[auth] Preferences updated successfully for user:', event.locals.user.id);
+		setFlash(
+			{
+				type: 'success',
+				message: 'Inställningar uppdaterade'
+			},
+			event
+		);
+		return { preferencesForm };
+	},
+	email: async (event) => {
+		console.log('[auth] Update email form action triggered');
+
+		if (event.locals.session === null || event.locals.user === null) {
+			console.log('[auth] No session or user found, returning 401');
+			return fail(401, {
+				email: {
+					message: 'Inte autentiserad'
+				}
+			});
+		}
+		if (!sendVerificationEmailBucket.check(event.locals.user.id, 1)) {
+			console.log('[auth] Too many requests for user:', event.locals.user.id);
+			return fail(429, {
+				email: {
+					message: 'För många förfrågningar'
+				}
+			});
+		}
+
+		const formData = await event.request.formData();
+		const email = formData.get('email');
+
+		if (typeof email !== 'string') {
+			console.log('[auth] Invalid or missing email field');
+			return fail(400, {
+				email: {
+					message: 'Ogiltiga eller saknade fält'
+				}
+			});
+		}
+		if (email === '') {
+			console.log('[auth] Email is empty');
+			return fail(400, {
+				email: {
+					message: 'Ange din e-postadress'
+				}
+			});
+		}
+		if (!verifyEmailInput(email)) {
+			console.log('[auth] Invalid email:', email);
+			return fail(400, {
+				email: {
+					message: 'Ange en giltig e-postadress'
+				}
+			});
+		}
+		const emailAvailable = await checkEmailAvailability(email);
+		if (!emailAvailable) {
+			console.log('[auth] Email is already used:', email);
+			return fail(400, {
+				email: {
+					message: 'Denna e-postadress används redan'
+				}
+			});
+		}
+		if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
+			console.log('[auth] Too many requests for user:', event.locals.user.id);
+			return fail(429, {
+				email: {
+					message: 'För många förfrågningar'
+				}
+			});
+		}
+		const verificationRequest = createEmailVerificationRequest(event.locals.user.id, email);
+		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		setEmailVerificationRequestCookie(event, verificationRequest);
+
+		return redirect(
+			302,
+			route('/auth/verify-email'),
+			{
+				type: 'success',
+				message:
+					'Ett e-postmeddelande har skickats för att verifiera din nya e-postadress. Följ instruktionerna i meddelandet.'
+			},
+			event
+		);
+	},
 	password: async (event) => {
 		console.log('[auth] Update password form action triggered');
 
@@ -115,141 +272,6 @@ export const actions = {
 		return {
 			password: {
 				message: 'Lösenordet uppdaterat'
-			}
-		};
-	},
-	email: async (event) => {
-		console.log('[auth] Update email form action triggered');
-
-		if (event.locals.session === null || event.locals.user === null) {
-			console.log('[auth] No session or user found, returning 401');
-			return fail(401, {
-				email: {
-					message: 'Inte autentiserad'
-				}
-			});
-		}
-		if (!sendVerificationEmailBucket.check(event.locals.user.id, 1)) {
-			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(429, {
-				email: {
-					message: 'För många förfrågningar'
-				}
-			});
-		}
-
-		const formData = await event.request.formData();
-		const email = formData.get('email');
-
-		if (typeof email !== 'string') {
-			console.log('[auth] Invalid or missing email field');
-			return fail(400, {
-				email: {
-					message: 'Ogiltiga eller saknade fält'
-				}
-			});
-		}
-		if (email === '') {
-			console.log('[auth] Email is empty');
-			return fail(400, {
-				email: {
-					message: 'Ange din e-postadress'
-				}
-			});
-		}
-		if (!verifyEmailInput(email)) {
-			console.log('[auth] Invalid email:', email);
-			return fail(400, {
-				email: {
-					message: 'Ange en giltig e-postadress'
-				}
-			});
-		}
-		const emailAvailable = await checkEmailAvailability(email);
-		if (!emailAvailable) {
-			console.log('[auth] Email is already used:', email);
-			return fail(400, {
-				email: {
-					message: 'Denna e-postadress används redan'
-				}
-			});
-		}
-		if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
-			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(429, {
-				email: {
-					message: 'För många förfrågningar'
-				}
-			});
-		}
-		const verificationRequest = createEmailVerificationRequest(event.locals.user.id, email);
-		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
-		setEmailVerificationRequestCookie(event, verificationRequest);
-
-		return redirect(302, route('/auth/verify-email'));
-	},
-	preferences: async (event) => {
-		console.log('[auth] Update preferences form action triggered');
-
-		if (event.locals.session === null || event.locals.user === null) {
-			console.log('[auth] No session or user found, returning 401');
-			return fail(401, {
-				preferences: {
-					message: 'Inte autentiserad'
-				}
-			});
-		}
-
-		const formData = await event.request.formData();
-		const laundryEnabled = formData.get('laundry_enabled') === 'on';
-		const laundryTiming = formData.get('laundry_timing');
-		const bbqEnabled = formData.get('bbq_enabled') === 'on';
-		const bbqTiming = formData.get('bbq_timing');
-
-		if (typeof laundryTiming !== 'string' || typeof bbqTiming !== 'string') {
-			console.log('[auth] Invalid timing values');
-			return fail(400, {
-				preferences: {
-					message: 'Ogiltiga tidsinställningar'
-				}
-			});
-		}
-
-		if (
-			!['1_hour', '1_day', '1_week'].includes(laundryTiming) ||
-			!['1_hour', '1_day', '1_week'].includes(bbqTiming)
-		) {
-			console.log('[auth] Invalid timing enum values');
-			return fail(400, {
-				preferences: {
-					message: 'Ogiltiga tidsinställningar'
-				}
-			});
-		}
-
-		// Update preferences
-		const preferencesUpdate: PreferencesUpdate = {
-			laundryNotificationsEnabled: laundryEnabled,
-			laundryNotificationTiming: laundryTiming as '1_hour' | '1_day' | '1_week',
-			bbqNotificationsEnabled: bbqEnabled,
-			bbqNotificationTiming: bbqTiming as '1_hour' | '1_day' | '1_week'
-		};
-
-		const updated = updateUserPreferences(event.locals.user.id, preferencesUpdate);
-
-		if (!updated) {
-			console.log('[auth] Failed to update preferences for user:', event.locals.user.id);
-			return fail(500, {
-				preferences: {
-					message: 'Kunde inte uppdatera inställningar'
-				}
-			});
-		}
-
-		console.log('[auth] Preferences updated successfully for user:', event.locals.user.id);
-		return {
-			preferences: {
-				message: 'Inställningar uppdaterade'
 			}
 		};
 	}
