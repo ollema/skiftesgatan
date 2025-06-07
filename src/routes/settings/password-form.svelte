@@ -5,6 +5,7 @@
 	import { passwordFormSchema, type PasswordFormSchema } from './schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { page } from '$app/state';
 
 	let { passwordForm }: { passwordForm: SuperValidated<Infer<PasswordFormSchema>> } = $props();
 
@@ -17,6 +18,18 @@
 </script>
 
 <form method="POST" action={route('password /settings')} use:enhance>
+	<!-- hidden username field for accessibility and password managers -->
+	<input
+		type="text"
+		id="username"
+		name="username"
+		value={page.data.user?.apartment}
+		autocomplete="username"
+		readonly
+		tabindex="-1"
+		style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;"
+	/>
+
 	<Form.Field {form} name="currentPassword" class="mb-2 flex flex-row items-center gap-2">
 		<Form.Control>
 			{#snippet children({ props })}
@@ -24,9 +37,8 @@
 				<Input
 					{...props}
 					type="password"
-					bind:value={$formData.currentPassword}
 					autocomplete="current-password"
-					required
+					bind:value={$formData.currentPassword}
 				/>
 			{/snippet}
 		</Form.Control>
@@ -37,7 +49,12 @@
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label for="newPassword">Nytt lösenord</Form.Label>
-				<Input {...props} bind:value={$formData.newPassword} />
+				<Input
+					{...props}
+					type="password"
+					autocomplete="new-password"
+					bind:value={$formData.newPassword}
+				/>
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />

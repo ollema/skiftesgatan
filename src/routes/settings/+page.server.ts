@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
-import { superValidate } from 'sveltekit-superforms';
+import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { emailFormSchema, passwordFormSchema, preferencesFormSchema } from './schema';
 import type { PreferencesUpdate } from '$lib/server/auth/user';
@@ -112,66 +112,72 @@ export const actions = {
 		console.log('[auth] Update email form action triggered');
 
 		if (event.locals.session === null || event.locals.user === null) {
-			console.log('[auth] No session or user found, returning 401');
-			return fail(401, {
-				email: {
-					message: 'Inte autentiserad'
-				}
+			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Logga in för att uppdatera din e-postadress'
+				},
+				event
+			);
+			redirect(302, route('/auth/sign-in'));
+		}
+
+		const emailForm = await superValidate(event, zod(emailFormSchema));
+		if (!emailForm.valid) {
+			console.log('[auth] Invalid email form submission:', emailForm.errors);
+			return fail(400, {
+				emailForm: emailForm
 			});
 		}
+
 		if (!sendVerificationEmailBucket.check(event.locals.user.id, 1)) {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(429, {
-				email: {
+			setFlash(
+				{
+					type: 'error',
 					message: 'För många förfrågningar'
-				}
+				},
+				event
+			);
+			return fail(429, {
+				emailForm
 			});
 		}
 
-		const formData = await event.request.formData();
-		const email = formData.get('email');
+		const email = emailForm.data.email;
 
-		if (typeof email !== 'string') {
-			console.log('[auth] Invalid or missing email field');
-			return fail(400, {
-				email: {
-					message: 'Ogiltiga eller saknade fält'
-				}
-			});
-		}
-		if (email === '') {
-			console.log('[auth] Email is empty');
-			return fail(400, {
-				email: {
-					message: 'Ange din e-postadress'
-				}
-			});
-		}
 		if (!verifyEmailInput(email)) {
 			console.log('[auth] Invalid email:', email);
+			setError(emailForm, 'email', 'Ange en giltig e-postadress');
 			return fail(400, {
-				email: {
-					message: 'Ange en giltig e-postadress'
-				}
+				emailForm
 			});
 		}
+
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
 			console.log('[auth] Email is already used:', email);
+			setError(emailForm, 'email', 'Denna e-postadress används redan');
 			return fail(400, {
-				email: {
-					message: 'Denna e-postadress används redan'
-				}
+				emailForm
 			});
 		}
+
 		if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(429, {
-				email: {
+			setFlash(
+				{
+					type: 'error',
 					message: 'För många förfrågningar'
-				}
+				},
+				event
+			);
+			return fail(429, {
+				emailForm
 			});
 		}
+
 		const verificationRequest = createEmailVerificationRequest(event.locals.user.id, email);
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
@@ -191,63 +197,74 @@ export const actions = {
 		console.log('[auth] Update password form action triggered');
 
 		if (event.locals.session === null || event.locals.user === null) {
-			console.log('[auth] No session or user found, returning 401');
-			return fail(401, {
-				password: {
-					message: 'Inte autentiserad'
-				}
+			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Logga in för att uppdatera ditt lösenord'
+				},
+				event
+			);
+			redirect(302, route('/auth/sign-in'));
+		}
+
+		const passwordForm = await superValidate(event, zod(passwordFormSchema));
+		if (!passwordForm.valid) {
+			console.log('[auth] Invalid password form submission:', passwordForm.errors);
+			return fail(400, {
+				passwordForm: passwordForm
 			});
 		}
+
 		if (!passwordUpdateBucket.check(event.locals.session.id, 1)) {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(429, {
-				password: {
+			setFlash(
+				{
+					type: 'error',
 					message: 'För många förfrågningar'
-				}
+				},
+				event
+			);
+			return fail(429, {
+				passwordForm
 			});
 		}
 
-		const formData = await event.request.formData();
-		const password = formData.get('password');
-		const newPassword = formData.get('new_password');
+		const { currentPassword, newPassword } = passwordForm.data;
 
-		if (typeof password !== 'string' || typeof newPassword !== 'string') {
-			console.log('[auth] Invalid or missing fields');
-			return fail(400, {
-				password: {
-					message: 'Ogiltiga eller saknade fält'
-				}
-			});
-		}
 		const strongPassword = await verifyPasswordStrength(newPassword);
 		if (!strongPassword) {
 			console.log('[auth] Weak password provided');
+			setError(passwordForm, 'newPassword', 'Svagt lösenord');
 			return fail(400, {
-				password: {
-					message: 'Svagt lösenord'
-				}
+				passwordForm
 			});
 		}
 
 		if (!passwordUpdateBucket.consume(event.locals.session.id, 1)) {
 			console.log('[auth] Too many requests for session:', event.locals.session.id);
-			return fail(429, {
-				password: {
+			setFlash(
+				{
+					type: 'error',
 					message: 'För många förfrågningar'
-				}
+				},
+				event
+			);
+			return fail(429, {
+				passwordForm
 			});
 		}
 
 		const passwordHash = await getUserPasswordHash(event.locals.user.id);
-		const validPassword = await verifyPasswordHash(passwordHash, password);
+		const validPassword = await verifyPasswordHash(passwordHash, currentPassword);
 		if (!validPassword) {
 			console.log('[auth] Incorrect password for user:', event.locals.user.id);
+			setError(passwordForm, 'currentPassword', 'Felaktigt lösenord');
 			return fail(400, {
-				password: {
-					message: 'Felaktigt lösenord'
-				}
+				passwordForm
 			});
 		}
+
 		passwordUpdateBucket.reset(event.locals.session.id);
 		invalidateUserSessions(event.locals.user.id);
 		await updateUserPassword(event.locals.user.id, newPassword);
@@ -257,10 +274,13 @@ export const actions = {
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		console.log('[auth] Password updated successfully for user:', event.locals.user.id);
-		return {
-			password: {
+		setFlash(
+			{
+				type: 'success',
 				message: 'Lösenordet uppdaterat'
-			}
-		};
+			},
+			event
+		);
+		return { passwordForm };
 	}
 };
