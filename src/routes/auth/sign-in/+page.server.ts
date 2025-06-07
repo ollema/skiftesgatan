@@ -1,4 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { setFlash } from 'sveltekit-flash-message/server';
+import { setError, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 import {
 	getUserFromApartment,
 	getUserPasswordHash,
@@ -13,7 +17,7 @@ import {
 } from '$lib/server/auth/session';
 import { route } from '$lib/routes';
 
-export const load = (event) => {
+export const load = async (event) => {
 	console.log('[auth] Sign in page load function triggered');
 
 	if (event.locals.session !== null && event.locals.user !== null) {
@@ -29,7 +33,9 @@ export const load = (event) => {
 		});
 		return redirect(302, route('/'));
 	}
-	return {};
+
+	const form = await superValidate(zod(formSchema));
+	return { form };
 };
 
 const throttler = new Throttler<string>([0, 1, 2, 4, 8, 16, 30, 60, 180, 300]);
@@ -39,76 +45,77 @@ export const actions = {
 	default: async (event) => {
 		console.log('[auth] Sign in form action triggered');
 
+		const form = await superValidate(event, zod(formSchema));
+		if (!form.valid) {
+			console.log('[auth] Invalid form submission:', form.errors);
+			return fail(400, { form });
+		}
+
 		const clientIP = event.request.headers.get('X-Forwarded-For');
 
 		// TODO: assumes X-Forwarded-For is always included.
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
 			console.log('[auth] IP rate limit exceeded during sign-in check', { ip: clientIP });
-			return fail(429, {
-				message: 'För många förfrågningar',
-				apartment: ''
-			});
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
 
-		const formData = await event.request.formData();
-		const apartment = formData.get('apartment');
-		const password = formData.get('password');
+		const { apartment, password } = form.data;
 
-		if (typeof apartment !== 'string' || typeof password !== 'string') {
-			console.log('[auth] Invalid or missing fields during sign-in', { ip: clientIP });
-			return fail(400, {
-				message: 'Ogiltiga eller saknade fält',
-				apartment: ''
-			});
-		}
-		if (apartment === '' || password === '') {
-			console.log('[auth] Apartment or password is empty during sign-in', { ip: clientIP });
-			return fail(400, {
-				message: 'Ange ditt lägenhetsnummer och lösenord.',
-				apartment
-			});
-		}
 		if (!verifyApartmentInput(apartment)) {
 			console.log('[auth] Invalid apartment format during sign-in', { apartment });
-			return fail(400, {
-				message: 'Ogiltigt lägenhetsnummer',
-				apartment
-			});
+			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
+			return fail(400, { form });
 		}
+
 		const user = await getUserFromApartment(apartment);
 		if (user === null) {
 			console.log('[auth] Account does not exist during sign-in', { apartment });
-			return fail(400, {
-				message: 'Kontot finns inte',
-				apartment
-			});
+			setError(form, 'apartment', 'Kontot finns inte');
+			return fail(400, { form });
 		}
+
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
 			console.log('[auth] IP rate limit exceeded during sign-in consume', {
 				ip: clientIP,
 				apartment
 			});
-			return fail(429, {
-				message: 'För många förfrågningar',
-				apartment: ''
-			});
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
+
 		if (!throttler.consume(user.id)) {
 			console.log('[auth] User rate limit exceeded during sign-in', { apartment, userId: user.id });
-			return fail(429, {
-				message: 'För många förfrågningar',
-				apartment: ''
-			});
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
+
 		const passwordHash = await getUserPasswordHash(user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, password);
 		if (!validPassword) {
 			console.log('[auth] Invalid password during sign-in', { apartment });
-			return fail(400, {
-				message: 'Felaktigt lösenord',
-				apartment
-			});
+			setError(form, 'password', 'Felaktigt lösenord');
+			return fail(400, { form });
 		}
+
 		throttler.reset(user.id);
 		const sessionToken = generateSessionToken();
 		const session = createSession(sessionToken, user.id);
