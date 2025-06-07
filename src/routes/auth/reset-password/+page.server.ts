@@ -1,4 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { setError, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 import {
 	deletePasswordResetSessionTokenCookie,
 	invalidateUserPasswordResetSessions,
@@ -14,7 +17,7 @@ import {
 import { updateUserPassword } from '$lib/server/auth/user';
 import { route } from '$lib/routes';
 
-export const load = (event) => {
+export const load = async (event) => {
 	console.log('[auth] Reset password page load function triggered');
 
 	const { session } = validatePasswordResetSessionRequest(event);
@@ -29,47 +32,44 @@ export const load = (event) => {
 		);
 		return redirect(302, route('/auth/reset-password/verify-email'));
 	}
-	return {};
+
+	const form = await superValidate(zod(formSchema));
+	return { form };
 };
 
 export const actions = {
 	default: async (event) => {
 		console.log('[auth] Reset password form action triggered');
 
+		const form = await superValidate(event, zod(formSchema));
+		if (!form.valid) {
+			console.log('[auth] Invalid form submission:', form.errors);
+			return fail(400, { form });
+		}
+
 		const { session: passwordResetSession, user } = validatePasswordResetSessionRequest(event);
 		if (passwordResetSession === null) {
 			console.log('[auth] No password reset session found, returning 401');
-			return fail(401, {
-				message: 'Inte autentiserad'
-			});
+			return fail(401, { form });
 		}
 		if (!passwordResetSession.emailVerified) {
 			console.log('[auth] Password reset session found but email is not verified, returning 403', {
 				email: passwordResetSession.email
 			});
-			return fail(403, {
-				message: 'Förbjuden'
-			});
+			return fail(403, { form });
 		}
 
-		const formData = await event.request.formData();
-		const password = formData.get('password');
-
-		if (typeof password !== 'string') {
-			return fail(400, {
-				message: 'Ogiltiga eller saknade fält'
-			});
-		}
+		const { password } = form.data;
 
 		const strongPassword = await verifyPasswordStrength(password);
 		if (!strongPassword) {
 			console.log('[auth] Weak password provided during reset', {
 				email: passwordResetSession.email
 			});
-			return fail(400, {
-				message: 'Svagt lösenord'
-			});
+			setError(form, 'password', 'Svagt lösenord');
+			return fail(400, { form });
 		}
+
 		invalidateUserPasswordResetSessions(passwordResetSession.userId);
 		invalidateUserSessions(passwordResetSession.userId);
 		await updateUserPassword(passwordResetSession.userId, password);
