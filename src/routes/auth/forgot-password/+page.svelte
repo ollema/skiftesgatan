@@ -1,12 +1,20 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
+	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
 	import { route } from '$lib/routes';
+	import { formSchema, type FormSchema } from './schema';
+	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 
-	let { form } = $props();
+	let { data }: { data: { form: SuperValidated<Infer<FormSchema>> } } = $props();
+
+	const form = superForm(data.form, {
+		validators: zodClient(formSchema),
+		resetForm: false
+	});
+
+	const { form: formData, enhance } = form;
 </script>
 
 <div class="mt-8 flex w-full items-center justify-center px-4">
@@ -23,21 +31,17 @@
 				class="grid gap-4"
 				use:enhance
 			>
-				<div class="grid gap-2">
-					<Label for="apartment">Lägenhetsnummer</Label>
-					<Input
-						id="apartment"
-						name="apartment"
-						type="text"
-						placeholder="A1001"
-						required
-						value={form?.apartment ?? ''}
-					/>
-				</div>
-				<Button type="submit" class="w-full">Skicka</Button>
-				{#if form?.message}
-					<p class="text-destructive text-center text-sm">{form.message}</p>
-				{/if}
+				<Form.Field {form} name="apartment" class="grid gap-2">
+					<Form.Control>
+						{#snippet children({ props })}
+							<Form.Label>Lägenhetsnummer</Form.Label>
+							<Input {...props} type="text" placeholder="A1001" bind:value={$formData.apartment} />
+						{/snippet}
+					</Form.Control>
+					<Form.FieldErrors />
+				</Form.Field>
+
+				<Form.Button class="w-full">Skicka</Form.Button>
 			</form>
 			<div class="mt-4 text-center text-sm">
 				Kom du på ditt lösenord?

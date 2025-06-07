@@ -1,4 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { setFlash } from 'sveltekit-flash-message/server';
+import { setError, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { formSchema } from './schema';
 import { getUserFromApartment, verifyApartmentInput } from '$lib/server/auth/user';
 import {
 	createPasswordResetSession,
@@ -13,67 +17,82 @@ import { route } from '$lib/routes';
 const ipBucket = new RefillingTokenBucket<string>(3, 60);
 const userBucket = new RefillingTokenBucket<string>(3, 60);
 
+export const load = async () => {
+	const form = await superValidate(zod(formSchema));
+	return { form };
+};
+
 export const actions = {
 	default: async (event) => {
+		console.log('[auth] Forgot password form action triggered');
+
+		const form = await superValidate(event, zod(formSchema));
+		if (!form.valid) {
+			console.log('[auth] Invalid form submission:', form.errors);
+			return fail(400, { form });
+		}
+
 		// TODO: assumes X-Forwarded-For is always included.
 		const clientIP = event.request.headers.get('X-Forwarded-For');
-		console.log('[auth] Forgot password form action triggered');
+
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
 			console.log('[auth] IP rate limit exceeded during forgot-password check', { ip: clientIP });
-			return fail(429, {
-				message: 'För många förfrågningar',
-				apartment: ''
-			});
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
 
-		const formData = await event.request.formData();
-		const apartment = formData.get('apartment');
+		const { apartment } = form.data;
 
-		if (typeof apartment !== 'string') {
-			console.log('[auth] Invalid or missing apartment field during forgot-password', {
-				ip: clientIP
-			});
-			return fail(400, {
-				message: 'Ogiltiga eller saknade fält',
-				apartment: ''
-			});
-		}
 		if (!verifyApartmentInput(apartment)) {
 			console.log('[auth] Invalid apartment format during forgot-password', { apartment });
-			return fail(400, {
-				message: 'Ogiltigt lägenhetsnummer',
-				apartment
-			});
+			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
+			return fail(400, { form });
 		}
+
 		const user = await getUserFromApartment(apartment);
 		if (user === null) {
 			console.log('[auth] Account does not exist during forgot-password', { apartment });
-			return fail(400, {
-				message: 'Kontot finns inte',
-				apartment
-			});
+			setError(form, 'apartment', 'Kontot finns inte');
+			return fail(400, { form });
 		}
+
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
 			console.log('[auth] IP rate limit exceeded during forgot-password consume', {
 				ip: clientIP,
 				apartment
 			});
-			return fail(400, {
-				message: 'För många förfrågningar',
-				apartment
-			});
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
+
 		if (!userBucket.consume(user.id, 1)) {
 			console.log('[auth] User rate limit exceeded during forgot-password', {
 				apartment,
 				email: user.email,
 				userId: user.id
 			});
-			return fail(400, {
-				message: 'För många förfrågningar',
-				apartment
-			});
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, { form });
 		}
+
 		invalidateUserPasswordResetSessions(user.id);
 		const sessionToken = generateSessionToken();
 		const session = createPasswordResetSession(sessionToken, user.id, user.email);
