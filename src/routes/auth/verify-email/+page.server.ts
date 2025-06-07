@@ -1,4 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { setFlash } from 'sveltekit-flash-message/server';
+import { setError, superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { resendFormSchema, verifyFormSchema } from './schema';
 import {
 	createEmailVerificationRequest,
 	deleteEmailVerificationRequestCookie,
@@ -13,7 +17,7 @@ import { updateUserEmailAndSetEmailAsVerified } from '$lib/server/auth/user';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { route } from '$lib/routes';
 
-export const load = (event) => {
+export const load = async (event) => {
 	console.log('[auth] Verify email page load function triggered');
 
 	if (event.locals.user === null) {
@@ -34,8 +38,14 @@ export const load = (event) => {
 		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
 	}
+
+	const verifyForm = await superValidate(zod(verifyFormSchema));
+	const resendForm = await superValidate(zod(resendFormSchema));
+
 	return {
-		email: verificationRequest.email
+		email: verificationRequest.email,
+		verifyForm,
+		resendForm
 	};
 };
 
@@ -47,79 +57,96 @@ export const actions = {
 		console.log('[auth] Verify email form action triggered', { ip: clientIP });
 
 		if (event.locals.session === null || event.locals.user === null) {
-			console.log('[auth] No session or user found, returning 401');
-			return fail(401, {
-				verify: {
-					message: 'Inte autentiserad'
-				}
+			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Logga in för att verifiera din e-postadress'
+				},
+				event
+			);
+			redirect(302, route('/auth/sign-in'));
+		}
+
+		const verifyForm = await superValidate(event, zod(verifyFormSchema));
+		if (!verifyForm.valid) {
+			console.log('[auth] Invalid verify form submission:', verifyForm.errors);
+			return fail(400, {
+				verifyForm: verifyForm
 			});
 		}
+
 		if (!bucket.check(event.locals.user.id, 1)) {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(429, {
-				verify: {
+			setFlash(
+				{
+					type: 'error',
 					message: 'För många förfrågningar'
-				}
+				},
+				event
+			);
+			return fail(429, {
+				verifyForm
 			});
 		}
 
 		let verificationRequest = getUserEmailVerificationRequestFromRequest(event);
 		if (verificationRequest === null) {
 			console.log('[auth] No email verification request found, returning 401');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Inte autentiserad'
+				},
+				event
+			);
 			return fail(401, {
-				verify: {
-					message: 'Not authenticated'
-				}
+				verifyForm
 			});
 		}
-		const formData = await event.request.formData();
-		const code = formData.get('code');
 
-		if (typeof code !== 'string') {
-			console.log('[auth] Invalid or missing code field');
-			return fail(400, {
-				verify: {
-					message: 'Ogiltiga eller saknade fält'
-				}
-			});
-		}
-		if (code === '') {
-			console.log('[auth] Code field is empty');
-			return fail(400, {
-				verify: {
-					message: 'Ange din kod'
-				}
-			});
-		}
+		const { code } = verifyForm.data;
+
 		if (!bucket.consume(event.locals.user.id, 1)) {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
-			return fail(400, {
-				verify: {
-					message: 'Too many requests'
-				}
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
+			return fail(429, {
+				verifyForm
 			});
 		}
+
 		if (Date.now() >= verificationRequest.expiresAt.getTime()) {
 			verificationRequest = createEmailVerificationRequest(
 				verificationRequest.userId,
 				verificationRequest.email
 			);
 			sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+			setEmailVerificationRequestCookie(event, verificationRequest);
 			console.log('[auth] Verification code expired, new code sent');
-			return {
-				verify: {
+			setFlash(
+				{
+					type: 'success',
 					message: 'Verifieringskoden har gått ut. Vi skickade en ny kod till din inkorg.'
-				}
-			};
+				},
+				event
+			);
+			return { verifyForm };
 		}
+
 		if (verificationRequest.code !== code) {
 			console.log('[auth] Incorrect code provided');
+			setError(verifyForm, 'code', 'Felaktig kod');
 			return fail(400, {
-				verify: {
-					message: 'Felaktig kod.'
-				}
+				verifyForm
 			});
 		}
+
 		deleteUserEmailVerificationRequest(event.locals.user.id);
 		invalidateUserPasswordResetSessions(event.locals.user.id);
 		updateUserEmailAndSetEmailAsVerified(event.locals.user.id, verificationRequest.email);
@@ -128,23 +155,40 @@ export const actions = {
 		console.log('[auth] Email verified successfully, redirecting to /');
 		return redirect(302, route('/'));
 	},
-	resend: (event) => {
+	resend: async (event) => {
 		console.log('[auth] Resend verification email form action triggered');
 
 		if (event.locals.session === null || event.locals.user === null) {
-			console.log('[auth] No session or user found, returning 401');
-			return fail(401, {
-				resend: {
-					message: 'Not authenticated'
-				}
+			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Logga in för att skicka kod igen'
+				},
+				event
+			);
+			redirect(302, route('/auth/sign-in'));
+		}
+
+		const resendForm = await superValidate(event, zod(resendFormSchema));
+		if (!resendForm.valid) {
+			console.log('[auth] Invalid resend form submission:', resendForm.errors);
+			return fail(400, {
+				resendForm: resendForm
 			});
 		}
+
 		if (!sendVerificationEmailBucket.check(event.locals.user.id, 1)) {
 			console.log('[auth] Too many requests for user:', event.locals.user.id);
+			setFlash(
+				{
+					type: 'error',
+					message: 'För många förfrågningar'
+				},
+				event
+			);
 			return fail(429, {
-				resend: {
-					message: 'Too many requests'
-				}
+				resendForm
 			});
 		}
 
@@ -152,18 +196,28 @@ export const actions = {
 		if (verificationRequest === null) {
 			if (event.locals.user.emailVerified) {
 				console.log('[auth] User email is already verified');
+				setFlash(
+					{
+						type: 'error',
+						message: 'E-postadressen är redan verifierad'
+					},
+					event
+				);
 				return fail(403, {
-					resend: {
-						message: 'Förbjuden'
-					}
+					resendForm
 				});
 			}
 			if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
 				console.log('[auth] Too many requests for user:', event.locals.user.id);
+				setFlash(
+					{
+						type: 'error',
+						message: 'För många förfrågningar'
+					},
+					event
+				);
 				return fail(429, {
-					resend: {
-						message: 'Too many requests'
-					}
+					resendForm
 				});
 			}
 			verificationRequest = createEmailVerificationRequest(
@@ -173,10 +227,15 @@ export const actions = {
 		} else {
 			if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
 				console.log('[auth] Too many requests for user:', event.locals.user.id);
+				setFlash(
+					{
+						type: 'error',
+						message: 'För många förfrågningar'
+					},
+					event
+				);
 				return fail(429, {
-					resend: {
-						message: 'Too many requests'
-					}
+					resendForm
 				});
 			}
 			verificationRequest = createEmailVerificationRequest(
@@ -188,10 +247,13 @@ export const actions = {
 		setEmailVerificationRequestCookie(event, verificationRequest);
 
 		console.log("[auth] New verification code sent to user's email");
-		return {
-			resend: {
+		setFlash(
+			{
+				type: 'success',
 				message: 'En ny kod skickades till din inkorg.'
-			}
-		};
+			},
+			event
+		);
+		return { resendForm };
 	}
 };
