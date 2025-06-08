@@ -33,10 +33,9 @@
 		"@sveltejs/vite-plugin-svelte": "^5.1.0",
 		"@tailwindcss/vite": "^4.1.8",
 		"@tanstack/eslint-config": "^0.2.0",
-		"@testing-library/jest-dom": "^6.6.3",
-		"@testing-library/svelte": "^5.2.8",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^22.15.30",
+		"@vitest/browser": "^3.2.2",
 		"bits-ui": "^2.4.1",
 		"clsx": "^2.1.1",
 		"drizzle-kit": "^0.31.1",
@@ -48,6 +47,7 @@
 		"jsdom": "^26.1.0",
 		"mdsvex": "^0.12.6",
 		"mode-watcher": "^1.0.7",
+		"playwright": "^1.52.0",
 		"prettier": "^3.5.3",
 		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.6.12",
@@ -67,6 +67,7 @@
 		"vite-plugin-devtools-json": "^0.1.1",
 		"vite-plugin-kit-routes": "^1.0.2",
 		"vitest": "^3.2.2",
+		"vitest-browser-svelte": "^0.1.0",
 		"zod": "^3.25.56"
 	},
 	"dependencies": {
