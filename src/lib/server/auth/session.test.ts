@@ -116,9 +116,9 @@ describe('createSession', () => {
 
 		const session = createSession(token, user.id);
 
-		const expectedExpiry = beforeCreate + (30 * 24 * 60 * 60 * 1000); // 30 days
+		const expectedExpiry = beforeCreate + 30 * 24 * 60 * 60 * 1000; // 30 days
 		const actualExpiry = session.expiresAt.getTime();
-		
+
 		// Allow for small timing differences (within 1 second)
 		expect(Math.abs(actualExpiry - expectedExpiry)).toBeLessThan(1000);
 	});
@@ -128,10 +128,10 @@ describe('createSession', () => {
 		const token = generateSessionToken();
 
 		const session1 = createSession(token, user.id);
-		
+
 		// Clean up first session
 		invalidateSession(session1.id);
-		
+
 		const session2 = createSession(token, user.id);
 
 		// Same token should generate same session ID
@@ -201,7 +201,7 @@ describe('validateSessionToken', () => {
 		const session = createSession(token, user.id);
 
 		// Set session to expire in 14 days (should be extended)
-		const nearExpiry = new Date(Date.now() + (14 * 24 * 60 * 60 * 1000));
+		const nearExpiry = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 		db.update(table.session)
 			.set({ expiresAt: nearExpiry })
 			.where(eq(table.session.id, session.id))
@@ -221,7 +221,7 @@ describe('validateSessionToken', () => {
 		// Set session to expire in 20 days from now (should not be extended)
 		// Renewal condition: Date.now() >= expiresAt - 15 days
 		// With 20 days: Date.now() >= (Date.now() + 20 days) - 15 days = Date.now() + 5 days (false)
-		const farFutureExpiry = new Date(Date.now() + (20 * 24 * 60 * 60 * 1000));
+		const farFutureExpiry = new Date(Date.now() + 20 * 24 * 60 * 60 * 1000);
 		db.update(table.session)
 			.set({ expiresAt: farFutureExpiry })
 			.where(eq(table.session.id, session.id))
@@ -306,7 +306,7 @@ describe('invalidateUserSessions', () => {
 	it('should not affect other users sessions', async () => {
 		const user1 = await createUser('A1001', 'user1@test.com', 'password123');
 		const user2 = await createUser('B1002', 'user2@test.com', 'password456');
-		
+
 		const token1 = generateSessionToken();
 		const token2 = generateSessionToken();
 
@@ -328,13 +328,14 @@ describe('invalidateUserSessions', () => {
 });
 
 describe('cookie management', () => {
-	const createMockEvent = () => ({
-		cookies: {
-			set: vi.fn(),
-			delete: vi.fn()
-		}
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	}) as any;
+	const createMockEvent = () =>
+		({
+			cookies: {
+				set: vi.fn(),
+				delete: vi.fn()
+			}
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		}) as any;
 
 	describe('setSessionTokenCookie', () => {
 		it('should set cookie with correct options', () => {

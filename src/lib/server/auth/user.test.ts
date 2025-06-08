@@ -306,7 +306,9 @@ describe('updateUserEmailAndSetEmailAsVerified', () => {
 
 	it('should handle non-existent user gracefully', () => {
 		// Should not throw, just do nothing
-		expect(() => updateUserEmailAndSetEmailAsVerified('non-existent-id', 'email@test.com')).not.toThrow();
+		expect(() =>
+			updateUserEmailAndSetEmailAsVerified('non-existent-id', 'email@test.com')
+		).not.toThrow();
 	});
 });
 
@@ -426,7 +428,9 @@ describe('updateUserPreferences', () => {
 			bbqNotificationTiming: '1_hour' as const
 		};
 
-		expect(() => updateUserPreferences('non-existent-id', preferences)).toThrow('Failed to update user preferences');
+		expect(() => updateUserPreferences('non-existent-id', preferences)).toThrow(
+			'Failed to update user preferences'
+		);
 	});
 });
 
