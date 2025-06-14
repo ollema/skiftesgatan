@@ -14,9 +14,10 @@
 		now: CalendarDateTime;
 		timeslot: { start: number; end: number; label: string };
 		booking: BookingWithUser | null;
+		mobile?: boolean;
 	}
 
-	let { date, now, timeslot, booking }: Props = $props();
+	let { date, now, timeslot, booking, mobile = false }: Props = $props();
 
 	const startDateTime = $derived(
 		new CalendarDateTime(date.year, date.month, date.day, timeslot.start, 0, 0)
@@ -94,12 +95,17 @@
 </script>
 
 <div
-	class="border-foreground/60 block h-[4px] w-[4px] items-center justify-end border sm:hidden"
+	class={cn(
+		'border-foreground/60 block h-[4px] w-[4px] items-center justify-end border sm:hidden',
+		mobile && '!sm:block !hidden',
+		booking && 'bg-foreground'
+	)}
 ></div>
 
 <button
 	class={cn(
 		'border-foreground/80 hidden h-4 w-12 cursor-pointer items-center justify-center rounded-sm border border-dashed p-0 text-xs hover:border-solid sm:flex',
+		mobile && '!sm:hidden !flex',
 		booking && ' bg-foreground hover:bg-foreground/20',
 		!canInteract && 'cursor-default'
 	)}

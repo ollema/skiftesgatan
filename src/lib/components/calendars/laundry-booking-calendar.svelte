@@ -98,7 +98,13 @@
 			</div>
 			<div class="mt-2 flex gap-2">
 				{#each LAUNDRY_SLOTS as timeslot, i (timeslot)}
-					<LaundryTimeSlot date={value} {now} {timeslot} booking={bookings[value.toString()][i]} />
+					<LaundryTimeSlot
+						date={value}
+						{now}
+						{timeslot}
+						booking={bookings[value.toString()][i]}
+						mobile={true}
+					/>
 				{/each}
 			</div>
 		</div>
