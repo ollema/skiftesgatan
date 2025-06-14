@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import type { BookingType } from '$lib/types/bookings';
+import type { BookingType } from '$lib/constants/bookings';
 
 class DatabaseEventEmitter extends EventEmitter {
 	private debounceTimers: Map<BookingType, NodeJS.Timeout> = new Map();

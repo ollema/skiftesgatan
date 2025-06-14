@@ -1,15 +1,17 @@
-<script lang="ts">
+<script lang="ts" generics="T extends BookingType">
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { route } from '$lib/routes';
-	import type { BookingWithUser } from '$lib/types/bookings';
+	import type { BookingWithUser, BookingType } from '$lib/constants/bookings';
 	import { cn } from '$lib/utils';
 	import { CalendarDateTime, type DateValue } from '@internationalized/date';
 	import { getFlash } from 'sveltekit-flash-message';
+	import { BOOKING_CONFIG } from '$lib/constants/bookings';
 
 	const flash = getFlash(page);
 
 	interface Props {
+		bookingType: T;
 		date: DateValue;
 		now: CalendarDateTime;
 		timeslot: { start: number; end: number; label: string };
@@ -17,7 +19,9 @@
 		mobile?: boolean;
 	}
 
-	let { date, now, timeslot, booking, mobile = false }: Props = $props();
+	let { bookingType, date, now, timeslot, booking, mobile = false }: Props = $props();
+
+	const config = $derived(BOOKING_CONFIG[bookingType]);
 
 	const startDateTime = $derived(
 		new CalendarDateTime(date.year, date.month, date.day, timeslot.start, 0, 0)
@@ -40,20 +44,23 @@
 			});
 			if (!response.ok) {
 				const message = await response.text();
-				console.error(`Kunde inte avboka grill ${timeslot.label}: ${message}`);
+				console.error(`Kunde inte avboka ${config.bookingTerm} ${timeslot.label}: ${message}`);
 
 				$flash = { type: 'error', message: message };
 
-				invalidate('bookings:bbq');
+				invalidate(config.invalidationKey);
+				event.stopPropagation();
 				return;
 			}
 
 			$flash = {
 				type: 'success',
-				message: `Avbokat grill ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
+				message: `Avbokat ${config.bookingTerm} ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
 			};
 
-			invalidate('bookings:bbq');
+			invalidate(config.invalidationKey);
+			event.stopPropagation();
+			return;
 		} else if (bookable) {
 			const response = await fetch(route('POST /api/bookings/create'), {
 				method: 'POST',
@@ -61,7 +68,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					bookingType: 'bbq',
+					bookingType,
 					start: new CalendarDateTime(
 						date.year,
 						date.month,
@@ -75,20 +82,23 @@
 			});
 			if (!response.ok) {
 				const { message } = await response.json();
-				console.error(`Kunde inte boka grill ${timeslot.label}: ${message}`);
+				console.error(`Kunde inte boka ${config.bookingTerm} ${timeslot.label}: ${message}`);
 
 				$flash = { type: 'error', message: message };
 
-				invalidate('bookings:bbq');
+				invalidate(config.invalidationKey);
+				event.stopPropagation();
 				return;
 			}
 
 			$flash = {
 				type: 'success',
-				message: `Bokat grill ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
+				message: `Bokat ${config.bookingTerm} ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
 			};
 
-			invalidate('bookings:bbq');
+			invalidate(config.invalidationKey);
+			event.stopPropagation();
+			return;
 		}
 		event.stopPropagation();
 	}

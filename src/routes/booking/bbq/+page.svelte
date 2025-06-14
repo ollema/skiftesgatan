@@ -1,19 +1,22 @@
 <script lang="ts">
-	import BBQBookingCalendar from '$lib/components/calendars/bbq-booking-calendar.svelte';
+	import BookingCalendar from '$lib/components/calendars/booking-calendar.svelte';
 	import { source } from 'sveltekit-sse';
 	import { invalidate } from '$app/navigation';
+	import { BOOKING_CONFIG } from '$lib/constants/bookings';
 
 	let { data } = $props();
 
+	const bookingType = 'bbq' as const;
+	const config = BOOKING_CONFIG[bookingType];
 	const now = $derived(data.now);
 	const bookings = $derived(data.bookings);
 	const userBooking = $derived(data.userBooking);
 
-	const connection = source('/api/sse/bookings/bbq').select('bbq-bookings-updated');
+	const connection = source(config.sseEndpoint).select(config.sseEventName);
 
 	connection.subscribe((event) => {
 		if (event) {
-			invalidate('bookings:bbq');
+			invalidate(config.invalidationKey);
 		}
 	});
 </script>
@@ -24,4 +27,4 @@
 
 Senast uppdaterad: {now.toLocaleString()}
 
-<BBQBookingCalendar {now} {bookings} {userBooking} />
+<BookingCalendar {bookingType} {now} {bookings} {userBooking} />

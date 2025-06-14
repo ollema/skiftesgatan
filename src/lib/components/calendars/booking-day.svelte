@@ -1,21 +1,23 @@
-<script lang="ts">
+<script lang="ts" generics="T extends BookingType">
 	import type { CalendarDateTime, DateValue } from '@internationalized/date';
 	import { cn } from '$lib/utils';
 	import { isToday as isDateToday } from '@internationalized/date';
-	import BBQTimeSlot from '$lib/components/calendars/bbq-time-slot.svelte';
-	import type { BookingWithUser } from '$lib/types/bookings';
-	import { BBQ_SLOT } from '$lib/constants/bookings';
+	import BookingTimeSlot from '$lib/components/calendars/booking-time-slot.svelte';
+	import type { BookingType, BookingsForDate } from '$lib/constants/bookings';
+	import { BOOKING_CONFIG } from '$lib/constants/bookings';
 
 	interface Props {
+		bookingType: T;
 		date: DateValue;
 		now: CalendarDateTime;
 		disabled: boolean;
 		selected: boolean;
-		booking: BookingWithUser | null;
+		bookings: BookingsForDate<T>;
 	}
 
-	let { date, now, disabled, selected, booking }: Props = $props();
+	let { bookingType, date, now, disabled, selected, bookings }: Props = $props();
 
+	const config = $derived(BOOKING_CONFIG[bookingType]);
 	const isToday = $derived(isDateToday(date, 'Europe/Stockholm'));
 </script>
 
@@ -41,7 +43,9 @@
 	{#if !disabled}
 		<div>
 			<div class="flex flex-col justify-center gap-[1px] sm:gap-[3px]">
-				<BBQTimeSlot {date} {now} timeslot={BBQ_SLOT} {booking} />
+				{#each config.slots as timeslot, i (timeslot)}
+					<BookingTimeSlot {bookingType} {date} {now} {timeslot} booking={bookings[i]} />
+				{/each}
 			</div>
 		</div>
 	{/if}

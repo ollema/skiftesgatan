@@ -1,7 +1,7 @@
 import { and, eq, gt, gte, lt } from 'drizzle-orm';
 import { parseDateTime } from '@internationalized/date';
 import type { CalendarDateTime } from '@internationalized/date';
-import type { Booking, BookingGrid, BookingType, BookingWithUser } from '$lib/types/bookings';
+import type { Booking, BookingGrid, BookingType, BookingWithUser } from '$lib/constants/bookings';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateId } from '$lib/server/auth/utils';

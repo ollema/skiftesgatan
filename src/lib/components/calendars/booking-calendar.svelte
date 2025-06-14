@@ -1,22 +1,29 @@
-<script lang="ts">
+<script lang="ts" generics="T extends BookingType">
 	import { Calendar } from 'bits-ui';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import BBQDay from '$lib/components/calendars/bbq-day.svelte';
+	import BookingDay from '$lib/components/calendars/booking-day.svelte';
 	import { CalendarDateTime, toCalendarDate } from '@internationalized/date';
-	import type { BookingWithUser, BBQBookingGrid } from '$lib/types/bookings';
-	import { BBQ_SLOT } from '$lib/constants/bookings';
-	import BBQTimeSlot from './bbq-time-slot.svelte';
+	import type {
+		BookingWithUser,
+		BookingGrid,
+		BookingType,
+		BookingsForDate
+	} from '$lib/constants/bookings';
+	import { BOOKING_CONFIG } from '$lib/constants/bookings';
+	import BookingTimeSlot from './booking-time-slot.svelte';
 
 	interface Props {
+		bookingType: T;
 		now: CalendarDateTime;
-		bookings: BBQBookingGrid;
+		bookings: BookingGrid<T>;
 		userBooking: BookingWithUser | null;
 	}
 
-	let { now, bookings, userBooking }: Props = $props();
+	let { bookingType, now, bookings, userBooking }: Props = $props();
 
+	const config = $derived(BOOKING_CONFIG[bookingType]);
 	let value = $state(toCalendarDate(now));
 
 	function userBookingToString(booking: BookingWithUser | null): string {
@@ -25,6 +32,18 @@
 		const startHour = booking.start.hour.toString().padStart(2, '0');
 		const endHour = booking.end.hour.toString().padStart(2, '0');
 		return `${date} ${startHour}:00-${endHour}:00`;
+	}
+
+	function getBookingsForDate(dateString: string): BookingsForDate<T> {
+		const dateBookings = bookings[dateString];
+		if (!dateBookings) {
+			if (bookingType === 'laundry') {
+				return [null, null, null, null] as BookingsForDate<T>;
+			} else {
+				return [null] as BookingsForDate<T>;
+			}
+		}
+		return dateBookings as BookingsForDate<T>;
 	}
 </script>
 
@@ -39,7 +58,7 @@
 	locale="sv-SE"
 	initialFocus={true}
 	preventDeselect={true}
-	calendarLabel="Grillbokningar"
+	calendarLabel={config.calendarLabel}
 	bind:value
 >
 	{#snippet children({ months, weekdays })}
@@ -71,12 +90,13 @@
 								<Calendar.Cell {date} month={month.value} class="border">
 									<Calendar.Day class="group">
 										{#snippet children({ disabled, selected })}
-											<BBQDay
+											<BookingDay
+												{bookingType}
 												{date}
 												{now}
 												{disabled}
 												{selected}
-												booking={bookings[date.toString()]?.[0] || null}
+												bookings={getBookingsForDate(date.toString())}
 											/>
 										{/snippet}
 									</Calendar.Day>
@@ -97,13 +117,16 @@
 				{value}
 			</div>
 			<div class="mt-2 flex gap-2">
-				<BBQTimeSlot
-					date={value}
-					{now}
-					timeslot={BBQ_SLOT}
-					booking={bookings[value.toString()]?.[0] || null}
-					mobile={true}
-				/>
+				{#each config.slots as timeslot, i (timeslot)}
+					<BookingTimeSlot
+						{bookingType}
+						date={value}
+						{now}
+						{timeslot}
+						booking={getBookingsForDate(value.toString())[i]}
+						mobile={true}
+					/>
+				{/each}
 			</div>
 		</div>
 	{/if}
