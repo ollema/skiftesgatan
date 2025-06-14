@@ -3,12 +3,13 @@ import {
 	cancelBooking,
 	createBooking,
 	getBookingById,
-	getBookingsPerMonth,
+	getBookings,
 	getBookingsPerUser,
 	getFutureBookingsPerUser
 } from './bookings';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { now } from '$lib/datetime';
 
 const testUser1 = {
 	id: 'user1' as const,
@@ -58,16 +59,6 @@ afterEach(() => {
 	vi.useRealTimers();
 });
 
-function formatToISOString(date: Date): string {
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-	const hours = String(date.getHours()).padStart(2, '0');
-	const minutes = String(date.getMinutes()).padStart(2, '0');
-	const seconds = String(date.getSeconds()).padStart(2, '0');
-	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-}
-
 function insertTestBooking(
 	userId: string,
 	bookingType: 'laundry' | 'bbq',
@@ -83,7 +74,7 @@ function insertTestBooking(
 			bookingType,
 			start: startTime,
 			end: endTime,
-			createdAt: formatToISOString(new Date())
+			createdAt: now()
 		})
 		.run();
 
@@ -200,8 +191,8 @@ describe('booking type independence', () => {
 		createBooking(testUser1.id, 'laundry', laundryStart, laundryEnd);
 		createBooking(testUser2.id, 'bbq', bbqStart, bbqEnd);
 
-		const laundryBookings = getBookingsPerMonth('laundry', 2024, 6);
-		const bbqBookings = getBookingsPerMonth('bbq', 2024, 6);
+		const laundryBookings = getBookings('laundry', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
+		const bbqBookings = getBookings('bbq', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
 
 		expect(laundryBookings).toHaveLength(1);
 		expect(bbqBookings).toHaveLength(1);
@@ -223,7 +214,7 @@ describe('consecutive bookings', () => {
 		createBooking(testUser1.id, 'laundry', slot1Start, slot1End);
 		createBooking(testUser2.id, 'laundry', slot2Start, slot2End);
 
-		const bookings = getBookingsPerMonth('laundry', 2024, 6);
+		const bookings = getBookings('laundry', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
 		expect(bookings).toHaveLength(2);
 
 		const booking1 = bookings.find((b) => b.userId === testUser1.id);
@@ -249,7 +240,7 @@ describe('consecutive bookings', () => {
 		createBooking(testUser1.id, 'laundry', slot3Start, slot3End);
 		createBooking(testUser2.id, 'laundry', slot4Start, slot4End);
 
-		const bookings = getBookingsPerMonth('laundry', 2024, 6);
+		const bookings = getBookings('laundry', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
 		expect(bookings).toHaveLength(2);
 
 		// verify they're in chronological order
@@ -285,7 +276,7 @@ describe('consecutive bookings', () => {
 		createBooking(testUser3.id, 'laundry', slot3.start, slot3.end);
 		createBooking(testUser4.id, 'laundry', slot4.start, slot4.end);
 
-		const bookings = getBookingsPerMonth('laundry', 2024, 6);
+		const bookings = getBookings('laundry', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
 		expect(bookings).toHaveLength(4);
 
 		// verify all users got their slots and they're consecutive
@@ -312,7 +303,7 @@ describe('consecutive bookings', () => {
 		createBooking(testUser1.id, 'laundry', earlyStart, earlyEnd);
 		createBooking(testUser2.id, 'laundry', lateStart, lateEnd);
 
-		const bookings = getBookingsPerMonth('laundry', 2024, 6);
+		const bookings = getBookings('laundry', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
 		expect(bookings).toHaveLength(2);
 
 		// verify 4-hour gap between bookings (11:00 to 15:00)
@@ -360,13 +351,13 @@ describe('query functions', () => {
 		const bbqEnd = '2024-06-15T20:00:00';
 		insertTestBooking(testUser1.id, 'bbq', bbqStart, bbqEnd);
 
-		const bookings = getBookingsPerMonth('laundry', 2024, 6);
+		const bookings = getBookings('laundry', '2024-06-01T00:00:00', '2024-07-01T00:00:00');
 		expect(bookings).toHaveLength(2);
 		expect(bookings.every((b) => b.bookingType === 'laundry')).toBe(true);
 	});
 
 	it('should return empty array for month with no bookings', () => {
-		const bookings = getBookingsPerMonth('laundry', 2024, 12);
+		const bookings = getBookings('laundry', '2024-12-01T00:00:00', '2025-01-01T00:00:00');
 		expect(bookings).toHaveLength(0);
 	});
 
