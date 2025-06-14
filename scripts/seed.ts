@@ -1,22 +1,9 @@
 #!/usr/bin/env tsx
 
-/**
- * Standalone database seeding script for local development
- *
- * Creates test users and bookings for the current month.
- * Does not import any application code - works directly with the database schema.
- *
- * Usage:
- *   npm run seed
- *   or
- *   npx tsx scripts/seed.ts
- */
-
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-// Get database URL from environment or use default
 const DATABASE_URL = process.env.DATABASE_URL || './local.db';
 
 console.log('🌱 Starting database seed...');
@@ -25,7 +12,6 @@ console.log(`📁 Database: ${DATABASE_URL}`);
 const client = new Database(DATABASE_URL);
 const db = drizzle(client);
 
-// Define schema (duplicate of the real schema but standalone)
 const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
 	apartment: text('apartment').notNull().unique(),
@@ -69,9 +55,9 @@ const booking = sqliteTable('booking', {
 		.notNull()
 		.references(() => user.id),
 	bookingType: text('booking_type', { enum: ['laundry', 'bbq'] }).notNull(),
-	startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
-	endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
-	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
+	start: text('start').notNull(),
+	end: text('end').notNull(),
+	createdAt: text('created_at').notNull()
 });
 
 const userPreferences = sqliteTable('user_preferences', {
@@ -96,7 +82,6 @@ const userPreferences = sqliteTable('user_preferences', {
 		.default('1_week')
 });
 
-// Utility functions (standalone, not imported)
 function generateRandomId(length = 15): string {
 	const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 	let result = '';
@@ -106,10 +91,18 @@ function generateRandomId(length = 15): string {
 	return result;
 }
 
-// Placeholder password hash since we won't be logging in with these accounts
+function formatToISOString(date: Date): string {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+	const seconds = String(date.getSeconds()).padStart(2, '0');
+	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
 const PLACEHOLDER_PASSWORD_HASH = 'placeholder_hash_not_for_login';
 
-// Test users data (just for apartment and email - not for login)
 const testUsers = [
 	{ apartment: 'A1101', email: 'user1@example.com' },
 	{ apartment: 'A1102', email: 'user2@example.com' },
@@ -119,7 +112,6 @@ const testUsers = [
 	{ apartment: 'D1401', email: 'user6@example.com' }
 ];
 
-// Laundry time slots (hardcoded from the app)
 const LAUNDRY_SLOTS = [
 	{ start: 7, end: 11, label: '07:00-11:00' },
 	{ start: 11, end: 15, label: '11:00-15:00' },
@@ -151,7 +143,6 @@ function createTestUsers() {
 			passwordHash: PLACEHOLDER_PASSWORD_HASH
 		};
 
-		// Insert user
 		db.insert(user).values(userRecord).run();
 		users.push(userRecord);
 
@@ -186,18 +177,15 @@ function createTestBookings(users: any[]) {
 	const currentYear = now.getFullYear();
 	const currentMonth = now.getMonth() + 1;
 
-	// Get number of days in current month
 	const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
 
 	let bookingCount = 0;
 
-	// Create some laundry bookings
 	for (let day = 1; day <= Math.min(daysInMonth, 15); day += 3) {
 		const userIndex = (day - 1) % users.length;
 		const slotIndex = Math.floor(Math.random() * LAUNDRY_SLOTS.length);
 		const slot = LAUNDRY_SLOTS[slotIndex];
 
-		// Create start and end times
 		const startTime = new Date(currentYear, currentMonth - 1, day, slot.start, 0, 0, 0);
 		const endTime = new Date(currentYear, currentMonth - 1, day, slot.end, 0, 0, 0);
 
@@ -205,9 +193,9 @@ function createTestBookings(users: any[]) {
 			id: generateRandomId(),
 			userId: users[userIndex].id,
 			bookingType: 'laundry' as const,
-			startTime: startTime,
-			endTime: endTime,
-			createdAt: new Date()
+			start: formatToISOString(startTime),
+			end: formatToISOString(endTime),
+			createdAt: formatToISOString(new Date())
 		};
 
 		db.insert(booking).values(bookingRecord).run();
@@ -218,7 +206,6 @@ function createTestBookings(users: any[]) {
 		);
 	}
 
-	// Create some BBQ bookings
 	for (let day = 2; day <= Math.min(daysInMonth, 10); day += 4) {
 		const userIndex = (day + 1) % users.length;
 
@@ -229,9 +216,9 @@ function createTestBookings(users: any[]) {
 			id: generateRandomId(),
 			userId: users[userIndex].id,
 			bookingType: 'bbq' as const,
-			startTime: startTime,
-			endTime: endTime,
-			createdAt: new Date()
+			start: formatToISOString(startTime),
+			end: formatToISOString(endTime),
+			createdAt: formatToISOString(new Date())
 		};
 
 		db.insert(booking).values(bookingRecord).run();
@@ -242,7 +229,6 @@ function createTestBookings(users: any[]) {
 		);
 	}
 
-	// Create a future booking for tomorrow (if within current month)
 	const tomorrow = new Date();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -270,9 +256,9 @@ function createTestBookings(users: any[]) {
 			id: generateRandomId(),
 			userId: users[0].id,
 			bookingType: 'laundry' as const,
-			startTime: startTime,
-			endTime: endTime,
-			createdAt: new Date()
+			start: formatToISOString(startTime),
+			end: formatToISOString(endTime),
+			createdAt: formatToISOString(new Date())
 		};
 
 		db.insert(booking).values(bookingRecord).run();
@@ -288,7 +274,6 @@ function createTestBookings(users: any[]) {
 
 function seed() {
 	try {
-		// Clear existing data (optional - comment out if you want to keep existing data)
 		console.log('🧹 Clearing existing test data...');
 		db.delete(booking).run();
 		db.delete(userPreferences).run();
@@ -297,7 +282,6 @@ function seed() {
 		db.delete(passwordResetSession).run();
 		db.delete(user).run();
 
-		// Create test data
 		const users = createTestUsers();
 		createUserPreferences(users);
 		createTestBookings(users);
@@ -320,5 +304,4 @@ function seed() {
 	}
 }
 
-// Run the seed function
 seed();

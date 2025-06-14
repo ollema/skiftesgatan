@@ -43,9 +43,9 @@ export const booking = sqliteTable('booking', {
 		.notNull()
 		.references(() => user.id),
 	bookingType: text('booking_type', { enum: ['laundry', 'bbq'] }).notNull(),
-	startTime: integer('start_time', { mode: 'timestamp' }).notNull(),
-	endTime: integer('end_time', { mode: 'timestamp' }).notNull(),
-	createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(new Date())
+	start: text('start').notNull(),
+	end: text('end').notNull(),
+	createdAt: text('created_at').notNull()
 });
 
 export const userPreferences = sqliteTable('user_preferences', {

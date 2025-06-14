@@ -1,19 +1,16 @@
 import { and, eq, gt, gte, lt } from 'drizzle-orm';
-import { CalendarDateTime } from '@internationalized/date';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateId } from '$lib/server/auth/utils';
-
-export const timezone = 'Europe/Stockholm' as const;
 
 export type Booking = typeof table.booking.$inferSelect;
 export type BookingWithUser = {
 	id: string;
 	userId: string;
 	bookingType: BookingType;
-	startTime: Date;
-	endTime: Date;
-	createdAt: Date;
+	start: string;
+	end: string;
+	createdAt: string;
 	apartment: string;
 };
 export type BookingType = 'laundry' | 'bbq';
@@ -33,11 +30,11 @@ export const BBQ_SLOT = { start: 8, end: 20, label: '08:00-20:00' } as const;
 export function createBooking(
 	userId: string,
 	bookingType: BookingType,
-	startTime: CalendarDateTime,
-	endTime: CalendarDateTime
+	start: string,
+	end: string
 ): Booking {
-	const startDate = startTime.toDate(timezone);
-	const endDate = endTime.toDate(timezone);
+	const startDate = new Date(start);
+	const endDate = new Date(end);
 	const now = new Date();
 
 	if (startDate >= endDate) {
@@ -48,7 +45,7 @@ export function createBooking(
 		throw new Error('Bokningar kan endast göras för framtida tidpunkter');
 	}
 
-	const conflictingBooking = getBookingInTimeSlot(bookingType, startDate, endDate);
+	const conflictingBooking = getBookingInTimeSlot(bookingType, start, end);
 	if (conflictingBooking && conflictingBooking.userId !== userId) {
 		throw new Error('Den valda tiden är redan bokad');
 	}
@@ -67,9 +64,9 @@ export function createBooking(
 			id: bookingId,
 			userId,
 			bookingType,
-			startTime: startDate,
-			endTime: endDate,
-			createdAt: now
+			start,
+			end,
+			createdAt: formatToISOString(now)
 		})
 		.returning()
 		.all();
@@ -85,16 +82,16 @@ export function getBookingsPerMonth(
 	year: number,
 	month: number
 ): Array<BookingWithUser> {
-	const startOfMonth = new CalendarDateTime(year, month, 1, 0, 0, 0, 0);
-	const endOfMonth = startOfMonth.add({ months: 1 });
+	const startOfMonth = formatToISOString(new Date(year, month - 1, 1));
+	const endOfMonth = formatToISOString(new Date(year, month, 1));
 
-	return db
+	const bookings = db
 		.select({
 			id: table.booking.id,
 			userId: table.booking.userId,
 			bookingType: table.booking.bookingType,
-			startTime: table.booking.startTime,
-			endTime: table.booking.endTime,
+			start: table.booking.start,
+			end: table.booking.end,
 			createdAt: table.booking.createdAt,
 			apartment: table.user.apartment
 		})
@@ -103,12 +100,14 @@ export function getBookingsPerMonth(
 		.where(
 			and(
 				eq(table.booking.bookingType, bookingType),
-				gte(table.booking.startTime, startOfMonth.toDate(timezone)),
-				lt(table.booking.startTime, endOfMonth.toDate(timezone))
+				gte(table.booking.start, startOfMonth),
+				lt(table.booking.start, endOfMonth)
 			)
 		)
-		.orderBy(table.booking.startTime)
+		.orderBy(table.booking.start)
 		.all();
+
+	return bookings;
 }
 
 /**
@@ -119,36 +118,38 @@ export function getBookingsPerUser(
 	bookingType: BookingType,
 	limit: number
 ): Array<BookingWithUser> {
-	return db
+	const bookings = db
 		.select({
 			id: table.booking.id,
 			userId: table.booking.userId,
 			bookingType: table.booking.bookingType,
-			startTime: table.booking.startTime,
-			endTime: table.booking.endTime,
+			start: table.booking.start,
+			end: table.booking.end,
 			createdAt: table.booking.createdAt,
 			apartment: table.user.apartment
 		})
 		.from(table.booking)
 		.innerJoin(table.user, eq(table.booking.userId, table.user.id))
 		.where(and(eq(table.booking.userId, userId), eq(table.booking.bookingType, bookingType)))
-		.orderBy(table.booking.startTime)
+		.orderBy(table.booking.start)
 		.limit(limit)
 		.all();
+
+	return bookings;
 }
 
 export function getFutureBookingsPerUser(
 	userId: string,
 	bookingType: BookingType
 ): Array<BookingWithUser> | null {
-	const now = new Date();
+	const now = formatToISOString(new Date());
 	const bookings = db
 		.select({
 			id: table.booking.id,
 			userId: table.booking.userId,
 			bookingType: table.booking.bookingType,
-			startTime: table.booking.startTime,
-			endTime: table.booking.endTime,
+			start: table.booking.start,
+			end: table.booking.end,
 			createdAt: table.booking.createdAt,
 			apartment: table.user.apartment
 		})
@@ -158,13 +159,17 @@ export function getFutureBookingsPerUser(
 			and(
 				eq(table.booking.userId, userId),
 				eq(table.booking.bookingType, bookingType),
-				gte(table.booking.startTime, now)
+				gte(table.booking.start, now)
 			)
 		)
 		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-	return bookings || null;
+	if (bookings) {
+		return bookings;
+	}
+
+	return null;
 }
 
 /**
@@ -189,8 +194,8 @@ export function cancelBooking(bookingId: string): boolean {
  */
 function getBookingInTimeSlot(
 	bookingType: BookingType,
-	startTime: Date,
-	endTime: Date
+	start: string,
+	end: string
 ): Booking | null {
 	const booking = db
 		.select()
@@ -198,11 +203,24 @@ function getBookingInTimeSlot(
 		.where(
 			and(
 				eq(table.booking.bookingType, bookingType),
-				lt(table.booking.startTime, endTime),
-				gt(table.booking.endTime, startTime)
+				lt(table.booking.start, end),
+				gt(table.booking.end, start)
 			)
 		)
 		.get();
 
 	return booking || null;
+}
+
+/**
+ *  Format date to ISO string
+ */
+function formatToISOString(date: Date): string {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+	const seconds = String(date.getSeconds()).padStart(2, '0');
+	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
