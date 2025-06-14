@@ -3,18 +3,18 @@ import { events } from '$lib/server/db/events';
 
 export function POST() {
 	return produce(function start({ emit }) {
-		const handleBookingsUpdated = () => {
-			const { error } = emit('bookings-updated', `${Date.now()}`);
+		const handleBbqBookingsUpdated = () => {
+			const { error } = emit('bbq-bookings-updated', `${Date.now()}`);
 			if (error) {
 				console.error('SSE emit error:', error);
 				return;
 			}
 		};
 
-		events.on('bookings-updated', handleBookingsUpdated);
+		events.on('bbq-bookings-updated', handleBbqBookingsUpdated);
 
 		return function stop() {
-			events.off('bookings-updated', handleBookingsUpdated);
+			events.off('bbq-bookings-updated', handleBbqBookingsUpdated);
 		};
 	});
 }

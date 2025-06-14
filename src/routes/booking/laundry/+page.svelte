@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { invalidate } from '$app/navigation';
 	import LaundryBookingCalendar from '$lib/components/calendars/laundry-booking-calendar.svelte';
 	import { source } from 'sveltekit-sse';
+	import { invalidate } from '$app/navigation';
 
 	let { data } = $props();
 
@@ -9,7 +9,7 @@
 	const bookings = $derived(data.bookings);
 	const userBooking = $derived(data.userBooking);
 
-	const connection = source('/api/sse/bookings').select('bookings-updated');
+	const connection = source('/api/sse/bookings/laundry').select('laundry-bookings-updated');
 
 	connection.subscribe((event) => {
 		if (event) {

@@ -58,7 +58,7 @@ export function createBooking(
 		apartment: '' // Will be filled by caller if needed
 	});
 
-	events.emitBookingsUpdated();
+	events.emitBookingsUpdated(bookingType);
 
 	return bookingWithUser;
 }
@@ -270,11 +270,17 @@ function getBookingInTimeSlot(
  * Cancel a booking
  */
 export function cancelBooking(bookingId: string): boolean {
+	const booking = db.select().from(table.booking).where(eq(table.booking.id, bookingId)).get();
+
+	if (!booking) {
+		return false;
+	}
+
 	const result = db.delete(table.booking).where(eq(table.booking.id, bookingId)).run();
 	const success = result.changes > 0;
 
 	if (success) {
-		events.emitBookingsUpdated();
+		events.emitBookingsUpdated(booking.bookingType);
 	}
 
 	return success;

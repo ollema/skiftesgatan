@@ -1,17 +1,21 @@
 import { EventEmitter } from 'node:events';
+import type { BookingType } from '$lib/types/bookings';
 
 class DatabaseEventEmitter extends EventEmitter {
-	private debounceTimer: NodeJS.Timeout | null = null;
+	private debounceTimers: Map<BookingType, NodeJS.Timeout> = new Map();
 
-	emitBookingsUpdated() {
-		if (this.debounceTimer) {
-			clearTimeout(this.debounceTimer);
+	emitBookingsUpdated(bookingType: BookingType) {
+		const existingTimer = this.debounceTimers.get(bookingType);
+		if (existingTimer) {
+			clearTimeout(existingTimer);
 		}
 
-		this.debounceTimer = setTimeout(() => {
-			this.emit('bookings-updated');
-			this.debounceTimer = null;
+		const timer = setTimeout(() => {
+			this.emit(`${bookingType}-bookings-updated`);
+			this.debounceTimers.delete(bookingType);
 		}, 100);
+
+		this.debounceTimers.set(bookingType, timer);
 	}
 }
 
