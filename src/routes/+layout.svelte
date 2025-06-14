@@ -32,7 +32,7 @@
 	let { children } = $props();
 </script>
 
-<Toaster />
+<Toaster position="top-center" />
 
 <ModeWatcher defaultMode="light" />
 

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { dateToString, now } from './datetime';
+import { dateToString, now } from '$lib/datetime';
 
 describe('datetime utilities', () => {
 	describe('now', () => {

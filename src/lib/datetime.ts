@@ -16,4 +16,3 @@ export function dateToString(date: Date): string {
 	const zonedDateTime = toCalendarDateTime(parseAbsolute(date.toISOString(), timezone));
 	return zonedDateTime.toString().split('.')[0];
 }
-

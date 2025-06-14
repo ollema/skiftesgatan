@@ -1,13 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { CalendarDateTime } from '@internationalized/date';
-import {
-	LAUNDRY_SLOTS,
-	cancelBooking,
-	createBooking,
-	getBookingById,
-	getBookingsPerMonth,
-	timezone
-} from '$lib/server/bookings';
+import { CalendarDateTime, parseDate, parseDateTime } from '@internationalized/date';
+import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
+import { cancelBooking, createBooking, getBookingById, getBookings } from '$lib/server/bookings';
+import { now } from '$lib/datetime';
 import { route } from '$lib/routes';
 
 export const load = (event) => {
@@ -15,18 +10,17 @@ export const load = (event) => {
 		redirect(302, route('/auth/sign-in'));
 	}
 
-	const now = new Date();
-	const currentYear = now.getFullYear();
-	const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+	const today = parseDateTime(now());
 
-	const bookings = getBookingsPerMonth('laundry', currentYear, currentMonth);
+	const startDate = today.subtract({ days: 1 });
+	const endDate = today.add({ months: 1, days: 1 });
+
+	const bookings = getBookings('laundry', startDate, endDate);
 
 	return {
 		user: event.locals.user,
-		bookings,
-		currentYear,
-		currentMonth,
-		laundrySlots: LAUNDRY_SLOTS
+		today: parseDate(today.toString().split('T')[0]),
+		bookings
 	};
 };
 
@@ -92,19 +86,8 @@ export const actions = {
 
 		const slot = LAUNDRY_SLOTS[slotIndex];
 
-		const startTime = new CalendarDateTime(year, month, day, slot.start, 0, 0, 0);
-		const endTime = new CalendarDateTime(year, month, day, slot.end, 0, 0, 0);
-
-		const now = new Date();
-		const startDate = startTime.toDate(timezone);
-
-		if (startDate <= now) {
-			return fail(400, {
-				create: {
-					message: 'Bokningar kan endast göras för framtida tidpunkter'
-				}
-			});
-		}
+		const startTime = new CalendarDateTime(year, month, day, slot.start, 0, 0);
+		const endTime = new CalendarDateTime(year, month, day, slot.end, 0, 0);
 
 		try {
 			const booking = createBooking(event.locals.user.id, 'laundry', startTime, endTime);

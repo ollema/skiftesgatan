@@ -1,12 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { CalendarDateTime } from '@internationalized/date';
+import { BBQ_SLOT } from '$lib/constants/bookings';
 import {
-	BBQ_SLOT,
 	cancelBooking,
 	createBooking,
-	getBookingById,
-	getBookingsPerMonth,
-	timezone
+	getBookingById
+	// getBookings
 } from '$lib/server/bookings';
 import { route } from '$lib/routes';
 
@@ -19,11 +18,15 @@ export const load = (event) => {
 	const currentYear = now.getFullYear();
 	const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
 
-	const bookings = getBookingsPerMonth('bbq', currentYear, currentMonth);
+	// const bookings = getBookings(
+	// 	'bbq',
+	// 	monthStart(currentYear, currentMonth),
+	// 	nextMonthStart(currentYear, currentMonth)
+	// );
 
 	return {
 		user: event.locals.user,
-		bookings,
+		// bookings,
 		currentYear,
 		currentMonth,
 		bbqSlot: BBQ_SLOT
@@ -80,19 +83,8 @@ export const actions = {
 			});
 		}
 
-		const startTime = new CalendarDateTime(year, month, day, BBQ_SLOT.start, 0, 0, 0);
-		const endTime = new CalendarDateTime(year, month, day, BBQ_SLOT.end, 0, 0, 0);
-
-		const now = new Date();
-		const startDate = startTime.toDate(timezone);
-
-		if (startDate <= now) {
-			return fail(400, {
-				create: {
-					message: 'Bokningar kan endast göras för framtida tidpunkter'
-				}
-			});
-		}
+		const startTime = new CalendarDateTime(year, month, day, BBQ_SLOT.start, 0, 0);
+		const endTime = new CalendarDateTime(year, month, day, BBQ_SLOT.end, 0, 0);
 
 		try {
 			const booking = createBooking(event.locals.user.id, 'bbq', startTime, endTime);

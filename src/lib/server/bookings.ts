@@ -1,11 +1,15 @@
 import { and, eq, gt, gte, lt } from 'drizzle-orm';
+import { parseDateTime } from '@internationalized/date';
+import type { CalendarDateTime } from '@internationalized/date';
+import type { Booking, BookingGrid, BookingType, BookingWithUser } from '$lib/types/bookings';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateId } from '$lib/server/auth/utils';
 import { now } from '$lib/datetime';
+import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
 
-export type Booking = typeof table.booking.$inferSelect;
-export type BookingWithUser = {
+// Helper function to convert database booking to API booking
+function dbBookingToApiBooking(dbBooking: {
 	id: string;
 	userId: string;
 	bookingType: BookingType;
@@ -13,18 +17,26 @@ export type BookingWithUser = {
 	end: string;
 	createdAt: string;
 	apartment: string;
-};
-export type BookingType = 'laundry' | 'bbq';
+}): BookingWithUser {
+	return {
+		id: dbBooking.id,
+		userId: dbBooking.userId,
+		bookingType: dbBooking.bookingType,
+		start: parseDateTime(dbBooking.start),
+		end: parseDateTime(dbBooking.end),
+		createdAt: parseDateTime(dbBooking.createdAt),
+		apartment: dbBooking.apartment
+	};
+}
 
-export const LAUNDRY_SLOTS = [
-	{ start: 7, end: 11, label: '07:00-11:00' },
-	{ start: 11, end: 15, label: '11:00-15:00' },
-	{ start: 15, end: 19, label: '15:00-19:00' },
-	{ start: 19, end: 22, label: '19:00-22:00' }
-] as const;
-
-export const BBQ_SLOT = { start: 8, end: 20, label: '08:00-20:00' } as const;
-
+// Helper function to get slot index for a booking
+function getSlotIndex(bookingType: BookingType, start: CalendarDateTime): number {
+	if (bookingType === 'laundry') {
+		return LAUNDRY_SLOTS.findIndex((slot) => slot.start === start.hour);
+	} else {
+		return 0; // BBQ only has one slot
+	}
+}
 
 /**
  * Create booking - cancels any existing future bookings and creates new one
@@ -32,15 +44,15 @@ export const BBQ_SLOT = { start: 8, end: 20, label: '08:00-20:00' } as const;
 export function createBooking(
 	userId: string,
 	bookingType: BookingType,
-	start: string,
-	end: string
-): Booking {
-	if (start >= end) {
+	start: CalendarDateTime,
+	end: CalendarDateTime
+): BookingWithUser {
+	if (start.compare(end) >= 0) {
 		throw new Error('Start time must be before end time');
 	}
 
-	const nowStr = now();
-	if (start <= nowStr) {
+	const nowDateTime = parseDateTime(now());
+	if (start.compare(nowDateTime) <= 0) {
 		throw new Error('Bokningar kan endast göras för framtida tidpunkter');
 	}
 
@@ -63,25 +75,31 @@ export function createBooking(
 			id: bookingId,
 			userId,
 			bookingType,
-			start,
-			end,
+			start: start.toString(),
+			end: end.toString(),
 			createdAt: now()
 		})
 		.returning()
 		.all();
 
-	return booking[0];
+	return dbBookingToApiBooking({
+		...booking[0],
+		apartment: '' // Will be filled by caller if needed
+	});
 }
 
 /**
- * Get all bookings for a specific type within a date range
+ * Get all bookings for a specific type within a date range as a grid
  */
-export function getBookings(
-	bookingType: BookingType,
-	start: string,
-	end: string
-): Array<BookingWithUser> {
-	const bookings = db
+export function getBookings<T extends BookingType>(
+	bookingType: T,
+	startDate: CalendarDateTime,
+	endDate: CalendarDateTime
+): BookingGrid<T> {
+	const start = startDate.toString().split('.')[0];
+	const end = endDate.toString().split('.')[0];
+
+	const rawBookings = db
 		.select({
 			id: table.booking.id,
 			userId: table.booking.userId,
@@ -103,7 +121,77 @@ export function getBookings(
 		.orderBy(table.booking.start)
 		.all();
 
-	return bookings;
+	const bookings = rawBookings.map(dbBookingToApiBooking);
+
+	// Create grid structure
+	const grid: Record<string, Array<BookingWithUser | null>> = {};
+
+	// Initialize all days in range
+	let currentDate = startDate;
+	while (currentDate.compare(endDate) < 0) {
+		const dayKey = `${currentDate.year}-${currentDate.month.toString().padStart(2, '0')}-${currentDate.day.toString().padStart(2, '0')}`;
+
+		if (bookingType === 'laundry') {
+			grid[dayKey] = [null, null, null, null] as [
+				BookingWithUser | null,
+				BookingWithUser | null,
+				BookingWithUser | null,
+				BookingWithUser | null
+			];
+		} else {
+			grid[dayKey] = [null] as [BookingWithUser | null];
+		}
+
+		currentDate = currentDate.add({ days: 1 });
+	}
+
+	// Place bookings in their slots
+	bookings.forEach((booking) => {
+		const dayKey = `${booking.start.year}-${booking.start.month.toString().padStart(2, '0')}-${booking.start.day.toString().padStart(2, '0')}`;
+		const slotIndex = getSlotIndex(bookingType, booking.start);
+
+		if (slotIndex !== -1) {
+			grid[dayKey][slotIndex] = booking;
+		}
+	});
+
+	return grid as BookingGrid<T>;
+}
+
+/**
+ * Get bookings as an array for a specific type within a date range
+ */
+export function getBookingsArray(
+	bookingType: BookingType,
+	startDate: CalendarDateTime,
+	endDate: CalendarDateTime
+): Array<BookingWithUser> {
+	const start = startDate.toString().split('.')[0];
+	const end = endDate.toString().split('.')[0];
+
+	const rawBookings = db
+		.select({
+			id: table.booking.id,
+			userId: table.booking.userId,
+			bookingType: table.booking.bookingType,
+			start: table.booking.start,
+			end: table.booking.end,
+			createdAt: table.booking.createdAt,
+			apartment: table.user.apartment
+		})
+		.from(table.booking)
+		.innerJoin(table.user, eq(table.booking.userId, table.user.id))
+		.where(
+			and(
+				eq(table.booking.bookingType, bookingType),
+				gte(table.booking.start, start),
+				lt(table.booking.start, end)
+			)
+		)
+		.orderBy(table.booking.start)
+		.all();
+
+	return rawBookings.map(dbBookingToApiBooking);
 }
 
 /**
@@ -114,7 +202,7 @@ export function getBookingsPerUser(
 	bookingType: BookingType,
 	limit: number
 ): Array<BookingWithUser> {
-	const bookings = db
+	const rawBookings = db
 		.select({
 			id: table.booking.id,
 			userId: table.booking.userId,
@@ -131,7 +219,7 @@ export function getBookingsPerUser(
 		.limit(limit)
 		.all();
 
-	return bookings;
+	return rawBookings.map(dbBookingToApiBooking);
 }
 
 export function getFutureBookingsPerUser(
@@ -139,7 +227,7 @@ export function getFutureBookingsPerUser(
 	bookingType: BookingType
 ): Array<BookingWithUser> | null {
 	const nowStr = now();
-	const bookings = db
+	const rawBookings = db
 		.select({
 			id: table.booking.id,
 			userId: table.booking.userId,
@@ -161,8 +249,8 @@ export function getFutureBookingsPerUser(
 		.all();
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-	if (bookings) {
-		return bookings;
+	if (rawBookings) {
+		return rawBookings.map(dbBookingToApiBooking);
 	}
 
 	return null;
@@ -178,32 +266,35 @@ export function getBookingById(bookingId: string): Booking | null {
 }
 
 /**
- * Cancel a booking
- */
-export function cancelBooking(bookingId: string): boolean {
-	const result = db.delete(table.booking).where(eq(table.booking.id, bookingId)).run();
-	return result.changes > 0;
-}
-
-/**
  * Get a booking in a specific time slot
  */
 function getBookingInTimeSlot(
 	bookingType: BookingType,
-	start: string,
-	end: string
+	start: CalendarDateTime,
+	end: CalendarDateTime
 ): Booking | null {
+	const startStr = start.toString();
+	const endStr = end.toString();
+
 	const booking = db
 		.select()
 		.from(table.booking)
 		.where(
 			and(
 				eq(table.booking.bookingType, bookingType),
-				lt(table.booking.start, end),
-				gt(table.booking.end, start)
+				lt(table.booking.start, endStr),
+				gt(table.booking.end, startStr)
 			)
 		)
 		.get();
 
 	return booking || null;
+}
+
+/**
+ * Cancel a booking
+ */
+export function cancelBooking(bookingId: string): boolean {
+	const result = db.delete(table.booking).where(eq(table.booking.id, bookingId)).run();
+	return result.changes > 0;
 }

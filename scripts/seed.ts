@@ -171,23 +171,37 @@ function createUserPreferences(users: any[]) {
 }
 
 function createTestBookings(users: any[]) {
-	console.log('📅 Creating test bookings for current month...');
+	console.log('📅 Creating test bookings for next 4 weeks...');
 
 	const now = new Date();
-	const currentYear = now.getFullYear();
-	const currentMonth = now.getMonth() + 1;
-
-	const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-
 	let bookingCount = 0;
 
-	for (let day = 1; day <= Math.min(daysInMonth, 15); day += 3) {
-		const userIndex = (day - 1) % users.length;
+	for (let dayOffset = 1; dayOffset <= 28; dayOffset += 2) {
+		const bookingDate = new Date(now);
+		bookingDate.setDate(now.getDate() + dayOffset);
+
+		const userIndex = (dayOffset - 1) % users.length;
 		const slotIndex = Math.floor(Math.random() * LAUNDRY_SLOTS.length);
 		const slot = LAUNDRY_SLOTS[slotIndex];
 
-		const startTime = new Date(currentYear, currentMonth - 1, day, slot.start, 0, 0, 0);
-		const endTime = new Date(currentYear, currentMonth - 1, day, slot.end, 0, 0, 0);
+		const startTime = new Date(
+			bookingDate.getFullYear(),
+			bookingDate.getMonth(),
+			bookingDate.getDate(),
+			slot.start,
+			0,
+			0,
+			0
+		);
+		const endTime = new Date(
+			bookingDate.getFullYear(),
+			bookingDate.getMonth(),
+			bookingDate.getDate(),
+			slot.end,
+			0,
+			0,
+			0
+		);
 
 		const bookingRecord = {
 			id: generateRandomId(),
@@ -202,15 +216,34 @@ function createTestBookings(users: any[]) {
 		bookingCount++;
 
 		console.log(
-			`  ✅ Laundry booking: ${users[userIndex].apartment} on ${currentMonth}/${day} ${slot.label}`
+			`  ✅ Laundry booking: ${users[userIndex].apartment} on ${bookingDate.getMonth() + 1}/${bookingDate.getDate()} ${slot.label}`
 		);
 	}
 
-	for (let day = 2; day <= Math.min(daysInMonth, 10); day += 4) {
-		const userIndex = (day + 1) % users.length;
+	for (let dayOffset = 3; dayOffset <= 25; dayOffset += 5) {
+		const bookingDate = new Date(now);
+		bookingDate.setDate(now.getDate() + dayOffset);
 
-		const startTime = new Date(currentYear, currentMonth - 1, day, BBQ_SLOT.start, 0, 0, 0);
-		const endTime = new Date(currentYear, currentMonth - 1, day, BBQ_SLOT.end, 0, 0, 0);
+		const userIndex = (dayOffset + 1) % users.length;
+
+		const startTime = new Date(
+			bookingDate.getFullYear(),
+			bookingDate.getMonth(),
+			bookingDate.getDate(),
+			BBQ_SLOT.start,
+			0,
+			0,
+			0
+		);
+		const endTime = new Date(
+			bookingDate.getFullYear(),
+			bookingDate.getMonth(),
+			bookingDate.getDate(),
+			BBQ_SLOT.end,
+			0,
+			0,
+			0
+		);
 
 		const bookingRecord = {
 			id: generateRandomId(),
@@ -225,49 +258,47 @@ function createTestBookings(users: any[]) {
 		bookingCount++;
 
 		console.log(
-			`  ✅ BBQ booking: ${users[userIndex].apartment} on ${currentMonth}/${day} ${BBQ_SLOT.label}`
+			`  ✅ BBQ booking: ${users[userIndex].apartment} on ${bookingDate.getMonth() + 1}/${bookingDate.getDate()} ${BBQ_SLOT.label}`
 		);
 	}
 
-	const tomorrow = new Date();
-	tomorrow.setDate(tomorrow.getDate() + 1);
+	const tomorrow = new Date(now);
+	tomorrow.setDate(now.getDate() + 1);
 
-	if (tomorrow.getMonth() + 1 === currentMonth && tomorrow.getDate() <= daysInMonth) {
-		const startTime = new Date(
-			tomorrow.getFullYear(),
-			tomorrow.getMonth(),
-			tomorrow.getDate(),
-			LAUNDRY_SLOTS[1].start,
-			0,
-			0,
-			0
-		);
-		const endTime = new Date(
-			tomorrow.getFullYear(),
-			tomorrow.getMonth(),
-			tomorrow.getDate(),
-			LAUNDRY_SLOTS[1].end,
-			0,
-			0,
-			0
-		);
+	const startTime = new Date(
+		tomorrow.getFullYear(),
+		tomorrow.getMonth(),
+		tomorrow.getDate(),
+		LAUNDRY_SLOTS[1].start,
+		0,
+		0,
+		0
+	);
+	const endTime = new Date(
+		tomorrow.getFullYear(),
+		tomorrow.getMonth(),
+		tomorrow.getDate(),
+		LAUNDRY_SLOTS[1].end,
+		0,
+		0,
+		0
+	);
 
-		const bookingRecord = {
-			id: generateRandomId(),
-			userId: users[0].id,
-			bookingType: 'laundry' as const,
-			start: formatToISOString(startTime),
-			end: formatToISOString(endTime),
-			createdAt: formatToISOString(new Date())
-		};
+	const bookingRecord = {
+		id: generateRandomId(),
+		userId: users[0].id,
+		bookingType: 'laundry' as const,
+		start: formatToISOString(startTime),
+		end: formatToISOString(endTime),
+		createdAt: formatToISOString(new Date())
+	};
 
-		db.insert(booking).values(bookingRecord).run();
-		bookingCount++;
+	db.insert(booking).values(bookingRecord).run();
+	bookingCount++;
 
-		console.log(
-			`  ✅ Future laundry booking: ${users[0].apartment} tomorrow ${LAUNDRY_SLOTS[1].label}`
-		);
-	}
+	console.log(
+		`  ✅ Future laundry booking: ${users[0].apartment} tomorrow ${LAUNDRY_SLOTS[1].label}`
+	);
 
 	console.log(`📊 Created ${bookingCount} test bookings`);
 }
