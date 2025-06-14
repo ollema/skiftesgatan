@@ -12,18 +12,21 @@ export const POST = async (event) => {
 	const booking = getBookingById(bookingId);
 
 	if (!booking) {
-		return json({ message: 'Booking not found' }, { status: 404 });
+		return json({ message: 'Bokning kunde inte hittas' }, { status: 404 });
 	}
 
 	if (booking.userId !== event.locals.user.id) {
-		return json({ message: 'Unauthorized to cancel this booking' }, { status: 403 });
+		return json(
+			{ message: 'Du har inte behörighet att avboka den här bokningen' },
+			{ status: 403 }
+		);
 	}
 
 	const success = cancelBooking(bookingId);
 
 	if (!success) {
-		return json({ message: 'Failed to cancel booking' }, { status: 400 });
+		return json({ message: 'Kunde inte avboka den här bokningen' }, { status: 400 });
 	}
 
-	return json({ message: 'Booking cancelled successfully' });
+	return json({ message: 'Bokning avbokad!' });
 };

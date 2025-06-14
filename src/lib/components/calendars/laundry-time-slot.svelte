@@ -38,15 +38,10 @@
 				})
 			});
 			if (!response.ok) {
-				const errorMessage = await response.text();
-				console.error(
-					`Failed to cancel booking: ${booking.id}, status: ${response.status}, ${errorMessage}`
-				);
+				const message = await response.text();
+				console.error(`Kunde inte avboka tvättid ${timeslot.label}: ${message}`);
 
-				$flash = {
-					type: 'error',
-					message: `Kunde inte avboka tvätttid ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
-				};
+				$flash = { type: 'error', message: message };
 
 				invalidate('bookings:laundry');
 				return;

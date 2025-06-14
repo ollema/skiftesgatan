@@ -12,7 +12,7 @@ export const POST = async (event) => {
 	const { start, end, bookingType } = await event.request.json();
 
 	if (!BOOKING_TYPES.includes(bookingType)) {
-		return json({ status: 'error', message: 'Ogiltig bokningstyp' }, { status: 400 });
+		return json({ status: 'error', message: 'Okänd bokningstyp' }, { status: 400 });
 	}
 
 	let startDateTime, endDateTime;
