@@ -1,3 +1,5 @@
+export const BOOKING_TYPES = ['laundry', 'bbq'] as const;
+
 export const LAUNDRY_SLOTS = [
 	{ start: 7, end: 11, label: '07-11' },
 	{ start: 11, end: 15, label: '11-15' },

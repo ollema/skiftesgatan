@@ -6,6 +6,8 @@ import { now } from '$lib/datetime';
 import { route } from '$lib/routes';
 
 export const load = (event) => {
+	event.depends('bookings:laundry');
+
 	if (event.locals.session === null || event.locals.user === null) {
 		redirect(302, route('/auth/sign-in'));
 	}

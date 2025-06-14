@@ -8,36 +8,6 @@ import { generateId } from '$lib/server/auth/utils';
 import { now } from '$lib/datetime';
 import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
 
-// Helper function to convert database booking to API booking
-function dbBookingToApiBooking(dbBooking: {
-	id: string;
-	userId: string;
-	bookingType: BookingType;
-	start: string;
-	end: string;
-	createdAt: string;
-	apartment: string;
-}): BookingWithUser {
-	return {
-		id: dbBooking.id,
-		userId: dbBooking.userId,
-		bookingType: dbBooking.bookingType,
-		start: parseDateTime(dbBooking.start),
-		end: parseDateTime(dbBooking.end),
-		createdAt: parseDateTime(dbBooking.createdAt),
-		apartment: dbBooking.apartment
-	};
-}
-
-// Helper function to get slot index for a booking
-function getSlotIndex(bookingType: BookingType, start: CalendarDateTime): number {
-	if (bookingType === 'laundry') {
-		return LAUNDRY_SLOTS.findIndex((slot) => slot.start === start.hour);
-	} else {
-		return 0; // BBQ only has one slot
-	}
-}
-
 /**
  * Create booking - cancels any existing future bookings and creates new one
  */
@@ -297,4 +267,34 @@ function getBookingInTimeSlot(
 export function cancelBooking(bookingId: string): boolean {
 	const result = db.delete(table.booking).where(eq(table.booking.id, bookingId)).run();
 	return result.changes > 0;
+}
+
+// Helper function to convert database booking to API booking
+function dbBookingToApiBooking(dbBooking: {
+	id: string;
+	userId: string;
+	bookingType: BookingType;
+	start: string;
+	end: string;
+	createdAt: string;
+	apartment: string;
+}): BookingWithUser {
+	return {
+		id: dbBooking.id,
+		userId: dbBooking.userId,
+		bookingType: dbBooking.bookingType,
+		start: parseDateTime(dbBooking.start),
+		end: parseDateTime(dbBooking.end),
+		createdAt: parseDateTime(dbBooking.createdAt),
+		apartment: dbBooking.apartment
+	};
+}
+
+// Helper function to get slot index for a booking
+function getSlotIndex(bookingType: BookingType, start: CalendarDateTime): number {
+	if (bookingType === 'laundry') {
+		return LAUNDRY_SLOTS.findIndex((slot) => slot.start === start.hour);
+	} else {
+		return 0; // BBQ only has one slot
+	}
 }

@@ -1,6 +1,7 @@
 import type { CalendarDateTime } from '@internationalized/date';
+import type { BOOKING_TYPES } from '$lib/constants/bookings';
 
-export type BookingType = 'laundry' | 'bbq';
+export type BookingType = (typeof BOOKING_TYPES)[number];
 
 export type Booking = {
 	id: string;

@@ -1,13 +1,65 @@
 <script lang="ts">
+	import { invalidate } from '$app/navigation';
+	import { page } from '$app/state';
+	import { route } from '$lib/routes';
 	import type { BookingWithUser } from '$lib/types/bookings';
 	import { cn } from '$lib/utils';
+	import { CalendarDateTime, type DateValue } from '@internationalized/date';
+	import { getFlash } from 'sveltekit-flash-message';
+
+	const flash = getFlash(page);
 
 	interface Props {
-		timeslot: { label: string };
+		date: DateValue;
+		timeslot: { start: number; end: number; label: string };
 		booking: BookingWithUser | null;
 	}
 
-	let { timeslot, booking }: Props = $props();
+	let { date, timeslot, booking }: Props = $props();
+
+	const bookable = $derived(booking === null);
+	const reservedByUser = $derived(booking !== null && booking.userId === page.data.user?.id);
+	const canInteract = $derived(bookable || reservedByUser);
+
+	async function handleClick(event: MouseEvent) {
+		if (booking && reservedByUser) {
+			// cancel the booking
+			console.log(`Cancel booking for timeslot: ${timeslot.label}`);
+		} else if (bookable) {
+			const response = await fetch(route("POST /api/bookings/create"), {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					bookingType: 'laundry',
+					start: new CalendarDateTime(
+						date.year,
+						date.month,
+						date.day,
+						timeslot.start,
+						0,
+						0
+					).toString(),
+					end: new CalendarDateTime(date.year, date.month, date.day, timeslot.end, 0, 0).toString()
+				})
+			});
+			if (!response.ok) {
+				const errorMessage = await response.text();
+				console.error(
+					`Failed to book timeslot: ${timeslot.label}, status: ${response.status}, ${errorMessage}`
+				);
+			}
+
+			$flash = {
+				type: 'success',
+				message: `Bokat tvätttid ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
+			};
+
+			invalidate('bookings:laundry');
+		}
+		event.stopPropagation();
+	}
 </script>
 
 <div
@@ -17,8 +69,10 @@
 <button
 	class={cn(
 		'border-foreground/80 hidden h-4 w-12 cursor-pointer items-center justify-center rounded-sm border border-dashed p-0 text-xs hover:border-solid sm:flex',
-		booking && ' bg-foreground hover:bg-foreground/20'
+		booking && ' bg-foreground hover:bg-foreground/20',
+		!canInteract && 'cursor-default'
 	)}
+	onclick={handleClick}
 >
 	{timeslot.label}
 </button>

@@ -46,7 +46,7 @@
 		<div>
 			<div class="flex flex-col justify-center gap-[1px] sm:gap-[3px]">
 				{#each LAUNDRY_SLOTS as timeslot, i (timeslot)}
-					<LaundryTimeSlot {timeslot} booking={bookings[i]} />
+					<LaundryTimeSlot {date} {timeslot} booking={bookings[i]} />
 				{/each}
 			</div>
 		</div>
