@@ -7,6 +7,7 @@ import * as table from '$lib/server/db/schema';
 import { generateId } from '$lib/server/auth/utils';
 import { now } from '$lib/datetime';
 import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
+import { events } from '$lib/server/db/events';
 
 /**
  * Create booking - cancels any existing future bookings and creates new one
@@ -52,10 +53,14 @@ export function createBooking(
 		.returning()
 		.all();
 
-	return dbBookingToApiBooking({
+	const bookingWithUser = dbBookingToApiBooking({
 		...booking[0],
 		apartment: '' // Will be filled by caller if needed
 	});
+
+	events.emitBookingsUpdated();
+
+	return bookingWithUser;
 }
 
 /**
@@ -266,7 +271,13 @@ function getBookingInTimeSlot(
  */
 export function cancelBooking(bookingId: string): boolean {
 	const result = db.delete(table.booking).where(eq(table.booking.id, bookingId)).run();
-	return result.changes > 0;
+	const success = result.changes > 0;
+
+	if (success) {
+		events.emitBookingsUpdated();
+	}
+
+	return success;
 }
 
 // Helper function to convert database booking to API booking
