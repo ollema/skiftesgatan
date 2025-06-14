@@ -11,13 +11,18 @@
 
 	interface Props {
 		date: DateValue;
+		now: CalendarDateTime;
 		timeslot: { start: number; end: number; label: string };
 		booking: BookingWithUser | null;
 	}
 
-	let { date, timeslot, booking }: Props = $props();
+	let { date, now, timeslot, booking }: Props = $props();
 
-	const bookable = $derived(booking === null);
+	const startDateTime = $derived(
+		new CalendarDateTime(date.year, date.month, date.day, timeslot.start, 0, 0)
+	);
+
+	const bookable = $derived(booking === null && startDateTime > now);
 	const reservedByUser = $derived(booking !== null && booking.userId === page.data.user?.id);
 	const canInteract = $derived(bookable || reservedByUser);
 
@@ -37,11 +42,19 @@
 				console.error(
 					`Failed to cancel booking: ${booking.id}, status: ${response.status}, ${errorMessage}`
 				);
+
+				$flash = {
+					type: 'error',
+					message: `Kunde inte avboka tvätttid ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
+				};
+
+				invalidate('bookings:laundry');
+				return;
 			}
 
 			$flash = {
 				type: 'success',
-				message: `Avbokade tvätttid ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
+				message: `Avbokat tvätttid ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
 			};
 
 			invalidate('bookings:laundry');
@@ -65,10 +78,13 @@
 				})
 			});
 			if (!response.ok) {
-				const errorMessage = await response.text();
-				console.error(
-					`Failed to book timeslot: ${timeslot.label}, status: ${response.status}, ${errorMessage}`
-				);
+				const { message } = await response.json();
+				console.error(`Kunde inte boka tvättid ${timeslot.label}: ${message}`);
+
+				$flash = { type: 'error', message: message };
+
+				invalidate('bookings:laundry');
+				return;
 			}
 
 			$flash = {

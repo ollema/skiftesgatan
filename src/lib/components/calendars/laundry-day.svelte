@@ -1,13 +1,14 @@
 <script lang="ts">
-	import type { DateValue } from '@internationalized/date';
+	import type { CalendarDateTime, DateValue } from '@internationalized/date';
 	import { cn } from '$lib/utils';
-	import { isToday as IsDateToday } from '@internationalized/date';
+	import { isToday as isDateToday } from '@internationalized/date';
 	import LaundryTimeSlot from '$lib/components/calendars/laundry-time-slot.svelte';
 	import type { BookingWithUser } from '$lib/types/bookings';
 	import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
 
 	interface Props {
 		date: DateValue;
+		now: CalendarDateTime;
 		disabled: boolean;
 		selected: boolean;
 		bookings: [
@@ -18,9 +19,9 @@
 		];
 	}
 
-	let { date, disabled, selected, bookings }: Props = $props();
+	let { date, now, disabled, selected, bookings }: Props = $props();
 
-	const isToday = $derived(IsDateToday(date, 'Europe/Stockholm'));
+	const isToday = $derived(isDateToday(date, 'Europe/Stockholm'));
 </script>
 
 <div
@@ -46,7 +47,7 @@
 		<div>
 			<div class="flex flex-col justify-center gap-[1px] sm:gap-[3px]">
 				{#each LAUNDRY_SLOTS as timeslot, i (timeslot)}
-					<LaundryTimeSlot {date} {timeslot} booking={bookings[i]} />
+					<LaundryTimeSlot {date} {now} {timeslot} booking={bookings[i]} />
 				{/each}
 			</div>
 		</div>

@@ -1,8 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { CalendarDateTime, parseDate, parseDateTime } from '@internationalized/date';
+import { CalendarDateTime, parseDateTime } from '@internationalized/date';
 import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
-import { cancelBooking, createBooking, getBookingById, getBookings } from '$lib/server/bookings';
-import { now } from '$lib/datetime';
+import {
+	cancelBooking,
+	createBooking,
+	getBookingById,
+	getBookings,
+	getFutureBookingsPerUser
+} from '$lib/server/bookings';
+import { now as rightNow } from '$lib/datetime';
 import { route } from '$lib/routes';
 
 export const load = (event) => {
@@ -12,17 +18,27 @@ export const load = (event) => {
 		redirect(302, route('/auth/sign-in'));
 	}
 
-	const today = parseDateTime(now());
+	const now = parseDateTime(rightNow());
 
-	const startDate = today.subtract({ days: 1 });
-	const endDate = today.add({ months: 1, days: 1 });
+	const startDate = now.subtract({ days: 1 });
+	const endDate = now.add({ months: 1, days: 1 });
 
 	const bookings = getBookings('laundry', startDate, endDate);
 
+	const userBookings = getFutureBookingsPerUser(event.locals.user.id, 'laundry');
+	if (userBookings && userBookings.length > 1) {
+		console.warn(
+			`found more than one future booking for user ${event.locals.user.id} in laundry bookings`
+		);
+	}
+
+	const userBooking = userBookings && userBookings[0];
+
 	return {
 		user: event.locals.user,
-		today: parseDate(today.toString().split('T')[0]),
-		bookings
+		now: now,
+		bookings,
+		userBooking
 	};
 };
 

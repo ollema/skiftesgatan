@@ -4,23 +4,36 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import LaundryDay from '$lib/components/calendars/laundry-day.svelte';
-	import { CalendarDate } from '@internationalized/date';
-	import type { LaundryBookingGrid } from '$lib/types/bookings';
+	import { CalendarDateTime, toCalendarDate } from '@internationalized/date';
+	import type { BookingWithUser, LaundryBookingGrid } from '$lib/types/bookings';
+	import { LAUNDRY_SLOTS } from '$lib/constants/bookings';
+	import LaundryTimeSlot from './laundry-time-slot.svelte';
 
 	interface Props {
-		today: CalendarDate;
+		now: CalendarDateTime;
 		bookings: LaundryBookingGrid;
+		userBooking: BookingWithUser | null;
 	}
 
-	let { today, bookings }: Props = $props();
+	let { now, bookings, userBooking }: Props = $props();
 
-	let value = $state(today);
+	let value = $state(toCalendarDate(now));
+
+	function userBookingToString(booking: BookingWithUser | null): string {
+		if (!booking) return '-';
+		const date = booking.start.toString().split('T')[0];
+		const startHour = booking.start.hour.toString().padStart(2, '0');
+		const endHour = booking.end.hour.toString().padStart(2, '0');
+		return `${date} ${startHour}:00-${endHour}:00`;
+	}
 </script>
 
 <Calendar.Root
+	class="font-serif"
 	type="single"
-	minValue={today}
-	maxValue={today.add({ months: 1 })}
+	minValue={toCalendarDate(now)}
+	maxValue={toCalendarDate(now.add({ months: 1 }))}
+	disableDaysOutsideMonth={true}
 	fixedWeeks={true}
 	weekdayFormat="short"
 	locale="sv-SE"
@@ -60,6 +73,7 @@
 										{#snippet children({ disabled, selected })}
 											<LaundryDay
 												{date}
+												{now}
 												{disabled}
 												{selected}
 												bookings={bookings[date.toString()]}
@@ -76,4 +90,26 @@
 	{/snippet}
 </Calendar.Root>
 
-{value}
+<div class="flex flex-col gap-2 font-serif sm:flex-row sm:justify-between">
+	{#if value}
+		<div class="mt-4">
+			<div>
+				{value}
+			</div>
+			<div class="mt-2 flex gap-2">
+				{#each LAUNDRY_SLOTS as timeslot, i (timeslot)}
+					<LaundryTimeSlot date={value} {now} {timeslot} booking={bookings[value.toString()][i]} />
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	<div class="mt-4">
+		<div class="sm:text-right">Din bokning</div>
+		<div class="mt-2">
+			<div class="sm:text-right">
+				{(userBooking && userBookingToString(userBooking)) || '-'}
+			</div>
+		</div>
+	</div>
+</div>

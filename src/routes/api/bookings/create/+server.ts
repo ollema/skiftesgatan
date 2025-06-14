@@ -1,4 +1,4 @@
-import { error, json, redirect } from '@sveltejs/kit';
+import { json, redirect } from '@sveltejs/kit';
 import { parseDateTime } from '@internationalized/date';
 import { route } from '$lib/routes';
 import { createBooking } from '$lib/server/bookings';
@@ -12,7 +12,7 @@ export const POST = async (event) => {
 	const { start, end, bookingType } = await event.request.json();
 
 	if (!BOOKING_TYPES.includes(bookingType)) {
-		error(400, 'Invalid booking type');
+		return json({ status: 'error', message: 'Ogiltig bokningstyp' }, { status: 400 });
 	}
 
 	let startDateTime, endDateTime;
@@ -20,7 +20,7 @@ export const POST = async (event) => {
 		startDateTime = parseDateTime(start);
 		endDateTime = parseDateTime(end);
 	} catch {
-		error(400, 'Invalid datetime format');
+		return json({ status: 'error', message: 'Ogiltigt datumformat' }, { status: 400 });
 	}
 
 	const startHour = startDateTime.hour;
@@ -31,17 +31,25 @@ export const POST = async (event) => {
 			(slot) => slot.start === startHour && slot.end === endHour
 		);
 		if (!validSlot) {
-			error(400, 'Invalid laundry time slot');
+			return json({ status: 'error', message: 'Ogiltig tvättid' }, { status: 400 });
 		}
 	} else if (bookingType === 'bbq') {
 		if (startHour !== BBQ_SLOT.start || endHour !== BBQ_SLOT.end) {
-			error(400, 'Invalid BBQ time slot');
+			return json({ status: 'error', message: 'Ogiltig uteplatstid' }, { status: 400 });
 		}
 	} else {
-		error(400, 'Unsupported booking type');
+		return json({ status: 'error', message: 'Okänd bokningstyp' }, { status: 400 });
 	}
 
-	createBooking(event.locals.user.id, bookingType, startDateTime, endDateTime);
+	try {
+		createBooking(event.locals.user.id, bookingType, startDateTime, endDateTime);
+	} catch (err) {
+		if (err instanceof Error) {
+			return json({ status: 'error', message: err.message }, { status: 500 });
+		} else {
+			return json({ status: 'error', message: 'Ett oväntat fel inträffade' }, { status: 500 });
+		}
+	}
 
-	return json({ message: 'Booking created successfully' });
+	return json({ status: 'success', message: 'Bokning skapad!' });
 };
