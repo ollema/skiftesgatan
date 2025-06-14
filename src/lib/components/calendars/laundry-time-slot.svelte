@@ -23,10 +23,30 @@
 
 	async function handleClick(event: MouseEvent) {
 		if (booking && reservedByUser) {
-			// cancel the booking
-			console.log(`Cancel booking for timeslot: ${timeslot.label}`);
+			const response = await fetch(route('POST /api/bookings/cancel'), {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					bookingId: booking.id
+				})
+			});
+			if (!response.ok) {
+				const errorMessage = await response.text();
+				console.error(
+					`Failed to cancel booking: ${booking.id}, status: ${response.status}, ${errorMessage}`
+				);
+			}
+
+			$flash = {
+				type: 'success',
+				message: `Avbokade tvätttid ${date.toString()} ${timeslot.label.replace('-', ':00-').concat(':00')}`
+			};
+
+			invalidate('bookings:laundry');
 		} else if (bookable) {
-			const response = await fetch(route("POST /api/bookings/create"), {
+			const response = await fetch(route('POST /api/bookings/create'), {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
