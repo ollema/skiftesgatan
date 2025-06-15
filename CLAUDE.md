@@ -112,3 +112,7 @@ Apartment numbers must match the exact format enforced by `verifyApartmentInput(
 ## Best Practices
 
 - Run `pnpm lint:fix` and `pnpm pre-push` as the final step of a given task
+
+## Commit Guidelines
+
+- When committing changes, use a one-line commit message without any author attribution
