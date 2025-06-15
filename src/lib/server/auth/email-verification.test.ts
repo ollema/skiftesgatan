@@ -403,10 +403,15 @@ describe('sendVerificationEmail', () => {
 		const email = 'test@example.com';
 		const code = '12345678';
 
+		// Suppress console.error during this test
+		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
 		// Mock an error
 		vi.mocked(mockSendVerificationEmail).mockRejectedValueOnce(new Error('Email service error'));
 
 		await expect(sendVerificationEmail(email, code)).rejects.toThrow('Email service error');
+
+		consoleSpy.mockRestore();
 	});
 });
 

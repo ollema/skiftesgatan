@@ -13,6 +13,11 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { now } from '$lib/datetime';
 
+vi.mock('$lib/server/notifications', () => ({
+	scheduleBookingNotification: vi.fn(),
+	cancelBookingNotifications: vi.fn()
+}));
+
 const testUser1 = {
 	id: 'user1' as const,
 	apartment: 'A1101' as const,
