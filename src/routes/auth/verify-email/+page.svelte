@@ -6,6 +6,10 @@
 	let { data } = $props();
 </script>
 
+<svelte:head>
+	<title>Verifiera email</title>
+</svelte:head>
+
 <div class="mt-8 flex w-full items-center justify-center px-4">
 	<Card.Root class="mx-auto w-full max-w-sm">
 		<Card.Header>
