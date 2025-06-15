@@ -60,6 +60,11 @@ jobs:
 
       - name: run svelte-check
         run: pnpm check
+        env:
+          DATABASE_URL: test.db
+          ENCRYPTION_KEY: test-key
+          RESEND_API_KEY: test-key
+          RESEND_TEST_MODE: true
 
   test:
     name: test
@@ -84,3 +89,8 @@ jobs:
 
       - name: run tests
         run: pnpm test
+        env:
+          DATABASE_URL: test.db
+          ENCRYPTION_KEY: test-key
+          RESEND_API_KEY: test-key
+          RESEND_TEST_MODE: true

@@ -116,3 +116,4 @@ Apartment numbers must match the exact format enforced by `verifyApartmentInput(
 ## Commit Guidelines
 
 - When committing changes, use a one-line commit message without any author attribution
+- Again, remember to run `pnpm pre-push` before committing to ensure code quality
