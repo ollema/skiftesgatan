@@ -377,28 +377,36 @@ describe('database operations', () => {
 });
 
 describe('sendVerificationEmail', () => {
-	it('should log verification email to console', () => {
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+	it('should send verification email via Resend', async () => {
+		const { sendVerificationEmail: mockSendVerificationEmail } = await import('$lib/server/resend');
 		const email = 'test@example.com';
 		const code = '12345678';
 
-		sendVerificationEmail(email, code);
+		await sendVerificationEmail(email, code);
 
-		expect(consoleSpy).toHaveBeenCalledWith(`To ${email}: Your verification code is ${code}`);
-		consoleSpy.mockRestore();
+		expect(mockSendVerificationEmail).toHaveBeenCalledWith(email, code);
 	});
 
-	it('should handle different email formats', () => {
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+	it('should handle different email formats', async () => {
+		const { sendVerificationEmail: mockSendVerificationEmail } = await import('$lib/server/resend');
 		const emails = ['user@domain.com', 'test.email+tag@example.org', 'user@subdomain.domain.co.uk'];
 		const code = '87654321';
 
-		emails.forEach((email) => {
-			sendVerificationEmail(email, code);
-			expect(consoleSpy).toHaveBeenCalledWith(`To ${email}: Your verification code is ${code}`);
-		});
+		for (const email of emails) {
+			await sendVerificationEmail(email, code);
+			expect(mockSendVerificationEmail).toHaveBeenCalledWith(email, code);
+		}
+	});
 
-		consoleSpy.mockRestore();
+	it('should handle email sending errors gracefully', async () => {
+		const { sendVerificationEmail: mockSendVerificationEmail } = await import('$lib/server/resend');
+		const email = 'test@example.com';
+		const code = '12345678';
+
+		// Mock an error
+		vi.mocked(mockSendVerificationEmail).mockRejectedValueOnce(new Error('Email service error'));
+
+		await expect(sendVerificationEmail(email, code)).rejects.toThrow('Email service error');
 	});
 });
 
@@ -517,12 +525,9 @@ describe('integration tests', () => {
 		expect(foundRequest!.email).toBe(newEmail);
 
 		// Should be able to send verification email
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-		sendVerificationEmail(request.email, request.code);
-		expect(consoleSpy).toHaveBeenCalledWith(
-			`To ${newEmail}: Your verification code is ${request.code}`
-		);
-		consoleSpy.mockRestore();
+		const { sendVerificationEmail: mockSendVerificationEmail } = await import('$lib/server/resend');
+		await sendVerificationEmail(request.email, request.code);
+		expect(mockSendVerificationEmail).toHaveBeenCalledWith(newEmail, request.code);
 
 		// Should be able to delete request
 		deleteUserEmailVerificationRequest(user.id);

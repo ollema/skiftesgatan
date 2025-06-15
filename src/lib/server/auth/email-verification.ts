@@ -5,6 +5,7 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateRandomOTP } from '$lib/server/auth/utils';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
+import { sendVerificationEmail as sendVerificationEmailViaResend } from '$lib/server/resend';
 import { dev } from '$app/environment';
 
 export const emailVerificationRequestCookieName = 'email_verification';
@@ -58,8 +59,13 @@ export function deleteUserEmailVerificationRequest(userId: string): void {
 		.run();
 }
 
-export function sendVerificationEmail(email: string, code: string): void {
-	console.log(`To ${email}: Your verification code is ${code}`);
+export async function sendVerificationEmail(email: string, code: string): Promise<void> {
+	try {
+		await sendVerificationEmailViaResend(email, code);
+	} catch (error) {
+		console.error('Failed to send verification email:', error);
+		throw error;
+	}
 }
 
 export function setEmailVerificationRequestCookie(

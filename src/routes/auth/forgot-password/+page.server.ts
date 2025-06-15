@@ -96,7 +96,7 @@ export const actions = {
 		invalidateUserPasswordResetSessions(user.id);
 		const sessionToken = generateSessionToken();
 		const session = createPasswordResetSession(sessionToken, user.id, user.email);
-		sendPasswordResetEmail(session.email, session.code);
+		await sendPasswordResetEmail(session.email, session.code);
 		setPasswordResetSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		console.log('[auth] Password reset email sent successfully', {

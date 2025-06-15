@@ -29,3 +29,19 @@ vi.mock('./src/lib/server/db/index.ts', async () => {
 	await pushSchema(db);
 	return { db };
 });
+
+// Mock Resend for tests
+vi.mock('./src/lib/server/resend.ts', () => {
+	const mockEmailResponse = {
+		data: { id: 'test-email-id-123' },
+		error: null
+	};
+
+	return {
+		sendBookingNotification: vi.fn().mockResolvedValue(mockEmailResponse),
+		sendVerificationEmail: vi.fn().mockResolvedValue(mockEmailResponse),
+		sendPasswordResetEmail: vi.fn().mockResolvedValue(mockEmailResponse),
+		updateScheduledEmail: vi.fn().mockResolvedValue(mockEmailResponse),
+		cancelScheduledEmail: vi.fn().mockResolvedValue({ data: null, error: null })
+	};
+});

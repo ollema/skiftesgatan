@@ -182,7 +182,7 @@ export const actions = {
 		}
 
 		const verificationRequest = createEmailVerificationRequest(event.locals.user.id, email);
-		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
 		setEmailVerificationRequestCookie(event, verificationRequest);
 
 		redirect(
@@ -303,7 +303,7 @@ export const actions = {
 
 		try {
 			const testDate = new Date();
-			testDate.setHours(testDate.getHours() + 2); 
+			testDate.setHours(testDate.getHours() + 2);
 
 			await sendBookingNotification({
 				to: event.locals.user.email,

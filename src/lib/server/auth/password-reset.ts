@@ -6,7 +6,7 @@ import type { User } from '$lib/server/auth/user';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateRandomOTP } from '$lib/server/auth/utils';
-
+import { sendPasswordResetEmail as sendPasswordResetEmailViaResend } from '$lib/server/resend';
 import { dev } from '$app/environment';
 
 export const passwordResetSessionCookieName = 'password_reset_session';
@@ -111,9 +111,13 @@ export function deletePasswordResetSessionTokenCookie(event: RequestEvent): void
 	});
 }
 
-// TODO: replace with actual email sending logic
-export function sendPasswordResetEmail(email: string, code: string): void {
-	console.log(`To ${email}: Your reset code is ${code}`);
+export async function sendPasswordResetEmail(email: string, code: string): Promise<void> {
+	try {
+		await sendPasswordResetEmailViaResend(email, code);
+	} catch (error) {
+		console.error('Failed to send password reset email:', error);
+		throw error;
+	}
 }
 
 export interface PasswordResetSession {

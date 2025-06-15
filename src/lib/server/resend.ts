@@ -59,6 +59,58 @@ export async function sendBookingNotification({
 }
 
 /**
+ * Send email verification code
+ */
+export async function sendVerificationEmail(to: string, code: string) {
+	const subject = 'Verifiera din emailadress';
+	const html = `
+		<h2>Verifiera din emailadress</h2>
+		<p>Hej,</p>
+		<p>Använd följande kod för att verifiera din nya emailadress:</p>
+		<p style="font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 20px 0;">${code}</p>
+		<p>Koden är giltig i 10 minuter.</p>
+		<p>Om du inte begärde detta kan du ignorera detta email.</p>
+	`;
+
+	const response = await resend.emails.send({
+		from: 'Skiftesgatan <noreply@skiftesgatan.se>',
+		to: [isTestMode ? TEST_EMAIL : to],
+		subject: isTestMode ? `[TEST] ${subject}` : subject,
+		html: isTestMode
+			? `<p><strong>TEST MODE:</strong> This email would have been sent to: ${to}</p><hr>${html}`
+			: html
+	});
+
+	return response;
+}
+
+/**
+ * Send password reset code
+ */
+export async function sendPasswordResetEmail(to: string, code: string) {
+	const subject = 'Återställ ditt lösenord';
+	const html = `
+		<h2>Återställ ditt lösenord</h2>
+		<p>Hej,</p>
+		<p>Använd följande kod för att återställa ditt lösenord:</p>
+		<p style="font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 20px 0;">${code}</p>
+		<p>Koden är giltig i 10 minuter.</p>
+		<p>Om du inte begärde detta kan du ignorera detta email.</p>
+	`;
+
+	const response = await resend.emails.send({
+		from: 'Skiftesgatan <noreply@skiftesgatan.se>',
+		to: [isTestMode ? TEST_EMAIL : to],
+		subject: isTestMode ? `[TEST] ${subject}` : subject,
+		html: isTestMode
+			? `<p><strong>TEST MODE:</strong> This email would have been sent to: ${to}</p><hr>${html}`
+			: html
+	});
+
+	return response;
+}
+
+/**
  * Update the scheduled time of an email
  */
 export async function updateScheduledEmail(emailId: string, newScheduledAt: Date) {
