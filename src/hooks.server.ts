@@ -1,7 +1,6 @@
 import PocketBase from 'pocketbase';
 import type { TypedPocketBase } from '$lib/pocketbase-types';
 
-import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 
@@ -30,4 +29,4 @@ export const handleAuth: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(Sentry.sentryHandle(), handleAuth);
+export const handle = handleAuth;
