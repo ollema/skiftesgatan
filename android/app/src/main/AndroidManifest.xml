@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" />
-                <data android:host="skiftesgatan.com" />
+                <data android:host="skiftesgatan.server.ollema.xyz" />
             </intent-filter>
         </activity>
 

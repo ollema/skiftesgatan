@@ -1,3 +1,3 @@
 # skiftesgatan
 
-https://skiftesgatan.com
+https://skiftesgatan.server.ollema.xyz

@@ -18,7 +18,7 @@
 	<meta property="og:description" content={$page.data.meta.description} />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={$page.url.toString()} />
-	<meta property="og:image" content="https://skiftesgatan.com/og.png" />
+	<meta property="og:image" content="https://skiftesgatan.server.ollema.xyz/og.png" />
 	<meta property="og:image:alt" content="BRF Skiftesgatan 4 logo" />
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
