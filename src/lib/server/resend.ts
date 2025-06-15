@@ -58,7 +58,7 @@ Ha en bra dag!
 	`.trim();
 
 	const response = await resend.emails.send({
-		from: 'Skiftesgatan <notifications@mail.skiftesgatan.se>',
+		from: 'Skiftesgatan <notifications@mail.skiftesgatan.com>',
 		to: [isTestMode ? TEST_EMAIL : to],
 		subject: isTestMode ? `[TEST] ${subject}` : subject,
 		html: isTestMode
@@ -103,8 +103,8 @@ Om du inte begärde detta kan du ignorera detta email.
 	`.trim();
 
 	const response = await resend.emails.send({
-		from: 'Skiftesgatan <auth@mail.skiftesgatan.se>',
-		replyTo: 'support@skiftesgatan.se',
+		from: 'Skiftesgatan <auth@mail.skiftesgatan.com>',
+		replyTo: 'support@skiftesgatan.com',
 		to: [isTestMode ? TEST_EMAIL : to],
 		subject: isTestMode ? `[TEST] ${subject}` : subject,
 		html: isTestMode
@@ -145,8 +145,8 @@ Om du inte begärde detta kan du ignorera detta email.
 	`.trim();
 
 	const response = await resend.emails.send({
-		from: 'Skiftesgatan <auth@mail.skiftesgatan.se>',
-		replyTo: 'support@skiftesgatan.se',
+		from: 'Skiftesgatan <auth@mail.skiftesgatan.com>',
+		replyTo: 'support@skiftesgatan.com',
 		to: [isTestMode ? TEST_EMAIL : to],
 		subject: isTestMode ? `[TEST] ${subject}` : subject,
 		html: isTestMode
