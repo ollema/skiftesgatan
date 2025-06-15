@@ -43,7 +43,7 @@ export async function sendBookingNotification({
 	`;
 
 	const response = await resend.emails.send({
-		from: 'Skiftesgatan <notifications@skiftesgatan.se>',
+		from: 'Skiftesgatan <notifications@skiftesgatan.com>',
 		to: [isTestMode ? TEST_EMAIL : to],
 		subject: isTestMode ? `[TEST] ${subject}` : subject,
 		html: isTestMode
@@ -73,7 +73,7 @@ export async function sendVerificationEmail(to: string, code: string) {
 	`;
 
 	const response = await resend.emails.send({
-		from: 'Skiftesgatan <noreply@skiftesgatan.se>',
+		from: 'Skiftesgatan <noreply@skiftesgatan.com>',
 		to: [isTestMode ? TEST_EMAIL : to],
 		subject: isTestMode ? `[TEST] ${subject}` : subject,
 		html: isTestMode
@@ -99,7 +99,7 @@ export async function sendPasswordResetEmail(to: string, code: string) {
 	`;
 
 	const response = await resend.emails.send({
-		from: 'Skiftesgatan <noreply@skiftesgatan.se>',
+		from: 'Skiftesgatan <noreply@skiftesgatan.com>',
 		to: [isTestMode ? TEST_EMAIL : to],
 		subject: isTestMode ? `[TEST] ${subject}` : subject,
 		html: isTestMode
