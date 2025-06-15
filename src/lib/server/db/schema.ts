@@ -69,3 +69,21 @@ export const userPreferences = sqliteTable('user_preferences', {
 		.notNull()
 		.default('1_week')
 });
+
+export const emailNotification = sqliteTable('email_notification', {
+	id: text('id').primaryKey(),
+	bookingId: text('booking_id')
+		.notNull()
+		.references(() => booking.id, { onDelete: 'cascade' }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id),
+	scheduledAt: integer('scheduled_at', { mode: 'timestamp' }).notNull(),
+	status: text('status', { enum: ['pending', 'sent', 'failed', 'cancelled'] })
+		.notNull()
+		.default('pending'),
+	resendId: text('resend_id'),
+	resendIdempotencyKey: text('resend_idempotency_key').unique(),
+	error: text('error'),
+	createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
+});
