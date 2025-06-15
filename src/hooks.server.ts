@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/sveltekit';
-import { initSentry, sentryServerErrorHandler } from '$lib/sentry';
 import PocketBase from 'pocketbase';
 import type { TypedPocketBase } from '$lib/pocketbase-types';
 
@@ -7,9 +5,6 @@ import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 
-// handling errors with Sentry
-initSentry();
-export const handleError = Sentry.handleErrorWithSentry(sentryServerErrorHandler);
 
 // authentification with PocketBase
 export const handleAuth: Handle = async ({ event, resolve }) => {
