@@ -54,7 +54,7 @@ const bucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 export const actions = {
 	verify: async (event) => {
 		const clientIP = event.request.headers.get('X-Forwarded-For');
-		console.log('[auth] Verify email form action triggered', { ip: clientIP });
+		console.log(`[auth] Verify email form action triggered from IP ${clientIP}`);
 
 		if (event.locals.session === null || event.locals.user === null) {
 			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
@@ -70,7 +70,7 @@ export const actions = {
 
 		const verifyForm = await superValidate(event, zod(verifyFormSchema));
 		if (!verifyForm.valid) {
-			console.log('[auth] Invalid verify form submission:', verifyForm.errors);
+			console.log('[auth] Invalid verify form submission');
 			return fail(400, {
 				verifyForm: verifyForm
 			});
@@ -180,7 +180,7 @@ export const actions = {
 
 		const resendForm = await superValidate(event, zod(resendFormSchema));
 		if (!resendForm.valid) {
-			console.log('[auth] Invalid resend form submission:', resendForm.errors);
+			console.log('[auth] Invalid resend form submission');
 			return fail(400, {
 				resendForm: resendForm
 			});

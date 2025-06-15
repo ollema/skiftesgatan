@@ -27,14 +27,13 @@ export const load = async (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
 			console.log(
-				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email',
-				{ apartment: event.locals.user.apartment }
+				`[auth][${event.locals.user.apartment}] User is logged in but email is not verified, redirecting to /auth/verify-email`
 			);
 			redirect(302, route('/auth/verify-email'));
 		}
-		console.log('[auth] User is already logged in, redirecting to /', {
-			apartment: event.locals.user.apartment
-		});
+		console.log(
+			`[auth][${event.locals.user.apartment}] User is already logged in, redirecting to /`
+		);
 		redirect(302, route('/'));
 	}
 
@@ -48,7 +47,7 @@ export const actions = {
 
 		const form = await superValidate(event, zod(formSchema));
 		if (!form.valid) {
-			console.log('[auth] Invalid form submission:', form.errors);
+			console.log('[auth] Invalid form submission');
 			return fail(400, { form });
 		}
 
@@ -56,7 +55,7 @@ export const actions = {
 		const clientIP = event.request.headers.get('X-Forwarded-For');
 
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
-			console.log('[auth] IP rate limit exceeded during sign-up check', { ip: clientIP });
+			console.log(`[auth] IP rate limit exceeded during sign-up check from ${clientIP}`);
 			setFlash(
 				{
 					type: 'error',
@@ -70,37 +69,35 @@ export const actions = {
 		const { apartment, email, password } = form.data;
 
 		if (!verifyEmailInput(email)) {
-			console.log('[auth] Invalid email format during sign-up', { email });
+			console.log('[auth] Invalid email format during sign-up');
 			setError(form, 'email', 'Ange en giltig emailadress');
 			return fail(400, { form });
 		}
 
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
-			console.log('[auth] Email is already used during sign-up', { email });
+			console.log('[auth] Email is already used during sign-up');
 			setError(form, 'email', 'Emailadressen används redan');
 			return fail(400, { form });
 		}
 
 		if (!verifyApartmentInput(apartment)) {
-			console.log('[auth] Invalid apartment format during sign-up', { apartment, email });
+			console.log(`[auth][${apartment}] Invalid apartment format during sign-up`);
 			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
 			return fail(400, { form });
 		}
 
 		const strongPassword = await verifyPasswordStrength(password);
 		if (!strongPassword) {
-			console.log('[auth] Weak password during sign-up', { email, apartment });
+			console.log(`[auth][${apartment}] Weak password during sign-up`);
 			setError(form, 'password', 'Svagt lösenord');
 			return fail(400, { form });
 		}
 
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
-			console.log('[auth] IP rate limit exceeded during sign-up consume', {
-				ip: clientIP,
-				email,
-				apartment
-			});
+			console.log(
+				`[auth][${apartment}] IP rate limit exceeded during sign-up consume from ${clientIP}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -120,10 +117,7 @@ export const actions = {
 		const session = createSession(sessionToken, user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		console.log('[auth] Registration successful, redirecting to /auth/verify-email', {
-			apartment,
-			email
-		});
+		console.log(`[auth][${apartment}] Registration successful, redirecting to /auth/verify-email`);
 		redirect(302, route('/auth/verify-email'));
 	}
 };

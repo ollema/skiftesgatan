@@ -55,7 +55,9 @@ export const load = async (event) => {
 
 export const actions = {
 	preferences: async (event) => {
-		console.log('[auth] Update preferences form action triggered');
+		console.log(
+			`[auth][${event.locals.user?.apartment || 'unknown'}] Update preferences form action triggered`
+		);
 
 		if (event.locals.session === null || event.locals.user === null) {
 			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
@@ -71,7 +73,7 @@ export const actions = {
 
 		const preferencesForm = await superValidate(event, zod(preferencesFormSchema));
 		if (!preferencesForm.valid) {
-			console.log('[auth] Invalid preferences form submission:', preferencesForm.errors);
+			console.log(`[auth][${event.locals.user.apartment}] Invalid preferences form submission`);
 			return fail(400, {
 				preferencesForm: preferencesForm
 			});
@@ -87,8 +89,10 @@ export const actions = {
 		try {
 			updateUserPreferences(event.locals.user.id, preferencesUpdate);
 			await recalculateUserNotifications(event.locals.user.id);
-		} catch (error) {
-			console.log('[auth] Failed to update preferences for user:', event.locals.user.id, error);
+		} catch {
+			console.log(
+				`[auth][${event.locals.user.apartment}] Failed to update preferences for user ${event.locals.user.id}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -101,7 +105,9 @@ export const actions = {
 			});
 		}
 
-		console.log('[auth] Preferences updated successfully for user:', event.locals.user.id);
+		console.log(
+			`[auth][${event.locals.user.apartment}] Preferences updated successfully for user ${event.locals.user.id}`
+		);
 		setFlash(
 			{
 				type: 'success',
@@ -112,7 +118,9 @@ export const actions = {
 		return { preferencesForm };
 	},
 	email: async (event) => {
-		console.log('[auth] Update email form action triggered');
+		console.log(
+			`[auth][${event.locals.user?.apartment || 'unknown'}] Update email form action triggered`
+		);
 
 		if (event.locals.session === null || event.locals.user === null) {
 			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
@@ -128,14 +136,16 @@ export const actions = {
 
 		const emailForm = await superValidate(event, zod(emailFormSchema));
 		if (!emailForm.valid) {
-			console.log('[auth] Invalid email form submission:', emailForm.errors);
+			console.log(`[auth][${event.locals.user.apartment}] Invalid email form submission`);
 			return fail(400, {
 				emailForm: emailForm
 			});
 		}
 
 		if (!sendVerificationEmailBucket.check(event.locals.user.id, 1)) {
-			console.log('[auth] Too many requests for user:', event.locals.user.id);
+			console.log(
+				`[auth][${event.locals.user.apartment}] Too many requests for user ${event.locals.user.id}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -151,7 +161,7 @@ export const actions = {
 		const email = emailForm.data.email;
 
 		if (!verifyEmailInput(email)) {
-			console.log('[auth] Invalid email:', email);
+			console.log(`[auth][${event.locals.user.apartment}] Invalid email format`);
 			setError(emailForm, 'email', 'Ange en giltig emailadress');
 			return fail(400, {
 				emailForm
@@ -160,7 +170,7 @@ export const actions = {
 
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
-			console.log('[auth] Email is already used:', email);
+			console.log(`[auth][${event.locals.user.apartment}] Email is already in use`);
 			setError(emailForm, 'email', 'Denna emailadress används redan');
 			return fail(400, {
 				emailForm
@@ -168,7 +178,9 @@ export const actions = {
 		}
 
 		if (!sendVerificationEmailBucket.consume(event.locals.user.id, 1)) {
-			console.log('[auth] Too many requests for user:', event.locals.user.id);
+			console.log(
+				`[auth][${event.locals.user.apartment}] Too many requests for user ${event.locals.user.id}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -197,7 +209,9 @@ export const actions = {
 		);
 	},
 	password: async (event) => {
-		console.log('[auth] Update password form action triggered');
+		console.log(
+			`[auth][${event.locals.user?.apartment || 'unknown'}] Update password form action triggered`
+		);
 
 		if (event.locals.session === null || event.locals.user === null) {
 			console.log('[auth] No session or user found, redirecting to /auth/sign-in');
@@ -213,14 +227,16 @@ export const actions = {
 
 		const passwordForm = await superValidate(event, zod(passwordFormSchema));
 		if (!passwordForm.valid) {
-			console.log('[auth] Invalid password form submission:', passwordForm.errors);
+			console.log(`[auth][${event.locals.user.apartment}] Invalid password form submission`);
 			return fail(400, {
 				passwordForm: passwordForm
 			});
 		}
 
 		if (!passwordUpdateBucket.check(event.locals.session.id, 1)) {
-			console.log('[auth] Too many requests for user:', event.locals.user.id);
+			console.log(
+				`[auth][${event.locals.user.apartment}] Too many requests for user ${event.locals.user.id}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -237,7 +253,7 @@ export const actions = {
 
 		const strongPassword = await verifyPasswordStrength(newPassword);
 		if (!strongPassword) {
-			console.log('[auth] Weak password provided');
+			console.log(`[auth][${event.locals.user.apartment}] Weak password provided`);
 			setError(passwordForm, 'newPassword', 'Svagt lösenord');
 			return fail(400, {
 				passwordForm
@@ -245,7 +261,9 @@ export const actions = {
 		}
 
 		if (!passwordUpdateBucket.consume(event.locals.session.id, 1)) {
-			console.log('[auth] Too many requests for session:', event.locals.session.id);
+			console.log(
+				`[auth][${event.locals.user.apartment}] Too many requests for session ${event.locals.session.id}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -261,7 +279,9 @@ export const actions = {
 		const passwordHash = getUserPasswordHash(event.locals.user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, currentPassword);
 		if (!validPassword) {
-			console.log('[auth] Incorrect password for user:', event.locals.user.id);
+			console.log(
+				`[auth][${event.locals.user.apartment}] Incorrect password for user ${event.locals.user.id}`
+			);
 			setError(passwordForm, 'currentPassword', 'Felaktigt lösenord');
 			return fail(400, {
 				passwordForm
@@ -276,7 +296,9 @@ export const actions = {
 		const session = createSession(sessionToken, event.locals.user.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		console.log('[auth] Password updated successfully for user:', event.locals.user.id);
+		console.log(
+			`[auth][${event.locals.user.apartment}] Password updated successfully for user ${event.locals.user.id}`
+		);
 		setFlash(
 			{
 				type: 'success',

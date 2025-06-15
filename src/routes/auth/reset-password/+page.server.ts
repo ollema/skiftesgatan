@@ -28,8 +28,7 @@ export const load = async (event) => {
 	}
 	if (!session.emailVerified) {
 		console.log(
-			'[auth] Password reset session found but email is not verified, redirecting to /auth/reset-password/verify-email',
-			{ email: session.email }
+			'[auth] Password reset session found but email is not verified, redirecting to /auth/reset-password/verify-email'
 		);
 		redirect(302, route('/auth/reset-password/verify-email'));
 	}
@@ -44,7 +43,7 @@ export const actions = {
 
 		const form = await superValidate(event, zod(formSchema));
 		if (!form.valid) {
-			console.log('[auth] Invalid form submission:', form.errors);
+			console.log('[auth] Invalid form submission');
 			return fail(400, { form });
 		}
 
@@ -54,9 +53,7 @@ export const actions = {
 			return fail(401, { form });
 		}
 		if (!passwordResetSession.emailVerified) {
-			console.log('[auth] Password reset session found but email is not verified, returning 403', {
-				email: passwordResetSession.email
-			});
+			console.log('[auth] Password reset session found but email is not verified, returning 403');
 			return fail(403, { form });
 		}
 
@@ -64,9 +61,7 @@ export const actions = {
 
 		const strongPassword = await verifyPasswordStrength(password);
 		if (!strongPassword) {
-			console.log('[auth] Weak password provided during reset', {
-				email: passwordResetSession.email
-			});
+			console.log('[auth] Weak password provided during reset');
 			setError(form, 'password', 'Svagt lösenord');
 			return fail(400, { form });
 		}
@@ -80,10 +75,7 @@ export const actions = {
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		deletePasswordResetSessionTokenCookie(event);
 
-		console.log('[auth] Password reset successful, redirecting to /', {
-			apartment: user.apartment,
-			email: user.email
-		});
+		console.log(`[auth][${user.apartment}] Password reset successful, redirecting to /`);
 		redirect(
 			302,
 			route('/'),

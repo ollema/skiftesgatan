@@ -23,14 +23,13 @@ export const load = async (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
 		if (!event.locals.user.emailVerified) {
 			console.log(
-				'[auth] User is logged in but email is not verified, redirecting to /auth/verify-email',
-				{ apartment: event.locals.user.apartment }
+				`[auth][${event.locals.user.apartment}] User is logged in but email is not verified, redirecting to /auth/verify-email`
 			);
 			redirect(302, route('/auth/verify-email'));
 		}
-		console.log('[auth] User is already logged in, redirecting to /', {
-			apartment: event.locals.user.apartment
-		});
+		console.log(
+			`[auth][${event.locals.user.apartment}] User is already logged in, redirecting to /`
+		);
 		redirect(302, route('/'));
 	}
 
@@ -47,7 +46,7 @@ export const actions = {
 
 		const form = await superValidate(event, zod(formSchema));
 		if (!form.valid) {
-			console.log('[auth] Invalid form submission:', form.errors);
+			console.log('[auth] Invalid form submission');
 			return fail(400, { form });
 		}
 
@@ -55,7 +54,7 @@ export const actions = {
 
 		// TODO: assumes X-Forwarded-For is always included.
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
-			console.log('[auth] IP rate limit exceeded during sign-in check', { ip: clientIP });
+			console.log(`[auth] IP rate limit exceeded during sign-in check from ${clientIP}`);
 			setFlash(
 				{
 					type: 'error',
@@ -69,23 +68,22 @@ export const actions = {
 		const { apartment, password } = form.data;
 
 		if (!verifyApartmentInput(apartment)) {
-			console.log('[auth] Invalid apartment format during sign-in', { apartment });
+			console.log(`[auth][${apartment}] Invalid apartment format during sign-in`);
 			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
 			return fail(400, { form });
 		}
 
 		const user = getUserFromApartment(apartment);
 		if (user === null) {
-			console.log('[auth] Account does not exist during sign-in', { apartment });
+			console.log(`[auth][${apartment}] Account does not exist during sign-in`);
 			setError(form, 'apartment', 'Kontot finns inte');
 			return fail(400, { form });
 		}
 
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
-			console.log('[auth] IP rate limit exceeded during sign-in consume', {
-				ip: clientIP,
-				apartment
-			});
+			console.log(
+				`[auth][${apartment}] IP rate limit exceeded during sign-in consume from ${clientIP}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -97,7 +95,7 @@ export const actions = {
 		}
 
 		if (!throttler.consume(user.id)) {
-			console.log('[auth] User rate limit exceeded during sign-in', { apartment, userId: user.id });
+			console.log(`[auth][${apartment}] User rate limit exceeded during sign-in (user ${user.id})`);
 			setFlash(
 				{
 					type: 'error',
@@ -111,7 +109,7 @@ export const actions = {
 		const passwordHash = getUserPasswordHash(user.id);
 		const validPassword = await verifyPasswordHash(passwordHash, password);
 		if (!validPassword) {
-			console.log('[auth] Invalid password during sign-in', { apartment });
+			console.log(`[auth][${apartment}] Invalid password during sign-in`);
 			setError(form, 'password', 'Felaktigt lösenord');
 			return fail(400, { form });
 		}
@@ -123,16 +121,12 @@ export const actions = {
 
 		if (!user.emailVerified) {
 			console.log(
-				'[auth] User email not verified after sign-in, redirecting to /auth/verify-email',
-				{ apartment, email: user.email }
+				`[auth][${apartment}] User email not verified after sign-in, redirecting to /auth/verify-email`
 			);
 			redirect(302, route('/auth/verify-email'));
 		}
 
-		console.log('[auth] User logged in successfully, redirecting to /', {
-			apartment,
-			email: user.email
-		});
+		console.log(`[auth][${apartment}] User logged in successfully, redirecting to /`);
 		redirect(302, route('/'));
 	}
 };

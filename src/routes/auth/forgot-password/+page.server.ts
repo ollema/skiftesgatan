@@ -28,7 +28,7 @@ export const actions = {
 
 		const form = await superValidate(event, zod(formSchema));
 		if (!form.valid) {
-			console.log('[auth] Invalid form submission:', form.errors);
+			console.log('[auth] Invalid form submission');
 			return fail(400, { form });
 		}
 
@@ -36,7 +36,7 @@ export const actions = {
 		const clientIP = event.request.headers.get('X-Forwarded-For');
 
 		if (clientIP !== null && !ipBucket.check(clientIP, 1)) {
-			console.log('[auth] IP rate limit exceeded during forgot-password check', { ip: clientIP });
+			console.log(`[auth] IP rate limit exceeded during forgot-password check from ${clientIP}`);
 			setFlash(
 				{
 					type: 'error',
@@ -50,23 +50,22 @@ export const actions = {
 		const { apartment } = form.data;
 
 		if (!verifyApartmentInput(apartment)) {
-			console.log('[auth] Invalid apartment format during forgot-password', { apartment });
+			console.log(`[auth][${apartment}] Invalid apartment format during forgot-password`);
 			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
 			return fail(400, { form });
 		}
 
 		const user = getUserFromApartment(apartment);
 		if (user === null) {
-			console.log('[auth] Account does not exist during forgot-password', { apartment });
+			console.log(`[auth][${apartment}] Account does not exist during forgot-password`);
 			setError(form, 'apartment', 'Kontot finns inte');
 			return fail(400, { form });
 		}
 
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
-			console.log('[auth] IP rate limit exceeded during forgot-password consume', {
-				ip: clientIP,
-				apartment
-			});
+			console.log(
+				`[auth][${apartment}] IP rate limit exceeded during forgot-password consume from ${clientIP}`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -78,11 +77,9 @@ export const actions = {
 		}
 
 		if (!userBucket.consume(user.id, 1)) {
-			console.log('[auth] User rate limit exceeded during forgot-password', {
-				apartment,
-				email: user.email,
-				userId: user.id
-			});
+			console.log(
+				`[auth][${apartment}] User rate limit exceeded during forgot-password (user ${user.id})`
+			);
 			setFlash(
 				{
 					type: 'error',
@@ -99,14 +96,8 @@ export const actions = {
 		await sendPasswordResetEmail(session.email, session.code);
 		setPasswordResetSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		console.log('[auth] Password reset email sent successfully', {
-			apartment,
-			email: session.email
-		});
-		console.log('[auth] Redirecting to /auth/reset-password/verify-email', {
-			apartment,
-			email: session.email
-		});
+		console.log(`[auth][${apartment}] Password reset email sent successfully`);
+		console.log(`[auth][${apartment}] Redirecting to /auth/reset-password/verify-email`);
 		redirect(302, route('/auth/reset-password/verify-email'));
 	}
 };

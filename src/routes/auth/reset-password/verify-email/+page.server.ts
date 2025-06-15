@@ -38,11 +38,11 @@ export const load = async (event) => {
 export const actions = {
 	default: async (event) => {
 		const clientIP = event.request.headers.get('X-Forwarded-For');
-		console.log('[auth] Verify email form action triggered', { ip: clientIP });
+		console.log(`[auth] Verify email form action triggered from IP ${clientIP}`);
 
 		const form = await superValidate(event, zod(formSchema));
 		if (!form.valid) {
-			console.log('[auth] Invalid form submission:', form.errors);
+			console.log('[auth] Invalid form submission');
 			return fail(400, { form });
 		}
 
