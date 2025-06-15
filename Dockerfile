@@ -15,6 +15,13 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# set environment variables for build
+# these should be overridden when running the container
+ENV DATABASE_URL=":memory:"
+ENV ENCRYPTION_KEY="build-key"
+ENV RESEND_API_KEY="build-key"
+ENV RESEND_TEST_MODE="true"
+
 RUN pnpm run build
 
 FROM node:22-slim AS runner
