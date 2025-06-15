@@ -45,7 +45,8 @@ const ACTIONS = {
   "resend /auth/verify-email": `/auth/verify-email?/resend`,
   "preferences /settings": `/settings?/preferences`,
   "email /settings": `/settings?/email`,
-  "password /settings": `/settings?/password`
+  "password /settings": `/settings?/password`,
+  "debugEmail /settings": `/settings?/debugEmail`
 }
 
 /**
@@ -162,7 +163,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 export type KIT_ROUTES = {
   PAGES: { '/': never, '/auth/forgot-password': never, '/auth/reset-password': never, '/auth/reset-password/verify-email': never, '/auth/sign-in': never, '/auth/sign-up': never, '/auth/verify-email': never, '/booking/bbq': never, '/booking/laundry': never, '/settings': never }
   SERVERS: { 'POST /api/bookings/cancel': never, 'POST /api/bookings/create': never, 'POST /api/sse/bookings/bbq': never, 'POST /api/sse/bookings/laundry': never }
-  ACTIONS: { 'default /auth/forgot-password': never, 'default /auth/reset-password': never, 'default /auth/reset-password/verify-email': never, 'default /auth/sign-in': never, 'default /auth/sign-out': never, 'default /auth/sign-up': never, 'verify /auth/verify-email': never, 'resend /auth/verify-email': never, 'preferences /settings': never, 'email /settings': never, 'password /settings': never }
+  ACTIONS: { 'default /auth/forgot-password': never, 'default /auth/reset-password': never, 'default /auth/reset-password/verify-email': never, 'default /auth/sign-in': never, 'default /auth/sign-out': never, 'default /auth/sign-up': never, 'verify /auth/verify-email': never, 'resend /auth/verify-email': never, 'preferences /settings': never, 'email /settings': never, 'password /settings': never, 'debugEmail /settings': never }
   LINKS: Record<string, never>
   Params: Record<string, never>
 }

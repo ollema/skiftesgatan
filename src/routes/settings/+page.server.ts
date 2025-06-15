@@ -27,6 +27,7 @@ import {
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { route } from '$lib/routes';
 import { recalculateUserNotifications } from '$lib/server/notifications';
+import { sendBookingNotification } from '$lib/server/resend';
 
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
@@ -284,5 +285,55 @@ export const actions = {
 			event
 		);
 		return { passwordForm };
+	},
+	debugEmail: async (event) => {
+		console.log('[debug] Debug email form action triggered');
+
+		if (event.locals.session === null || event.locals.user === null) {
+			console.log('[debug] No session or user found, redirecting to /auth/sign-in');
+			setFlash(
+				{
+					type: 'error',
+					message: 'Logga in för att skicka test-email'
+				},
+				event
+			);
+			redirect(302, route('/auth/sign-in'));
+		}
+
+		try {
+			const testDate = new Date();
+			testDate.setHours(testDate.getHours() + 2); 
+
+			await sendBookingNotification({
+				to: event.locals.user.email,
+				bookingType: 'laundry',
+				bookingStart: testDate,
+				bookingEnd: new Date(testDate.getTime() + 4 * 60 * 60 * 1000),
+				apartment: event.locals.user.apartment,
+				scheduledAt: new Date(Date.now() + 5000),
+				idempotencyKey: `debug-${Date.now()}`
+			});
+
+			console.log('[debug] Test email scheduled successfully');
+			setFlash(
+				{
+					type: 'success',
+					message: 'Test-email skickat! Kolla din inkorg.'
+				},
+				event
+			);
+		} catch (error) {
+			console.error('[debug] Failed to send test email:', error);
+			setFlash(
+				{
+					type: 'error',
+					message: 'Kunde inte skicka test-email'
+				},
+				event
+			);
+		}
+
+		return {};
 	}
 };
