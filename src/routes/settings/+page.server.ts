@@ -26,7 +26,7 @@ import {
 } from '$lib/server/auth/session';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { route } from '$lib/routes';
-import { recalculateUserNotifications } from '$lib/server/notifications.js';
+import { recalculateUserNotifications } from '$lib/server/notifications';
 
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 

@@ -1,9 +1,13 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from './db/index.js';
-import { booking, emailNotification, user, userPreferences } from './db/schema.js';
-import { cancelScheduledEmail, sendBookingNotification, updateScheduledEmail } from './resend.js';
-import { generateId } from './auth/utils.js';
-import { getAllFutureBookingsForUser } from './bookings.js';
+import { db } from '$lib/server/db/index';
+import { booking, emailNotification, user, userPreferences } from '$lib/server/db/schema';
+import {
+	cancelScheduledEmail,
+	sendBookingNotification,
+	updateScheduledEmail
+} from '$lib/server/resend';
+import { generateId } from '$lib/server/auth/utils';
+import { getAllFutureBookingsForUser } from '$lib/server/bookings';
 
 /**
  * Calculate notification time based on booking start and user preference
@@ -57,7 +61,7 @@ export async function scheduleBookingNotification(bookingId: string) {
 			: (preferences?.bbqNotificationsEnabled ?? true);
 
 	if (!isNotificationsEnabled) {
-		return; 
+		return;
 	}
 
 	const timing =
@@ -87,29 +91,33 @@ export async function scheduleBookingNotification(bookingId: string) {
 			idempotencyKey
 		});
 
-		await db.insert(emailNotification).values({
-			id: notificationId,
-			bookingId: bookingInfo.id,
-			userId: userInfo.id,
-			scheduledAt,
-			status: 'pending',
-			resendId: resendResponse.data?.id,
-			resendIdempotencyKey: idempotencyKey,
-			createdAt: new Date()
-		});
+		db.insert(emailNotification)
+			.values({
+				id: notificationId,
+				bookingId: bookingInfo.id,
+				userId: userInfo.id,
+				scheduledAt,
+				status: 'pending',
+				resendId: resendResponse.data?.id,
+				resendIdempotencyKey: idempotencyKey,
+				createdAt: new Date()
+			})
+			.run();
 
 		return notificationId;
 	} catch (error) {
-		db.insert(emailNotification).values({
-			id: notificationId,
-			bookingId: bookingInfo.id,
-			userId: userInfo.id,
-			scheduledAt,
-			status: 'failed',
-			resendIdempotencyKey: idempotencyKey,
-			error: error instanceof Error ? error.message : 'Unknown error',
-			createdAt: new Date()
-		});
+		db.insert(emailNotification)
+			.values({
+				id: notificationId,
+				bookingId: bookingInfo.id,
+				userId: userInfo.id,
+				scheduledAt,
+				status: 'failed',
+				resendIdempotencyKey: idempotencyKey,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				createdAt: new Date()
+			})
+			.run();
 
 		throw error;
 	}
@@ -128,7 +136,7 @@ export async function recalculateUserNotifications(userId: string) {
 
 	const futureBookings = getAllFutureBookingsForUser(userId);
 
-	const pendingNotifications = await db
+	const pendingNotifications = db
 		.select({
 			notification: emailNotification,
 			booking: booking,
@@ -137,7 +145,8 @@ export async function recalculateUserNotifications(userId: string) {
 		.from(emailNotification)
 		.innerJoin(booking, eq(emailNotification.bookingId, booking.id))
 		.innerJoin(user, eq(emailNotification.userId, user.id))
-		.where(and(eq(emailNotification.userId, userId), eq(emailNotification.status, 'pending')));
+		.where(and(eq(emailNotification.userId, userId), eq(emailNotification.status, 'pending')))
+		.all();
 
 	for (const { notification, booking: notificationBooking } of pendingNotifications) {
 		const isNotificationsEnabled =
@@ -154,10 +163,10 @@ export async function recalculateUserNotifications(userId: string) {
 				}
 			}
 
-			await db
-				.update(emailNotification)
+			db.update(emailNotification)
 				.set({ status: 'cancelled' })
-				.where(eq(emailNotification.id, notification.id));
+				.where(eq(emailNotification.id, notification.id))
+				.run();
 			continue;
 		}
 
@@ -178,10 +187,10 @@ export async function recalculateUserNotifications(userId: string) {
 				}
 			}
 
-			await db
-				.update(emailNotification)
+			db.update(emailNotification)
 				.set({ status: 'cancelled' })
-				.where(eq(emailNotification.id, notification.id));
+				.where(eq(emailNotification.id, notification.id))
+				.run();
 			continue;
 		}
 
@@ -189,10 +198,10 @@ export async function recalculateUserNotifications(userId: string) {
 			try {
 				await updateScheduledEmail(notification.resendId, newScheduledAt);
 
-				await db
-					.update(emailNotification)
+				db.update(emailNotification)
 					.set({ scheduledAt: newScheduledAt })
-					.where(eq(emailNotification.id, notification.id));
+					.where(eq(emailNotification.id, notification.id))
+					.run();
 
 				continue;
 			} catch (error) {
@@ -209,10 +218,10 @@ export async function recalculateUserNotifications(userId: string) {
 			}
 		}
 
-		await db
-			.update(emailNotification)
+		db.update(emailNotification)
 			.set({ status: 'cancelled' })
-			.where(eq(emailNotification.id, notification.id));
+			.where(eq(emailNotification.id, notification.id))
+			.run();
 
 		try {
 			await scheduleBookingNotification(notificationBooking.id);
@@ -243,12 +252,11 @@ export async function recalculateUserNotifications(userId: string) {
  * Cancel all notifications for a specific booking (when booking is deleted)
  */
 export async function cancelBookingNotifications(bookingId: string) {
-	const notifications = await db
+	const notifications = db
 		.select()
 		.from(emailNotification)
-		.where(
-			and(eq(emailNotification.bookingId, bookingId), eq(emailNotification.status, 'pending'))
-		);
+		.where(and(eq(emailNotification.bookingId, bookingId), eq(emailNotification.status, 'pending')))
+		.all();
 
 	for (const notification of notifications) {
 		if (notification.resendId) {
@@ -259,9 +267,9 @@ export async function cancelBookingNotifications(bookingId: string) {
 			}
 		}
 
-		await db
-			.update(emailNotification)
+		db.update(emailNotification)
 			.set({ status: 'cancelled' })
-			.where(eq(emailNotification.id, notification.id));
+			.where(eq(emailNotification.id, notification.id))
+			.run();
 	}
 }

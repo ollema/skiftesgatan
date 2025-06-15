@@ -1,8 +1,8 @@
 import { and, eq, gt, gte, lt } from 'drizzle-orm';
 import { parseDateTime } from '@internationalized/date';
-import { cancelBookingNotifications, scheduleBookingNotification } from './notifications.js';
 import type { CalendarDateTime } from '@internationalized/date';
 import type { Booking, BookingGrid, BookingType, BookingWithUser } from '$lib/constants/bookings';
+import { cancelBookingNotifications, scheduleBookingNotification } from '$lib/server/notifications';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { generateId } from '$lib/server/auth/utils';
