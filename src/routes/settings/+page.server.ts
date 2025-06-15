@@ -26,6 +26,7 @@ import {
 } from '$lib/server/auth/session';
 import { ExpiringTokenBucket } from '$lib/server/auth/rate-limit';
 import { route } from '$lib/routes';
+import { recalculateUserNotifications } from '$lib/server/notifications.js';
 
 const passwordUpdateBucket = new ExpiringTokenBucket<string>(5, 60 * 30);
 
@@ -84,8 +85,9 @@ export const actions = {
 
 		try {
 			updateUserPreferences(event.locals.user.id, preferencesUpdate);
-		} catch {
-			console.log('[auth] Failed to update preferences for user:', event.locals.user.id);
+			await recalculateUserNotifications(event.locals.user.id);
+		} catch (error) {
+			console.log('[auth] Failed to update preferences for user:', event.locals.user.id, error);
 			setFlash(
 				{
 					type: 'error',

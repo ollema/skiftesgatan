@@ -1,5 +1,6 @@
 import { and, eq, gt, gte, lt } from 'drizzle-orm';
 import { parseDateTime } from '@internationalized/date';
+import { cancelBookingNotifications, scheduleBookingNotification } from './notifications.js';
 import type { CalendarDateTime } from '@internationalized/date';
 import type { Booking, BookingGrid, BookingType, BookingWithUser } from '$lib/constants/bookings';
 import { db } from '$lib/server/db';
@@ -59,6 +60,12 @@ export function createBooking(
 	});
 
 	events.emitBookingsUpdated(bookingType);
+
+	try {
+		scheduleBookingNotification(bookingId);
+	} catch (error) {
+		console.error(`Failed to schedule notification for booking ${bookingId}:`, error);
+	}
 
 	return bookingWithUser;
 }
@@ -197,6 +204,30 @@ export function getBookingsPerUser(
 	return rawBookings.map(dbBookingToApiBooking);
 }
 
+/**
+ * Get all future bookings for a user (all booking types)
+ */
+export function getAllFutureBookingsForUser(userId: string): Array<BookingWithUser> {
+	const nowStr = now();
+	const rawBookings = db
+		.select({
+			id: table.booking.id,
+			userId: table.booking.userId,
+			bookingType: table.booking.bookingType,
+			start: table.booking.start,
+			end: table.booking.end,
+			createdAt: table.booking.createdAt,
+			apartment: table.user.apartment
+		})
+		.from(table.booking)
+		.innerJoin(table.user, eq(table.booking.userId, table.user.id))
+		.where(and(eq(table.booking.userId, userId), gte(table.booking.start, nowStr)))
+		.orderBy(table.booking.start)
+		.all();
+
+	return rawBookings.map(dbBookingToApiBooking);
+}
+
 export function getFutureBookingsPerUser(
 	userId: string,
 	bookingType: BookingType
@@ -281,6 +312,12 @@ export function cancelBooking(bookingId: string): boolean {
 
 	if (success) {
 		events.emitBookingsUpdated(booking.bookingType);
+
+		try {
+			cancelBookingNotifications(bookingId);
+		} catch (error) {
+			console.error(`Failed to cancel notifications for booking ${bookingId}:`, error);
+		}
 	}
 
 	return success;

@@ -1,10 +1,6 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 
-if (!env.RESEND_API_KEY) {
-	throw new Error('RESEND_API_KEY environment variable is required');
-}
-
 const resend = new Resend(env.RESEND_API_KEY);
 
 const isTestMode = env.RESEND_TEST_MODE === 'true';
@@ -59,6 +55,17 @@ export async function sendBookingNotification({
 		}
 	});
 
+	return response;
+}
+
+/**
+ * Update the scheduled time of an email
+ */
+export async function updateScheduledEmail(emailId: string, newScheduledAt: Date) {
+	const response = await resend.emails.update({
+		id: emailId,
+		scheduledAt: newScheduledAt.toISOString()
+	});
 	return response;
 }
 
