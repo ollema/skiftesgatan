@@ -63,7 +63,7 @@ export const actions = {
 		if (!strongPassword) {
 			console.log('[auth] Weak password provided during reset');
 			setError(form, 'password', 'Svagt lösenord');
-			return fail(400, { form });
+			return { form };
 		}
 
 		invalidateUserPasswordResetSessions(passwordResetSession.userId);

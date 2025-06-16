@@ -71,27 +71,27 @@ export const actions = {
 		if (!verifyEmailInput(email)) {
 			console.log('[auth] Invalid email format during sign-up');
 			setError(form, 'email', 'Ange en giltig emailadress');
-			return fail(400, { form });
+			return { form };
 		}
 
 		const emailAvailable = await checkEmailAvailability(email);
 		if (!emailAvailable) {
 			console.log('[auth] Email is already used during sign-up');
 			setError(form, 'email', 'Emailadressen används redan');
-			return fail(400, { form });
+			return { form };
 		}
 
 		if (!verifyApartmentInput(apartment)) {
 			console.log(`[auth][${apartment}] Invalid apartment format during sign-up`);
 			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
-			return fail(400, { form });
+			return { form };
 		}
 
 		const strongPassword = await verifyPasswordStrength(password);
 		if (!strongPassword) {
 			console.log(`[auth][${apartment}] Weak password during sign-up`);
 			setError(form, 'password', 'Svagt lösenord');
-			return fail(400, { form });
+			return { form };
 		}
 
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {

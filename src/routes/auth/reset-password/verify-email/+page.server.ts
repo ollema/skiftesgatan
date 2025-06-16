@@ -87,7 +87,7 @@ export const actions = {
 		if (code !== session.code) {
 			console.log('[auth] Incorrect code provided');
 			setError(form, 'code', 'Felaktig kod');
-			return fail(400, { form });
+			return { form };
 		}
 
 		bucket.reset(session.userId);
@@ -96,7 +96,7 @@ export const actions = {
 		if (!emailMatches) {
 			console.log('[auth] Email does not match user email, returning 400');
 			setError(form, 'code', 'Vänligen starta om processen');
-			return fail(400, { form });
+			return { form };
 		}
 
 		console.log('[auth] Email verified successfully, redirecting to /auth/reset-password');

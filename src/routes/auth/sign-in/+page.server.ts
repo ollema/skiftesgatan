@@ -70,14 +70,14 @@ export const actions = {
 		if (!verifyApartmentInput(apartment)) {
 			console.log(`[auth][${apartment}] Invalid apartment format during sign-in`);
 			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
-			return fail(400, { form });
+			return { form };
 		}
 
 		const user = getUserFromApartment(apartment);
 		if (user === null) {
 			console.log(`[auth][${apartment}] Account does not exist during sign-in`);
 			setError(form, 'apartment', 'Kontot finns inte');
-			return fail(400, { form });
+			return { form };
 		}
 
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
@@ -111,7 +111,7 @@ export const actions = {
 		if (!validPassword) {
 			console.log(`[auth][${apartment}] Invalid password during sign-in`);
 			setError(form, 'password', 'Felaktigt lösenord');
-			return fail(400, { form });
+			return { form };
 		}
 
 		throttler.reset(user.id);

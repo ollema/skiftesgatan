@@ -52,14 +52,14 @@ export const actions = {
 		if (!verifyApartmentInput(apartment)) {
 			console.log(`[auth][${apartment}] Invalid apartment format during forgot-password`);
 			setError(form, 'apartment', 'Ogiltigt lägenhetsnummer');
-			return fail(400, { form });
+			return { form };
 		}
 
 		const user = getUserFromApartment(apartment);
 		if (user === null) {
 			console.log(`[auth][${apartment}] Account does not exist during forgot-password`);
 			setError(form, 'apartment', 'Kontot finns inte');
-			return fail(400, { form });
+			return { form };
 		}
 
 		if (clientIP !== null && !ipBucket.consume(clientIP, 1)) {
