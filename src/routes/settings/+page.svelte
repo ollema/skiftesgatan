@@ -10,6 +10,10 @@
 	let { data } = $props();
 </script>
 
+<svelte:head>
+	<title>Inställningar</title>
+</svelte:head>
+
 <div class="container mx-auto max-w-2xl space-y-6 p-4">
 	<h1 class="text-3xl font-bold">Inställningar</h1>
 
