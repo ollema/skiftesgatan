@@ -2,7 +2,12 @@ import { fail } from '@sveltejs/kit';
 import { redirect, setFlash } from 'sveltekit-flash-message/server';
 import { setError, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { emailFormSchema, passwordFormSchema, preferencesFormSchema } from './schema';
+import {
+	debugEmailFormSchema,
+	emailFormSchema,
+	passwordFormSchema,
+	preferencesFormSchema
+} from './schema';
 import type { PreferencesUpdate } from '$lib/server/auth/user';
 import {
 	createEmailVerificationRequest,
@@ -44,12 +49,14 @@ export const load = async (event) => {
 	const preferencesForm = await superValidate(preferences, zod(preferencesFormSchema));
 	const emailForm = await superValidate(zod(emailFormSchema));
 	const passwordForm = await superValidate(zod(passwordFormSchema));
+	const debugEmailForm = await superValidate(zod(debugEmailFormSchema), { id: 'debugEmailForm' });
 
 	return {
 		user: event.locals.user,
 		preferencesForm,
 		emailForm,
-		passwordForm
+		passwordForm,
+		debugEmailForm
 	};
 };
 
@@ -323,6 +330,14 @@ export const actions = {
 			redirect(302, route('/auth/sign-in'));
 		}
 
+		const debugEmailForm = await superValidate(event, zod(debugEmailFormSchema));
+		if (!debugEmailForm.valid) {
+			console.log(`[debug][${event.locals.user.apartment}] Invalid debug email form submission`);
+			return fail(400, {
+				debugEmailForm
+			});
+		}
+
 		try {
 			const testDate = new Date();
 			testDate.setHours(testDate.getHours() + 2);
@@ -354,8 +369,11 @@ export const actions = {
 				},
 				event
 			);
+			return fail(500, {
+				debugEmailForm
+			});
 		}
 
-		return {};
+		return { debugEmailForm };
 	}
 };

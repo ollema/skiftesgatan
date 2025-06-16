@@ -20,6 +20,11 @@ export const passwordFormSchema = z
 		message: 'Nytt lösenord kan inte vara samma som nuvarande lösenord'
 	});
 
+export const debugEmailFormSchema = z.object({
+	// no fields needed for debug email, but we need a schema for consistency
+});
+
 export type PreferencesFormSchema = typeof preferencesFormSchema;
 export type EmailFormSchema = typeof emailFormSchema;
 export type PasswordFormSchema = typeof passwordFormSchema;
+export type DebugEmailFormSchema = typeof debugEmailFormSchema;

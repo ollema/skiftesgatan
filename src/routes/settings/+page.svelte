@@ -1,11 +1,10 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import * as Button from '$lib/components/ui/button';
 	import PreferencesForm from './preferences-form.svelte';
 	import EmailForm from './email-form.svelte';
 	import PasswordForm from './password-form.svelte';
+	import DebugEmailForm from './debug-email-form.svelte';
 	import { dev } from '$app/environment';
-	import { enhance } from '$app/forms';
 
 	let { data } = $props();
 </script>
@@ -56,9 +55,7 @@
 				<Card.Description>Utvecklingsverktyg för testning av email-notifieringar</Card.Description>
 			</Card.Header>
 			<Card.Content>
-				<form method="POST" action="?/debugEmail" use:enhance>
-					<Button.Root type="submit" variant="outline">Skicka test-email</Button.Root>
-				</form>
+				<DebugEmailForm debugEmailForm={data.debugEmailForm} />
 				<p class="text-muted-foreground mt-2 text-sm">
 					Skickar en test-email till din adress: {data.user.email}
 				</p>
