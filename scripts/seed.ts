@@ -68,7 +68,7 @@ const userPreferences = sqliteTable('user_preferences', {
 		.unique(),
 	laundryNotificationsEnabled: integer('laundry_notifications_enabled', { mode: 'boolean' })
 		.notNull()
-		.default(true),
+		.default(false),
 	laundryNotificationTiming: text('laundry_notification_timing', {
 		enum: ['1_hour', '1_day', '1_week']
 	})
@@ -76,7 +76,7 @@ const userPreferences = sqliteTable('user_preferences', {
 		.default('1_hour'),
 	bbqNotificationsEnabled: integer('bbq_notifications_enabled', { mode: 'boolean' })
 		.notNull()
-		.default(true),
+		.default(false),
 	bbqNotificationTiming: text('bbq_notification_timing', { enum: ['1_hour', '1_day', '1_week'] })
 		.notNull()
 		.default('1_week')
@@ -159,9 +159,9 @@ function createUserPreferences(users: any[]) {
 		const preferencesRecord = {
 			id: generateRandomId(),
 			userId: user.id,
-			laundryNotificationsEnabled: true,
+			laundryNotificationsEnabled: false,
 			laundryNotificationTiming: '1_hour' as const,
-			bbqNotificationsEnabled: true,
+			bbqNotificationsEnabled: false,
 			bbqNotificationTiming: '1_week' as const
 		};
 

@@ -21,9 +21,9 @@ function createDefaultUserPreferences(userId: string): void {
 	const preferences = {
 		id: generateId(),
 		userId,
-		laundryNotificationsEnabled: true,
+		laundryNotificationsEnabled: false,
 		laundryNotificationTiming: '1_hour' as const,
-		bbqNotificationsEnabled: true,
+		bbqNotificationsEnabled: false,
 		bbqNotificationTiming: '1_week' as const
 	};
 
@@ -122,9 +122,9 @@ export function getUserPreferences(userId: string): UserPreferences {
 
 	if (!preferences) {
 		return updateUserPreferences(userId, {
-			laundryNotificationsEnabled: true,
+			laundryNotificationsEnabled: false,
 			laundryNotificationTiming: '1_hour',
-			bbqNotificationsEnabled: true,
+			bbqNotificationsEnabled: false,
 			bbqNotificationTiming: '1_week'
 		});
 	}
