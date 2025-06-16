@@ -10,7 +10,7 @@
 			istället den nuvarande hemsidan:
 		</p>
 		<a
-			href="https://skiftesgatan.server.ollema.xyz/"
+			href="https://skiftesgatan-legacy.server.ollema.xyz/"
 			target="_blank"
 			rel="noopener noreferrer"
 			class="inline-block rounded bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700"
