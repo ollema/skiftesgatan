@@ -163,9 +163,9 @@ describe('createUser', () => {
 
 		expect(preferences).toBeDefined();
 		expect(preferences.userId).toBe(user.id);
-		expect(preferences.laundryNotificationsEnabled).toBe(true);
+		expect(preferences.laundryNotificationsEnabled).toBe(false);
 		expect(preferences.laundryNotificationTiming).toBe('1_hour');
-		expect(preferences.bbqNotificationsEnabled).toBe(true);
+		expect(preferences.bbqNotificationsEnabled).toBe(false);
 		expect(preferences.bbqNotificationTiming).toBe('1_week');
 	});
 
@@ -354,9 +354,9 @@ describe('getUserPreferences', () => {
 
 		expect(preferences).toBeDefined();
 		expect(preferences.userId).toBe(user.id);
-		expect(preferences.laundryNotificationsEnabled).toBe(true);
+		expect(preferences.laundryNotificationsEnabled).toBe(false);
 		expect(preferences.laundryNotificationTiming).toBe('1_hour');
-		expect(preferences.bbqNotificationsEnabled).toBe(true);
+		expect(preferences.bbqNotificationsEnabled).toBe(false);
 		expect(preferences.bbqNotificationTiming).toBe('1_week');
 	});
 
@@ -511,9 +511,9 @@ describe('integration tests', () => {
 		// Verify other users' preferences remain unchanged
 		for (let i = 1; i < users.length; i++) {
 			const preferences = getUserPreferences(users[i].id);
-			expect(preferences.laundryNotificationsEnabled).toBe(true);
+			expect(preferences.laundryNotificationsEnabled).toBe(false);
 			expect(preferences.laundryNotificationTiming).toBe('1_hour');
-			expect(preferences.bbqNotificationsEnabled).toBe(true);
+			expect(preferences.bbqNotificationsEnabled).toBe(false);
 			expect(preferences.bbqNotificationTiming).toBe('1_week');
 		}
 	});
