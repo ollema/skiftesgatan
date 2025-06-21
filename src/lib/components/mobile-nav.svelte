@@ -4,6 +4,9 @@
 	import * as Popover from '$lib/components/ui/popover';
 	import type { HTMLAnchorAttributes } from 'svelte/elements';
 	import { sidebarNavItems } from '$lib/navigation.js';
+	import { route } from '$lib/routes';
+	import { page } from '$app/state';
+	import { enhance } from '$app/forms';
 
 	type MobileLinkProps = HTMLAnchorAttributes & {
 		content?: string;
@@ -20,7 +23,7 @@
 		onclick={() => {
 			open = false;
 		}}
-		class={cn('text-2xl font-medium', className)}
+		class={cn('text-xl font-medium', className)}
 		{...props}
 	>
 		{content}
@@ -43,13 +46,13 @@
 					<div class="relative size-4">
 						<span
 							class={cn(
-								'bg-foreground absolute left-0 block h-0.5 w-4 transition-all duration-100',
+								'bg-background absolute left-0 block h-0.5 w-4 transition-all duration-100',
 								open ? 'top-[0.4rem] -rotate-45' : 'top-1'
 							)}
 						></span>
 						<span
 							class={cn(
-								'bg-foreground absolute left-0 block h-0.5 w-4 transition-all duration-100',
+								'bg-background absolute left-0 block h-0.5 w-4 transition-all duration-100',
 								open ? 'top-[0.4rem] rotate-45' : 'top-2.5'
 							)}
 						></span>
@@ -67,8 +70,8 @@
 		sideOffset={14}
 		preventScroll
 	>
-		<div class="flex flex-col gap-12 overflow-auto px-6 py-6">
-			<div class="flex flex-col gap-8">
+		<div class="flex h-full flex-col justify-between gap-6 overflow-auto px-6 py-6">
+			<div class="flex flex-col gap-6">
 				{#each sidebarNavItems as group (group.title)}
 					{#if !group.items || group.items.length === 0}
 						{@render MobileLink({
@@ -76,7 +79,7 @@
 							content: group.title
 						})}
 					{:else}
-						<div class="flex flex-col gap-4">
+						<div class="flex flex-col gap-3">
 							<div class="text-muted-foreground text-sm font-medium">
 								{group.title}
 							</div>
@@ -89,6 +92,47 @@
 					{/if}
 				{/each}
 			</div>
+			{#if page.data.user === null}
+				<a
+					href={route('/auth/sign-in')}
+					onclick={() => {
+						open = false;
+					}}
+					class="text-xl font-medium">Logga in</a
+				>
+			{:else}
+				<div class="flex flex-col gap-3">
+					<div class="text-muted-foreground text-sm font-medium">
+						{page.data.user.apartment}
+					</div>
+					<div class="flex flex-col gap-3">
+						<a
+							href={route('/settings')}
+							onclick={() => {
+								open = false;
+							}}
+							class="text-xl font-medium">Inställningar</a
+						>
+						<form
+							id="sign-out-form"
+							method="post"
+							action={route('default /auth/sign-out')}
+							use:enhance
+						>
+							<button
+								id="sign-out-form-button"
+								onclick={() => {
+									open = false;
+								}}
+								type="submit"
+								class="text-xl font-medium"
+							>
+								Logga ut
+							</button>
+						</form>
+					</div>
+				</div>
+			{/if}
 		</div>
 	</Popover.Content>
 </Popover.Root>

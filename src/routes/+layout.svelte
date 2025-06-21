@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/merriweather';
-	import '@fontsource-variable/jetbrains-mono';
+	import '@fontsource/jetbrains-mono';
 	import '../app.css';
 
 	import { Toaster } from '$lib/components/ui/sonner';
