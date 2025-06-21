@@ -3,15 +3,15 @@
 	import '@fontsource-variable/merriweather';
 	import '../app.css';
 
-	import * as Sidebar from '$lib/components/ui/sidebar';
-	import AppSidebar from '$lib/components/app-sidebar.svelte';
-	import NavigationMenu from '$lib/components/navigation-menu.svelte';
-	import PageContainer from '$lib/components/page-container.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import { ModeWatcher } from 'mode-watcher';
+	import SiteHeader from '$lib/components/site-header.svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip';
+	import SiteFooter from '$lib/components/site-footer.svelte';
+
 	import { getFlash } from 'sveltekit-flash-message';
 	import { page } from '$app/state';
 	import { toast } from 'svelte-sonner';
-	import { ModeWatcher } from 'mode-watcher';
 
 	const flash = getFlash(page);
 
@@ -36,12 +36,14 @@
 
 <ModeWatcher defaultMode="light" />
 
-<Sidebar.Provider open={false}>
-	<AppSidebar />
-	<Sidebar.Inset>
-		<NavigationMenu />
-		<PageContainer>
-			{@render children()}
-		</PageContainer>
-	</Sidebar.Inset>
-</Sidebar.Provider>
+<div class="bg-background relative z-10 flex min-h-svh flex-col">
+	<SiteHeader />
+	<main class="flex flex-1 flex-col">
+		<Tooltip.Provider>
+			<div class="container mx-auto">
+				{@render children()}
+			</div>
+		</Tooltip.Provider>
+	</main>
+	<SiteFooter />
+</div>
