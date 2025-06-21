@@ -45,13 +45,15 @@
 				<NavigationMenu.Item>
 					<NavigationMenu.Link>
 						{#snippet child()}
-							<a href={group.href} class={navigationMenuTriggerStyle()}>{group.title}</a>
+							<a href={group.href} class={[navigationMenuTriggerStyle(), '!text-base']}
+								>{group.title}</a
+							>
 						{/snippet}
 					</NavigationMenu.Link>
 				</NavigationMenu.Item>
 			{:else}
 				<NavigationMenu.Item>
-					<NavigationMenu.Trigger>{group.title}</NavigationMenu.Trigger>
+					<NavigationMenu.Trigger class="text-base">{group.title}</NavigationMenu.Trigger>
 					<NavigationMenu.Content>
 						<ul class="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
 							{#each group.items as item (item.title)}

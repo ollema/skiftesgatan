@@ -19,26 +19,16 @@
 	--secondary-foreground: oklch(0.9869 0.0214 95.2774);
 	--muted: oklch(0.9929 0.0133 97.4358);
 	--muted-foreground: oklch(0.6041 0.0481 140.9473);
-	--accent: oklch(0.6544 0.0875 140.6144);
-	--accent-foreground: oklch(0.9869 0.0214 95.2774);
+	--accent: oklch(0.9594 0.0241 96.5694);
+	--accent-foreground: oklch(0.5289 0.0426 141.4479);
 	--destructive: oklch(0.4656 0.174 22.7048);
 	--destructive-foreground: oklch(0.9869 0.0214 95.2774);
 	--border: oklch(0.9379 0.0085 145.5072);
 	--input: oklch(0.9379 0.0085 145.5072);
 	--ring: oklch(0.5289 0.0426 141.4479);
-	--chart-1: oklch(0.6471 0.2173 36.8511);
-	--chart-2: oklch(0.6049 0.107 184.1653);
-	--chart-3: oklch(0.3972 0.0698 227.1914);
-	--chart-4: oklch(0.829 0.1712 81.0381);
-	--chart-5: oklch(0.7724 0.1728 65.367);
-	--font-sans:
-		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-		'Segoe UI Symbol', 'Noto Color Emoji';
-	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-	--font-mono:
-		ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-		monospace;
+	--font-sans: 'Inter Variable', sans-serif;
+	--font-serif: 'Merriweather Variable', serif;
+	--font-mono: 'JetBrains Mono', monospace;
 	--radius: 0.65rem;
 	--shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
 	--shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
@@ -51,8 +41,6 @@
 }
 
 @theme inline {
-	--breakpoint-3xl: 1600px;
-	--breakpoint-4xl: 2000px;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -72,19 +60,6 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-ring: var(--sidebar-ring);
 
 	--font-sans: var(--font-sans);
 	--font-mono: var(--font-mono);
@@ -129,16 +104,8 @@
 	}
 }
 
-@utility section-soft {
-	@apply from-background dark:bg-background 3xl:fixed:bg-none bg-gradient-to-b;
-}
-
-@utility container-wrapper {
-	@apply 3xl:fixed:max-w-[calc(var(--breakpoint-2xl)+2rem)] mx-auto w-full px-2;
-}
-
 @utility container {
-	@apply 3xl:max-w-screen-2xl mx-auto max-w-[1400px] px-4 lg:px-8;
+	@apply mx-auto max-w-[1400px] px-4 lg:px-8;
 }
 
 @utility no-scrollbar {

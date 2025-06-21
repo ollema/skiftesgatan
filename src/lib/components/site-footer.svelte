@@ -1,7 +1,5 @@
-<footer
-	class="group-has-[.section-soft]/body:bg-surface/40 3xl:fixed:bg-transparent dark:bg-transparent"
->
-	<div class="container-wrapper px-4 xl:px-6">
+<footer>
+	<div class="container px-4 xl:px-6">
 		<div class="flex h-(--footer-height) items-center justify-between">
 			<div class="text-muted-foreground w-full text-center text-xs leading-loose sm:text-sm">
 				Byggd av
@@ -11,9 +9,9 @@
 					rel="noreferrer"
 					class="font-medium underline underline-offset-4"
 				>
-					Olle Månsson
+					Olle
 				</a>
-				för <strong class="font-medium">BRF Skiftesgatan 4</strong> i Göteborg.
+				för <strong class="font-medium">BRF Skiftesgatan 4</strong>.
 			</div>
 		</div>
 	</div>

@@ -6,16 +6,13 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import { enhance } from '$app/forms';
-	import { mainNavItems } from '$lib/navigation';
 	import { page } from '$app/state';
 	import { route } from '$lib/routes';
 </script>
 
 <header class="bg-background sticky top-0 z-50 w-full">
-	<div class="container-wrapper 3xl:fixed:px-0 px-6">
-		<div
-			class="3xl:fixed:container flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4"
-		>
+	<div class="container">
+		<div class="flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
 			<MobileNav class="flex lg:hidden" />
 			<Button href="/" variant="ghost" size="icon" class="hidden size-8 lg:flex">
 				<Logo />
@@ -25,14 +22,14 @@
 				{#if page.data.user === null}
 					<a
 						href={route('/auth/sign-in')}
-						class={cn('justify-self-end', buttonVariants({ variant: 'ghost' }))}
+						class={cn('justify-self-end', buttonVariants({ variant: 'ghost' }), 'text-base')}
 					>
 						Logga in
 					</a>
 				{:else}
 					<DropdownMenu.Root>
 						<DropdownMenu.Trigger
-							class={cn('justify-self-end', buttonVariants({ variant: 'ghost' }))}
+							class={cn('justify-self-end', buttonVariants({ variant: 'ghost' }), 'text-base')}
 						>
 							{page.data.user.apartment}
 						</DropdownMenu.Trigger>

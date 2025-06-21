@@ -39,6 +39,9 @@ importers:
       '@fontsource-variable/merriweather':
         specifier: ^5.2.4
         version: 5.2.4
+      '@fontsource/jetbrains-mono':
+        specifier: ^5.2.6
+        version: 5.2.6
       '@internationalized/date':
         specifier: ^3.8.2
         version: 3.8.2
@@ -613,6 +616,9 @@ packages:
 
   '@fontsource-variable/merriweather@5.2.4':
     resolution: {integrity: sha512-yIEZy+RLRn1wbr4PTlwu0pi1zYAd6z+t4nloP/r164WPjsL6HXL06xUVsnZYA7/f5Fa1OuoU+6EA3sJsZXYO7A==}
+
+  '@fontsource/jetbrains-mono@5.2.6':
+    resolution: {integrity: sha512-nz//dBr99hXZmHp10wgNI00qThWImkzRR5PQjvRM+rpmuHO5rYBJCqPPWufidCvmkkryXx/GOP/lgqsM3R3Org==}
 
   '@gcornut/valibot-json-schema@0.42.0':
     resolution: {integrity: sha512-4Et4AN6wmqeA0PfU5Clkv/IS27wiefsWf6TemAZrb75uzkClYEFavim7SboeKwbll9Nbsn2Iv0LT/HS5H7orZg==}
@@ -3488,6 +3494,8 @@ snapshots:
   '@fontsource-variable/inter@5.2.6': {}
 
   '@fontsource-variable/merriweather@5.2.4': {}
+
+  '@fontsource/jetbrains-mono@5.2.6': {}
 
   '@gcornut/valibot-json-schema@0.42.0(esbuild@0.25.5)(typescript@5.8.3)':
     dependencies:

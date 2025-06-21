@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/merriweather';
+	import '@fontsource-variable/jetbrains-mono';
 	import '../app.css';
 
 	import { Toaster } from '$lib/components/ui/sonner';
@@ -40,7 +41,7 @@
 	<SiteHeader />
 	<main class="flex flex-1 flex-col">
 		<Tooltip.Provider>
-			<div class="container mx-auto">
+			<div class="container font-serif">
 				{@render children()}
 			</div>
 		</Tooltip.Provider>

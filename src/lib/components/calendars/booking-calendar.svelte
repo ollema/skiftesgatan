@@ -48,7 +48,6 @@
 </script>
 
 <Calendar.Root
-	class="font-serif"
 	type="single"
 	minValue={toCalendarDate(now)}
 	maxValue={toCalendarDate(now.add({ months: 1 }))}
@@ -110,7 +109,7 @@
 	{/snippet}
 </Calendar.Root>
 
-<div class="flex flex-col gap-2 font-serif sm:flex-row sm:justify-between">
+<div class="flex flex-col gap-2 sm:flex-row sm:justify-between">
 	{#if value}
 		<div class="mt-4">
 			<div>
