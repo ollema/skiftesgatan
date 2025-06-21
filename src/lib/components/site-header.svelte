@@ -3,14 +3,13 @@
 	import MobileNav from './mobile-nav.svelte';
 	import MainNav from './main-nav.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import { route } from '$lib/routes';
 </script>
 
-<header class="bg-foreground text-background sticky top-0 z-50 w-full">
+<header class="bg-foreground text-white sticky top-0 z-50 w-full">
 	<div class="container">
 		<div class="flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
 			<MobileNav class="flex lg:hidden" />

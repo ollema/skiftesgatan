@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as NavigationMenu from '$lib/components/ui/navigation-menu/index.js';
-	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 	import { cn } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { mainNavItems } from '$lib/navigation.js';
