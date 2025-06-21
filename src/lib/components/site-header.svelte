@@ -20,7 +20,7 @@
 			<Button href="/" variant="ghost" size="icon" class="hidden size-8 lg:flex">
 				<Logo />
 			</Button>
-			<MainNav items={mainNavItems} class="hidden lg:flex" />
+			<MainNav class="hidden lg:flex" />
 			<div class="ml-auto flex items-center gap-2 md:flex-1 md:justify-end">
 				{#if page.data.user === null}
 					<a

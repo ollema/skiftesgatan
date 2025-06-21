@@ -1,29 +1,70 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
+	import * as NavigationMenu from '$lib/components/ui/navigation-menu/index.js';
+	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 	import { cn } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import { page } from '$app/state';
-	import type { NavItem } from '$lib/navigation.js';
+	import { mainNavItems } from '$lib/navigation.js';
 
 	let {
-		items,
-		class: className,
-		...restProps
+		class: className
 	}: {
-		items: NavItem[];
 		class?: string;
 	} & HTMLAttributes<HTMLElement> = $props();
+
+	type ListItemProps = HTMLAttributes<HTMLAnchorElement> & {
+		title: string;
+		href: string;
+		description?: string;
+	};
 </script>
 
-<nav class={cn('items-center gap-0.5', className)} {...restProps}>
-	{#each items as item (item.title)}
-		<Button
-			href={item.href}
-			variant="ghost"
-			size="sm"
-			class={cn(page.url.pathname === item.href && 'text-primary')}
-		>
-			{item.title}
-		</Button>
-	{/each}
-</nav>
+{#snippet ListItem({ title, href, description }: ListItemProps)}
+	<li>
+		<NavigationMenu.Link>
+			{#snippet child()}
+				<a
+					{href}
+					class={cn(
+						'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none'
+					)}
+				>
+					<div class="text-sm leading-none font-medium">{title}</div>
+					<p class="text-muted-foreground line-clamp-2 text-sm leading-snug">
+						{description}
+					</p>
+				</a>
+			{/snippet}
+		</NavigationMenu.Link>
+	</li>
+{/snippet}
+
+<NavigationMenu.Root class={className}>
+	<NavigationMenu.List>
+		{#each mainNavItems as group (group.title)}
+			{#if !group.items || group.items.length === 0}
+				<NavigationMenu.Item>
+					<NavigationMenu.Link>
+						{#snippet child()}
+							<a href={group.href} class={navigationMenuTriggerStyle()}>{group.title}</a>
+						{/snippet}
+					</NavigationMenu.Link>
+				</NavigationMenu.Item>
+			{:else}
+				<NavigationMenu.Item>
+					<NavigationMenu.Trigger>{group.title}</NavigationMenu.Trigger>
+					<NavigationMenu.Content>
+						<ul class="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+							{#each group.items as item (item.title)}
+								{@render ListItem({
+									title: item.title,
+									href: item.href!,
+									description: item.description
+								})}
+							{/each}
+						</ul>
+					</NavigationMenu.Content>
+				</NavigationMenu.Item>
+			{/if}
+		{/each}
+	</NavigationMenu.List>
+</NavigationMenu.Root>
