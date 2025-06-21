@@ -45,15 +45,31 @@
 				<NavigationMenu.Item>
 					<NavigationMenu.Link>
 						{#snippet child()}
-							<a href={group.href} class={[navigationMenuTriggerStyle(), '!text-base']}
-								>{group.title}</a
+							<a
+								href={group.href}
+								class={[
+									'justify-self-end',
+									'h-9 px-4 py-2',
+									'focus-visible:border-primary-foreground focus-visible:ring-primary-foreground/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px]',
+									'hover:bg-primary/40 hover:text-primary-foreground',
+									'!text-base'
+								]}
 							>
+								{group.title}
+							</a>
 						{/snippet}
 					</NavigationMenu.Link>
 				</NavigationMenu.Item>
 			{:else}
 				<NavigationMenu.Item>
-					<NavigationMenu.Trigger class="text-base">{group.title}</NavigationMenu.Trigger>
+					<NavigationMenu.Trigger
+						class={[
+							'bg-foreground hover:bg-primary/40 hover:text-primary-foreground focus:bg-primary/40 focus:text-primary-foreground data-[state=open]:hover:bg-primary/40 data-[state=open]:text-primary-foreground data-[state=open]:focus:bg-primary/40 data-[state=open]:bg-primary/40 focus-visible:ring-ring/50 group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-base font-medium transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50',
+							'text-base'
+						]}
+					>
+						{group.title}
+					</NavigationMenu.Trigger>
 					<NavigationMenu.Content>
 						<ul class="grid w-[400px] gap-2 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
 							{#each group.items as item (item.title)}

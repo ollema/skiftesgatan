@@ -42,7 +42,9 @@
 	<main class="flex flex-1 flex-col">
 		<Tooltip.Provider>
 			<div class="container font-serif">
-				{@render children()}
+				<div class="pt-4 lg:px-4">
+					{@render children()}
+				</div>
 			</div>
 		</Tooltip.Provider>
 	</main>

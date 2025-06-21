@@ -14,11 +14,21 @@
 	<div class="container">
 		<div class="flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
 			<MobileNav class="flex lg:hidden" />
-			<Button href="/" variant="ghost" size="icon" class="hidden size-8 lg:flex">
-				<Logo />
-			</Button>
+			<a
+				href="/"
+				class={cn(
+					'justify-self-end',
+					'h-9 px-4 py-2',
+					'focus-visible:border-primary-foreground focus-visible:ring-primary-foreground/40 inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px]',
+					'hover:bg-primary/40 hover:text-primary-foreground',
+					'text-base'
+				)}
+			>
+				<div class="text-lg font-extrabold">Skiftesgatan</div>
+				<div class="mr-[-0.33rem] mb-[0.4rem] ml-[-0.5rem] flex size-5"><Logo /></div>
+			</a>
 			<MainNav class="hidden lg:flex" />
-			<div class="ml-auto hidden lg:flex items-center gap-2 lg:flex-1 lg:justify-end">
+			<div class="ml-auto hidden items-center gap-2 lg:flex lg:flex-1 lg:justify-end">
 				{#if page.data.user === null}
 					<a
 						href={route('/auth/sign-in')}
