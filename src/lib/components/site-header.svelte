@@ -9,7 +9,7 @@
 	import { route } from '$lib/routes';
 </script>
 
-<header class="bg-foreground text-white sticky top-0 z-50 w-full">
+<header class="bg-foreground sticky top-0 z-50 w-full text-white">
 	<div class="container">
 		<div class="flex h-(--header-height) items-center gap-2 **:data-[slot=separator]:!h-4">
 			<MobileNav class="flex lg:hidden" />

@@ -7,24 +7,24 @@
 @custom-variant fixed (&:is(.layout-fixed *));
 
 :root {
-	--background: oklch(0.9869 0.0214 95.2774);
-	--foreground: oklch(0.5289 0.0426 141.4479);
-	--card: oklch(0.9869 0.0214 95.2774);
-	--card-foreground: oklch(0.5289 0.0426 141.4479);
-	--popover: oklch(0.9869 0.0214 95.2774);
-	--popover-foreground: oklch(0.5289 0.0426 141.4479);
-	--primary: oklch(0.6544 0.0875 140.6144);
-	--primary-foreground: oklch(0.9869 0.0214 95.2774);
-	--secondary: oklch(0.5289 0.0426 141.4479);
-	--secondary-foreground: oklch(0.9869 0.0214 95.2774);
-	--muted: oklch(0.9929 0.0133 97.4358);
-	--muted-foreground: oklch(0.6041 0.0481 140.9473);
-	--accent: oklch(0.9594 0.0241 96.5694);
-	--accent-foreground: oklch(0.5289 0.0426 141.4479);
+	--background: oklch(0.9485 0.0457 83.2915);
+	--foreground: oklch(0.4558 0.0421 141.2499);
+	--card: oklch(0.9485 0.0457 83.2915);
+	--card-foreground: oklch(0.4558 0.0421 141.2499);
+	--popover: oklch(0.9485 0.0457 83.2915);
+	--popover-foreground: oklch(0.4558 0.0421 141.2499);
+	--primary: oklch(0.6041 0.0481 140.9473);
+	--primary-foreground: oklch(1 0 0);
+	--secondary: oklch(0.4558 0.0421 141.2499);
+	--secondary-foreground: oklch(1 0 0);
+	--muted: oklch(0.9184 0.05 83.9575);
+	--muted-foreground: oklch(0.5658 0.0439 141.6103);
+	--accent: oklch(0.9247 0.0487 83.3468);
+	--accent-foreground: oklch(0.4558 0.0421 141.2499);
 	--destructive: oklch(0.4656 0.174 22.7048);
 	--destructive-foreground: oklch(0.9869 0.0214 95.2774);
-	--border: oklch(0.9379 0.0085 145.5072);
-	--input: oklch(0.9379 0.0085 145.5072);
+	--border: oklch(0.5289 0.0426 141.4479);
+	--input: oklch(0.5289 0.0426 141.4479);
 	--ring: oklch(0.5289 0.0426 141.4479);
 	--font-sans: 'Inter Variable', sans-serif;
 	--font-serif: 'Merriweather Variable', serif;
@@ -124,5 +124,15 @@
 @utility extend-touch-target {
 	@media (pointer: coarse) {
 		@apply relative touch-manipulation after:absolute after:-inset-2;
+	}
+}
+
+@layer utilities {
+	.pt-safe {
+		padding-top: env(safe-area-inset-top);
+	}
+
+	.pb-safe {
+		padding-bottom: env(safe-area-inset-bottom);
 	}
 }
