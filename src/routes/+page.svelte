@@ -7,7 +7,7 @@
 		<h2 class="mb-3 text-xl font-semibold">⚠️ Under utveckling</h2>
 		<p class="mb-4">
 			Den här hemsidan är inte redo att användas ännu. För att kunna boka tvättstugan, använd
-			istället den nuvarande hemsidan:
+			istället den gamla hemsidan:
 		</p>
 		<a
 			href="https://skiftesgatan-legacy.server.ollema.xyz/"
@@ -15,7 +15,7 @@
 			rel="noopener noreferrer"
 			class="inline-block rounded bg-yellow-600 px-4 py-2 text-white hover:bg-yellow-700"
 		>
-			Gå till skiftesgatan.server.ollema.xyz
+			Gå till skiftesgatan-legacy.server.ollema.xyz
 		</a>
 	</div>
 </div>
