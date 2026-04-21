@@ -14,5 +14,6 @@ export {
 	createReservation,
 	deleteReservation,
 	reserve,
-	release
+	release,
+	bookingsDisabled
 } from './reservations';
