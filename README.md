@@ -1,3 +1,3 @@
 # skiftesgatan
 
-https://skiftesgatan.server.ollema.xyz
+https://skiftesgatan-legacy.server.ollema.xyz

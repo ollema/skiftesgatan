@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:skiftesgatan.server.ollema.xyz</string>
+		<string>applinks:skiftesgatan-legacy.server.ollema.xyz</string>
 	</array>
 </dict>
 </plist>

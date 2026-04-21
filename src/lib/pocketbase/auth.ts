@@ -6,7 +6,7 @@ import type { AuthProviderInfo } from 'pocketbase';
 import { dev } from '$app/environment';
 import { error, redirect, type Cookies } from '@sveltejs/kit';
 
-const redirectUrl = 'https://skiftesgatan.server.ollema.xyz/auth/redirect';
+const redirectUrl = 'https://skiftesgatan-legacy.server.ollema.xyz/auth/redirect';
 
 import { PUBLIC_ADAPTER, PUBLIC_NGROK_REDIRECT_URL } from '$env/static/public';
 
