@@ -15,5 +15,7 @@ export {
 	deleteReservation,
 	reserve,
 	release,
-	bookingsDisabled
+	bookingsDisabled,
+	timeslotBlocked,
+	BOOKING_CUTOFF
 } from './reservations';

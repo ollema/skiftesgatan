@@ -7,11 +7,15 @@ import {
 import { Collections } from '$lib/pocketbase-types';
 import { ClientResponseError } from 'pocketbase';
 
-// Site is being replaced — block new reservations after 2026-04-26 (Europe/Stockholm).
-const BOOKING_CUTOFF = new Date('2026-04-27T00:00:00+02:00');
+// Site is being replaced — bookings for dates on/after 2026-04-27 (Europe/Stockholm) are blocked.
+export const BOOKING_CUTOFF = new Date('2026-04-27T00:00:00+02:00');
 
 export function bookingsDisabled() {
 	return new Date() >= BOOKING_CUTOFF;
+}
+
+export function timeslotBlocked(startIso: string) {
+	return new Date(startIso) >= BOOKING_CUTOFF;
 }
 
 export async function getReservations(pb: TypedPocketBase, fetchImplementation?: typeof fetch) {
@@ -82,8 +86,8 @@ export async function reserve(
 	start: string,
 	end: string
 ) {
-	if (bookingsDisabled()) {
-		throw new Error('Bookings are disabled — this site is being replaced.');
+	if (timeslotBlocked(start)) {
+		throw new Error('Bookings for this date are disabled — this site is being replaced.');
 	}
 
 	const reservation = await maybeGetReservationForApartment(pb, apartment.apartment);

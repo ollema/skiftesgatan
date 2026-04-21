@@ -8,9 +8,6 @@
 	import * as PageHeader from '$lib/components/page-header';
 
 	import { page } from '$app/stores';
-	import { bookingsDisabled } from '$lib/pocketbase';
-
-	const locked = bookingsDisabled();
 </script>
 
 <svelte:head>
@@ -31,16 +28,9 @@
 <div class="relative flex min-h-screen flex-col">
 	<SiteHeader />
 
-	<div
-		class="border-b border-foreground/30 bg-foreground/5 px-4 py-2 text-center text-sm"
-	>
-		{#if locked}
-			Den här sidan är stängd. Tvättstugan bokas nu på
-			<a class="underline" href="https://skiftesgatan.se">skiftesgatan.se</a>.
-		{:else}
-			Vi byter webbplats den 27 april 2026. Efter det bokas tvättstugan på
-			<a class="underline" href="https://skiftesgatan.se">skiftesgatan.se</a>.
-		{/if}
+	<div class="border-b border-foreground/30 bg-foreground/5 px-4 py-2 text-center text-sm">
+		Vi byter webbplats den 27 april 2026. Bokningar från och med det datumet görs på
+		<a class="underline" href="https://skiftesgatan.se">skiftesgatan.se</a>.
 	</div>
 
 	<div class="container min-h-[calc(100vh-3.5rem)]">

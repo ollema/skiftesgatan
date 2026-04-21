@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Calendar } from 'bits-ui';
+	import { CalendarDate } from '@internationalized/date';
 	import ChevronLeft from 'svelte-radix/ChevronLeft.svelte';
 	import ChevronRight from 'svelte-radix/ChevronRight.svelte';
 	import LaundryDate from './LaundryDate.svelte';
@@ -14,12 +15,19 @@
 
 	const today = getTodaysDate();
 
-	let value = today;
+	// Last bookable date on this legacy site; new site takes over 2026-04-27.
+	const lastBookableDay = new CalendarDate(2026, 4, 26);
+	const oneMonthAhead = today.add({ months: 1 });
+	const pastCutoff = today.compare(lastBookableDay) > 0;
+	const minValue = pastCutoff ? lastBookableDay : today;
+	const maxValue = oneMonthAhead.compare(lastBookableDay) < 0 ? oneMonthAhead : lastBookableDay;
+
+	let value = pastCutoff ? lastBookableDay : today;
 </script>
 
 <Calendar.Root
-	minValue={today}
-	maxValue={today.add({ months: 1 })}
+	{minValue}
+	{maxValue}
 	locale={'sv-SE'}
 	weekdayFormat={'short'}
 	fixedWeeks={true}

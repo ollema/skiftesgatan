@@ -2,7 +2,7 @@
 	import { toCalendarDateTime, type DateValue } from '@internationalized/date';
 	import type { Timeslot } from './timeslots';
 	import type { SerializableReservation } from './types';
-	import { release, reserve, pb, bookingsDisabled } from '$lib/pocketbase';
+	import { release, reserve, pb, timeslotBlocked } from '$lib/pocketbase';
 	import type { ApartmentsResponse } from '$lib/pocketbase-types';
 	import { invalidate } from '$app/navigation';
 
@@ -11,8 +11,6 @@
 	export let reservation: SerializableReservation | undefined;
 	export let apartment: ApartmentsResponse | undefined;
 	export let responsive = true;
-
-	const locked = bookingsDisabled();
 
 	import { PUBLIC_ADAPTER } from '$env/static/public';
 
@@ -63,8 +61,9 @@
 
 	$: reservedByApartment =
 		reservation !== undefined && reservation.apartment === apartment?.apartment;
+	$: blocked = timeslotBlocked(start.toString() + 'Z');
 	$: disabled =
-		(reservation !== undefined && !reservedByApartment) || (locked && !reservedByApartment);
+		(reservation !== undefined && !reservedByApartment) || (blocked && !reservedByApartment);
 	$: action = reservation !== undefined ? 'release' : 'reserve';
 </script>
 
